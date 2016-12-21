@@ -42,7 +42,7 @@ dependencies {
 
 PDG receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface.
 
-The configuration must return a `java.util.Map<String,String>` of resource name and resource path.
+The configuration must return a `RouteMap` object.
 
 #### Resources
 
