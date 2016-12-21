@@ -18,8 +18,8 @@
   :dev-dependencies '[[junit/junit "4.12"]])
 
 (task-options!
-  pom {:project 'pdg-core
-       :version "0.1.0-SNAPSHOT"}
+  pom {:project 'com.b2wdigital/pdg-core
+       :version "0.1.0"}
 
   aot {:namespace '[pdg-core.PdgJavaApi]}
 
