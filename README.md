@@ -1,8 +1,29 @@
 # PDG-Core
 
-PDG is a library that centralizes API calls, making easier to request multiple resources in one query. Using graph queries you can request resources from multiple API urls in one call and get all the results using a query builder.
+Microservice query language for Java
 
-PDG also parallelizes the API calls, making it faster to call multiple APIs without needing to care about request order or threads.
+PDG is a microservice query language that orchestrates and parallelize multiple API calls. It's built upon the battle proved Clojure CSP and Http Kit to maximize throughput and performance.
+
+In PDG you build queries expressing the fields and resources to fetch. Example:
+
+```java
+Query query = pdg.queryBuilder()
+        .get("user")
+            .from("user")
+            .with("id").value(2)
+        .get("bio")
+        .from("bio")
+            .with("userId").chained(new String[]{"user", "id"})
+        .get("allPosts")
+            .from("posts")
+            .timeout(5000)
+            .with("userId").chained(new String[]{"user", "id"})
+        .getQuery();
+
+pdg.execute(query);
+```
+
+In this case, first PDG will fetch all users and right after perform parallel requests to fetch users bios and posts.  
 
 ### When to use PDG
 
