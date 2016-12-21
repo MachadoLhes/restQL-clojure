@@ -1,0 +1,120 @@
+package pdg.querybuilder;
+
+import pdg.query.ChainedParameterValue;
+import pdg.query.ListParameterValue;
+import pdg.query.ObjectParameterValue;
+import pdg.query.SimpleParameterValue;
+
+public class QueryWithObjectBuilder {
+	
+	/**
+	 * The object being built
+	 */
+	private ObjectParameterValue objectParameter;
+	
+	/**
+	 * The from builder
+	 */
+	private QueryFromBuilder fromBuilder;
+		
+	/**
+	 * The parent object builder
+	 */
+	private QueryWithObjectBuilder parentObjectBuilder;
+	
+	/**
+	 * Constructor for the root object builder.
+	 * 
+	 * @param objectParameter
+	 * @param fromBuilder
+	 */
+	public QueryWithObjectBuilder(ObjectParameterValue objectParameter, QueryFromBuilder fromBuilder) {
+		this.objectParameter = objectParameter;
+		this.fromBuilder = fromBuilder;
+	}
+	
+	/**
+	 * Constructor for child object builder.
+	 * 
+	 * @param objectParameter
+	 * @param objectBuilder
+	 */
+	public QueryWithObjectBuilder(ObjectParameterValue objectParameter, QueryFromBuilder fromBuilder, QueryWithObjectBuilder objectBuilder) {
+		this.objectParameter = objectParameter;
+		this.parentObjectBuilder = objectBuilder;
+		this.fromBuilder = fromBuilder;
+	}
+	
+	/**
+	 * Adds a new simple parameter to the object.
+	 * 
+	 * @param name
+	 * @param value
+	 * @return {@link QueryWithObjectBuilder} object builder
+	 */
+	public <T> QueryWithObjectBuilder value(String name, T value) {
+		this.objectParameter.addParameter(new SimpleParameterValue<>(name, value));
+		
+		return this;
+	}
+	
+	/**
+	 * Adds a new list parameter to the object.
+	 * 
+	 * @param name
+	 * @param params
+	 * @return {@link QueryWithObjectBuilder} object builder
+	 */
+	public <T> QueryWithObjectBuilder list(String name, T params[]) {
+		this.objectParameter.addParameter(new ListParameterValue<>(name, params));
+		
+		return this;
+	}
+	
+	/**
+	 * Adds a new chained parameter to the object.
+	 * 
+	 * @param name
+	 * @param params
+	 * @return {@link QueryWithObjectBuilder} object builder
+	 */
+	public <T> QueryWithObjectBuilder chained(String name, String params[]) {
+		this.objectParameter.addParameter(new ChainedParameterValue(name, params));
+		
+		return this;
+	}
+	
+	/**
+	 * Creates a new child {@link ObjectParameterValue} and returns
+	 * the builder to the child object.
+	 * 
+	 * @param name The object name
+	 * @return {@link QueryWithObjectBuilder} child object builder
+	 */
+	public QueryWithObjectBuilder object(String name) {
+		ObjectParameterValue newObjectParameter = new ObjectParameterValue(name);
+		
+		this.objectParameter.addParameter(newObjectParameter);
+		
+		return new QueryWithObjectBuilder(newObjectParameter, this.fromBuilder, this);
+	}
+	
+	/**
+	 * Ends the object declaration and returns to the parent QueryWithObjectBuilder.
+	 * 
+	 * @return {@link QueryWithObjectBuilder} object builder
+	 */
+	public QueryWithObjectBuilder endObject() {
+		return this.parentObjectBuilder;
+	}
+	
+	/**
+	 * Returns to the with builder, if it's in the object root.
+	 * 
+	 * @return {@link QueryWithBuilder} with builder
+	 */
+	public QueryWithBuilder with(String name) {
+		return this.fromBuilder.with(name);
+	}
+	
+}
