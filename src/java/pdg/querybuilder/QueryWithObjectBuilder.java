@@ -3,6 +3,7 @@ package pdg.querybuilder;
 import pdg.query.ChainedParameterValue;
 import pdg.query.ListParameterValue;
 import pdg.query.ObjectParameterValue;
+import pdg.query.Query;
 import pdg.query.SimpleParameterValue;
 
 public class QueryWithObjectBuilder {
@@ -117,4 +118,22 @@ public class QueryWithObjectBuilder {
 		return this.fromBuilder.with(name);
 	}
 	
+	/**
+	 * Shortcut for QueryFromBuilder.from
+	 * 
+	 * @param targetResource The API to be requested
+	 * @return {@link QueryFromBuilder} from builder
+	 */
+	public QueryFromBuilder from(String targetResource) {
+		return this.fromBuilder.from(targetResource);
+	}
+	
+	/**
+	 * Shortcut for QueryBuilder.getQuery
+	 * 
+	 * @return {@link Query}
+	 */
+	public Query getQuery() {
+		return this.fromBuilder.getQuery();
+	}
 }
