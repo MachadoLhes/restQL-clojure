@@ -32,10 +32,6 @@ public class ArrayQueryItemResponse implements QueryItemResponse {
 
     @Override
     public ResponseDetails getDetails() {
-        try {
-            return mapper.treeToValue(details, ResponseDetails.class);
-        } catch (JsonProcessingException e) {
-            throw new PDGException(e);
-        }
+        return ResponseDetails.fromJsonNode(details);
     }
 }

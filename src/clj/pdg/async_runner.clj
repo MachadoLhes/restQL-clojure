@@ -105,7 +105,6 @@
                :request-ch (chan)
                :result-ch (chan)
                :exception-ch (chan)}]
-    (println "query |" query "|")
     (make-requests do-request encoders chans query-opts)
     (do-run query chans)
     [(:output-ch chans)

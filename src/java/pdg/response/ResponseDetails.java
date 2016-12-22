@@ -1,11 +1,15 @@
 package pdg.response;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.databind.JsonNode;
+
 /**
  * Created by ideais on 15/12/16.
  */
+@JsonIgnoreProperties(ignoreUnknown = false)
 public class ResponseDetails {
 
-    private int statusCode;
+    private int status;
     private boolean success;
     private String url;
     private int responseTime;
@@ -14,12 +18,32 @@ public class ResponseDetails {
     public ResponseDetails() {
     }
 
-    public int getStatusCode() {
-        return statusCode;
+    public static ResponseDetails fromJsonNode(JsonNode json) {
+        ResponseDetails details = new ResponseDetails();
+        details.setStatus(json.get("status").asInt());
+        details.setSuccess(json.get("success").asBoolean());
+
+        if (json.get("timeout") != null) {
+            details.setTimeout(json.get("timeout").asInt());
+        }
+
+        if (json.get("url") != null) {
+            details.setUrl(json.get("url").asText());
+        }
+
+        if (json.get("response-time") != null) {
+            details.setResponseTime(json.get("response-time").asInt());
+        }
+
+        return details;
     }
 
-    public void setStatusCode(int statusCode) {
-        this.statusCode = statusCode;
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public boolean isSuccess() {

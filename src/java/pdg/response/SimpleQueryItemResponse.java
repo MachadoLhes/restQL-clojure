@@ -29,11 +29,7 @@ public class SimpleQueryItemResponse implements QueryItemResponse{
 
     @Override
     public ResponseDetails getDetails() {
-        try {
-            return mapper.treeToValue(data.get("details"), ResponseDetails.class);
-        } catch (JsonProcessingException e) {
-            throw new PDGException(e);
-        }
+        return ResponseDetails.fromJsonNode(data.get("details"));
     }
 
 }

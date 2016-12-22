@@ -64,6 +64,30 @@ public class PDG {
 	public QueryResponse execute(Query query) {
 		return this.pdgRunner.executeQuery(query, queryOptions);
 	}
+
+	/**
+	 * Executes a query using the {@link Query} object from the {@link QueryBuilder}.
+	 *
+	 * @param query
+	 * @param queryOptions
+	 *
+	 * @return {@link QueryResponse}
+	 */
+	public QueryResponse execute(Query query, QueryOptions queryOptions) {
+		return this.pdgRunner.executeQuery(query, queryOptions);
+	}
+
+	/**
+	 * Executes a query using the {@link Query} object from the {@link QueryBuilder}.
+	 *
+	 * @param query
+	 * @param queryOptions
+	 *
+	 * @return {@link QueryResponse}
+	 */
+	public QueryResponse execute(String query, QueryOptions queryOptions) {
+		return this.pdgRunner.executeQuery(query, queryOptions);
+	}
 	
 	/**
 	 * Executes an asynchronous query using the {@link Query} object from the {@link QueryBuilder}.
