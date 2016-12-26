@@ -137,7 +137,7 @@ QueryResponse result = pdg.executeQuery(query);
 String jsonString = result.toString();
 
 // The mapped object
-List<Planet> planets = result.getList("galaxyPlanets");
+List<Planet> planets = result.getList("galaxyPlanets", Planet.class);
 
 ```
 
