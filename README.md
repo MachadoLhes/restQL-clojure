@@ -45,7 +45,7 @@ Add the dependency to your pom.xml
 <dependency>
   <groupId>com.b2wdigital</groupId>
   <artifactId>pdg-core</artifactId>
-  <version>${pdg-core-version}</version>
+  <version>0.1.1</version>
 </dependency>
 ```
 
@@ -55,7 +55,7 @@ Add the dependency to your build.gradle
 
 ```gradle
 dependencies {
-	compile 'com.b2wdigital:pdg-core:VERSION'
+	compile 'com.b2wdigital:pdg-core:0.1.1'
 }
 ```
 
