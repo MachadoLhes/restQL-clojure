@@ -160,6 +160,13 @@ Query query = pdg.queryBuilder()
 		.getQuery();
 
 QueryResponse result = pdg.executeQuery(query);
+
+// The JSON String
+String jsonString = result.toString();
+
+// The mapped object
+List<Planet> planets = result.getList("galaxyPlanets");
+
 ```
 
 #### Chained Query
@@ -183,6 +190,14 @@ Query query = pdg.queryBuilder()
 		.getQuery();
 
 QueryResponse result = pdg.execute(query);
+
+// The JSON String
+String jsonString = result.toString();
+
+// The mapped object
+BlogUser user = result.get("user", BlogUser.class);
+List<BlogPost> posts = result.getList("allPosts", BlogPost.class);
+
 ```
 
 ## Building From Source Code
