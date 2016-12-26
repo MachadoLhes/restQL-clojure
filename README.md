@@ -23,7 +23,7 @@ pdg.execute(query);
 
 In the example above, first PDG will fetch all users and right after perform parallel requests to fetch users bios and posts.  
 
-PDG is built upon the battle proved Clojure CSP and Http Kit to maximize throughput and performance.
+PDG is built upon the battle proven Clojure CSP and Http Kit to maximize throughput and performance.
 
 ### Motivation
 
