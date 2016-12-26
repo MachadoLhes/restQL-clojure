@@ -23,9 +23,12 @@ public class Query {
 	
 	/**
 	 * Adds a new item with an unique name to the query.
-	 * @param item
+	 * 
+	 * @param item {@link QueryItem}
+	 * 
 	 * @throws UniqueNameViolationException if item name already exists in the query object.
-	 * @return this
+	 * 
+	 * @return {@link Query} this
 	 */
 	public Query addItem(QueryItem item) throws UniqueNameViolationException {
 		if(this.items.containsKey(item.getName()))

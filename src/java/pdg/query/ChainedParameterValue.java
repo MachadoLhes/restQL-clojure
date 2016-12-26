@@ -44,7 +44,7 @@ public class ChainedParameterValue implements ParameterValue {
 	/**
 	 * Sets if the parameter should expand or not.
 	 * 
-	 * @param parameterShouldExpand
+	 * @param parameterShouldExpand {@link Boolean}
 	 */
 	public void setShouldExpand(Boolean parameterShouldExpand) {
 		this.parameterShouldExpand = parameterShouldExpand;

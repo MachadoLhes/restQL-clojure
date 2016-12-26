@@ -24,7 +24,7 @@ public class PDG {
 	/**
 	 * Class constructor with query options set to a production environment. 
 	 * 
-	 * @param configRepository
+	 * @param configRepository {@link ConfigRepository}
 	 */
 	public PDG(ConfigRepository configRepository) {
 		this.pdgRunner = new PDGJavaRunner(configRepository);
@@ -37,8 +37,8 @@ public class PDG {
 	/**
 	 * Class constructor with custom query options.
 	 * 
-	 * @param configRepository
-	 * @param queryOptions
+	 * @param configRepository {@link ConfigRepository}
+	 * @param queryOptions {@link QueryOptions}
 	 */
 	public PDG(ConfigRepository configRepository, QueryOptions queryOptions) {
 		this(configRepository);
@@ -48,6 +48,8 @@ public class PDG {
 	
 	/**
 	 * Executes a query using a query string.
+	 * @param query {@link String}
+	 * 
 	 * @return {@link QueryResponse}
 	 */
 	public QueryResponse execute(String query) {
@@ -57,7 +59,7 @@ public class PDG {
 	/**
 	 * Executes a query using the {@link Query} object from the {@link QueryBuilder}.
 	 * 
-	 * @param query
+	 * @param query {@link Query}
 	 * 
 	 * @return {@link QueryResponse}
 	 */
@@ -68,8 +70,8 @@ public class PDG {
 	/**
 	 * Executes a query using the {@link Query} object from the {@link QueryBuilder}.
 	 *
-	 * @param query
-	 * @param queryOptions
+	 * @param query {@link Query}
+	 * @param queryOptions {@link QueryOptions}
 	 *
 	 * @return {@link QueryResponse}
 	 */
@@ -80,8 +82,8 @@ public class PDG {
 	/**
 	 * Executes a query using the {@link Query} object from the {@link QueryBuilder}.
 	 *
-	 * @param query
-	 * @param queryOptions
+	 * @param query {@link String}
+	 * @param queryOptions {@link QueryOptions}
 	 *
 	 * @return {@link QueryResponse}
 	 */
@@ -92,8 +94,8 @@ public class PDG {
 	/**
 	 * Executes an asynchronous query using the {@link Query} object from the {@link QueryBuilder}.
 	 * 
-	 * @param query
-	 * @param consumer
+	 * @param query {@link Query}
+	 * @param consumer {@link Consumer}
 	 * 
 	 */
 	public void executeAsync(Query query, Consumer<QueryResponse> consumer) {

@@ -28,7 +28,7 @@ public class SimpleParameterValue<T> implements ParameterValue{
 	
 	/**
 	 * @param name Must be unique in the context.
-	 * @param T The parameter type
+	 * @param value The parameter type
 	 */
 	public SimpleParameterValue(String name, T value) {
 		this(name);

@@ -61,7 +61,7 @@ public class QueryFromBuilder {
 	/**
 	 * Filters the data to be retrieved with parameters with expansion.
 	 * 
-	 * @param name
+	 * @param name {@link String}
 	 * 
 	 * @return {@link QueryWithBuilder}
 	 */
@@ -72,8 +72,8 @@ public class QueryFromBuilder {
 	/**
 	 * Filters the data to be retrieved with parameters.
 	 * 
-	 * @param name
-	 * @param shouldExpand
+	 * @param name {@link String}
+	 * @param shouldExpand {@link Boolean}
 	 *  
 	 * @return {@link QueryWithBuilder}
 	 */
@@ -93,7 +93,8 @@ public class QueryFromBuilder {
 	/**
 	 * Shortcut for QueryBuilder.get
 	 * 
-	 * @param name
+	 * @param name {@link String}
+	 * 
 	 * @return {@link QueryFromBuilder}
 	 */
 	public QueryFromBuilder get(String name) {

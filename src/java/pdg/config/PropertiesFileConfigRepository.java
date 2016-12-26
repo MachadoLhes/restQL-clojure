@@ -13,7 +13,10 @@ public class PropertiesFileConfigRepository implements ConfigRepository {
 	
 	/**
 	 * Creates the class and gets mappings from Properties File
-	 * @throws IOException 
+	 * 
+	 * @param filename {@link String}
+	 * 
+	 * @throws IOException :(
 	 */
 	public PropertiesFileConfigRepository(String filename) throws IOException {
 		Properties fileProperties = new Properties();

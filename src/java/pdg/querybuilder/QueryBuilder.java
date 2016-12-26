@@ -18,9 +18,9 @@ public class QueryBuilder {
 	/**
 	 * Creates a new variable named {name} in the query.
 	 * 
-	 * @param name
+	 * @param name {@link String}
 	 * @return {@link QueryFromBuilder} The builder to chain the from piece.
-	 * @throws UniqueNameViolationException
+	 * @throws UniqueNameViolationException if name is repeated
 	 */
 	public QueryFromBuilder get(String name) throws UniqueNameViolationException {
 		QueryItem queryItem = new QueryItem(name); 

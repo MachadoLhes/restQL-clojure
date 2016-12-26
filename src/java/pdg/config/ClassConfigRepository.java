@@ -21,7 +21,7 @@ public class ClassConfigRepository implements ConfigRepository {
 	/**
 	 * Creates a new configuration class with a given configuration map.
 	 * 
-	 * @param configurationMap {@link Map} of <String, String>
+	 * @param configurationMap {@link Map} of (String, String)
 	 */
 	public ClassConfigRepository(Map<String, String> configurationMap) {
 		this();

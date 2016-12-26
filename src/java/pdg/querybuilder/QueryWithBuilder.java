@@ -32,8 +32,9 @@ public class QueryWithBuilder {
 	 * Class constructor.
 	 * 
 	 * @param paramName The parameter name
-	 * @param item
-	 * @param withBuilder {@link QueryWithBuilder}
+	 * @param item {@link QueryItem}
+	 * @param fromBuilder {@link QueryFromBuilder}
+	 * @param shouldExpand {@link Boolean}
 	 */
 	public QueryWithBuilder(String paramName, QueryItem item, QueryFromBuilder fromBuilder, Boolean shouldExpand) {
 		this.queryItem = item;
@@ -46,6 +47,7 @@ public class QueryWithBuilder {
 	 * Filter by simple parameters (String, Double, Integer, etc.).
 	 * 
 	 * @param value The attribute value
+	 * @param <T> type
 	 * @return {@link QueryFromBuilder} with builder
 	 */
 	public <T> QueryFromBuilder value(T value) {
@@ -57,8 +59,10 @@ public class QueryWithBuilder {
 	/**
 	 * Creates a new object with a simple parameter (String, Double, Integer, etc.).
 	 * 
-	 * @param name
+	 * @param name {@link String}
 	 * @param value The attribute value
+	 * @param <T> type
+	 * 
 	 * @return {@link QueryWithObjectBuilder} with builder
 	 */
 	public <T> QueryWithObjectBuilder value(String name, T value) {
@@ -90,7 +94,7 @@ public class QueryWithBuilder {
 	/**
 	 * Creates a new object with a chained parameter.
 	 * 
-	 * @param name
+	 * @param name {@link String}
 	 * @param path The API path
 	 * @return {@link QueryWithObjectBuilder} with builder
 	 */
@@ -111,6 +115,8 @@ public class QueryWithBuilder {
 	 * Creates a new list parameter.
 	 * 
 	 * @param params An array of params
+	 * @param <T> type
+	 * 
 	 * @return {@link QueryFromBuilder} with builder
 	 */
 	public <T> QueryFromBuilder list(T params[]) {
@@ -122,8 +128,10 @@ public class QueryWithBuilder {
 	/**
 	 * Creates a new object with a list parameter.
 	 *
-	 * @param name
+	 * @param name {@link String}
 	 * @param params An array of params
+	 * @param <T> type
+	 * 
 	 * @return {@link QueryWithObjectBuilder} with builder
 	 */
 	public <T> QueryWithObjectBuilder list(String name, T params[]) {
@@ -139,8 +147,8 @@ public class QueryWithBuilder {
 	
 	/**
 	 * Creates a new nested object inside current object.
-	 * @param name
-	 * @return
+	 * @param name {@link String}[]
+	 * @return {@link QueryWithObjectBuilder}
 	 */
 	public QueryWithObjectBuilder object(String name) {
 		
@@ -165,7 +173,7 @@ public class QueryWithBuilder {
 	/**
 	 * Shortcut for QueryBuilder.get
 	 * 
-	 * @param name
+	 * @param name {@link String}
 	 * @return {@link QueryFromBuilder}
 	 */
 	public QueryFromBuilder get(String name) {

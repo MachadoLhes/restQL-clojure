@@ -31,7 +31,7 @@ public class ListParameterValue<T> implements ParameterValue {
 	 * Class constructor with expand set to true.
 	 * 
 	 * @param name The name identifier
-	 * @param listOfParams The list of parameters to filter
+	 * @param params The list of parameters to filter
 	 */
 	public ListParameterValue(String name, T params[]) {
 		this.name = name;
@@ -48,7 +48,7 @@ public class ListParameterValue<T> implements ParameterValue {
 	 * Class constructor with expand configuration.
 	 * 
 	 * @param name The name identifier
-	 * @param listOfParams The list of parameters to filter
+	 * @param params The list of parameters to filter
 	 * @param parameterShouldExpand If it should expand or not
 	 */
 	public ListParameterValue(String name, T params[], Boolean parameterShouldExpand) {
@@ -60,7 +60,7 @@ public class ListParameterValue<T> implements ParameterValue {
 	/**
 	 * Sets if the parameter should expand or not.
 	 * 
-	 * @param parameterShouldExpand
+	 * @param parameterShouldExpand {@link Boolean}
 	 */
 	public void setShouldExpand(Boolean parameterShouldExpand) {
 		this.parameterShouldExpand = parameterShouldExpand;

@@ -1,5 +1,7 @@
 package pdg.querybuilder;
 
+import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
+
 import pdg.query.ChainedParameterValue;
 import pdg.query.ListParameterValue;
 import pdg.query.ObjectParameterValue;
@@ -26,8 +28,8 @@ public class QueryWithObjectBuilder {
 	/**
 	 * Constructor for the root object builder.
 	 * 
-	 * @param objectParameter
-	 * @param fromBuilder
+	 * @param objectParameter {@link ObjectParameterValue}
+	 * @param fromBuilder {@link QueryFromBuilder}
 	 */
 	public QueryWithObjectBuilder(ObjectParameterValue objectParameter, QueryFromBuilder fromBuilder) {
 		this.objectParameter = objectParameter;
@@ -37,8 +39,9 @@ public class QueryWithObjectBuilder {
 	/**
 	 * Constructor for child object builder.
 	 * 
-	 * @param objectParameter
-	 * @param objectBuilder
+	 * @param objectParameter {@link ObjectParameterValue}
+	 * @param objectBuilder {@link QueryWithObjectBuilder}
+	 * @param fromBuilder {@link QueryFromBuilder}
 	 */
 	public QueryWithObjectBuilder(ObjectParameterValue objectParameter, QueryFromBuilder fromBuilder, QueryWithObjectBuilder objectBuilder) {
 		this.objectParameter = objectParameter;
@@ -49,8 +52,10 @@ public class QueryWithObjectBuilder {
 	/**
 	 * Adds a new simple parameter to the object.
 	 * 
-	 * @param name
-	 * @param value
+	 * @param name {@link String}
+	 * @param value T
+	 * @param <T> type
+	 * 
 	 * @return {@link QueryWithObjectBuilder} object builder
 	 */
 	public <T> QueryWithObjectBuilder value(String name, T value) {
@@ -62,8 +67,10 @@ public class QueryWithObjectBuilder {
 	/**
 	 * Adds a new list parameter to the object.
 	 * 
-	 * @param name
-	 * @param params
+	 * @param name {@link String}
+	 * @param params T[]
+	 * @param <T> type
+	 * 
 	 * @return {@link QueryWithObjectBuilder} object builder
 	 */
 	public <T> QueryWithObjectBuilder list(String name, T params[]) {
@@ -75,11 +82,12 @@ public class QueryWithObjectBuilder {
 	/**
 	 * Adds a new chained parameter to the object.
 	 * 
-	 * @param name
-	 * @param params
+	 * @param name {@link String}
+	 * @param params {@link String}[]
+	 * 
 	 * @return {@link QueryWithObjectBuilder} object builder
 	 */
-	public <T> QueryWithObjectBuilder chained(String name, String params[]) {
+	public QueryWithObjectBuilder chained(String name, String params[]) {
 		this.objectParameter.addParameter(new ChainedParameterValue(name, params));
 		
 		return this;
@@ -111,6 +119,8 @@ public class QueryWithObjectBuilder {
 	
 	/**
 	 * Returns to the with builder, if it's in the object root.
+	 * 
+	 * @param name {@link String}
 	 * 
 	 * @return {@link QueryWithBuilder} with builder
 	 */

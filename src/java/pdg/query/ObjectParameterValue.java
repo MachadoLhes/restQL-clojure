@@ -25,7 +25,7 @@ public class ObjectParameterValue implements ParameterValue {
 	/**
 	 * Class constructor.
 	 * 
-	 * @param name
+	 * @param name {@link String}
 	 */
 	public ObjectParameterValue(String name) {
 		this.name = name;
@@ -50,7 +50,7 @@ public class ObjectParameterValue implements ParameterValue {
 	/**
 	 * Sets if the parameter should expand or not.
 	 * 
-	 * @param parameterShouldExpand
+	 * @param parameterShouldExpand {@link Boolean}
 	 */
 	public void setShouldExpand(Boolean parameterShouldExpand) {
 		this.parameterShouldExpand = parameterShouldExpand;

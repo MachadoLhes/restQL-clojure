@@ -14,7 +14,7 @@
   [[org.clojure/clojure "1.7.0"]
    [http-kit "2.1.18"]
    [onetom/boot-lein-generate "0.1.3" :scope "test"]
-   [junit/junit "4.12" :scope "test"]
+   [junit "4.12" :scope "test"]
    [expectations "2.0.9" :scope "test"]
    [ring/ring-codec "1.0.1"]
    [slingshot "0.12.2"]
