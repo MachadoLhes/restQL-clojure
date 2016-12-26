@@ -38,19 +38,36 @@
 (require 'boot.lein)
 
 (deftask deps "genereate leiningen" []
-         (boot.lein/generate))
+  (boot.lein/generate))
 
 (deftask uberjar "build project" []
-         (comp (pom)
-               (aot)
-               (javac)
-               (uber)
-               (jar)
-               (target "target/")))
+  (comp (pom)
+    (aot)
+    (javac)
+    (uber)
+    (jar)
+    (target "target/")))
 
 (deftask build "build project" []
-         (comp (pom)
-               (aot)
-               (javac)
-               (jar)
-               (target "target/")))
+  (comp (pom)
+    (aot)
+    (javac)
+    (jar)
+    (target "target/")))
+
+(deftask release "pushes the project to maven"
+         [r repo      NAME  str "The name of the deploy repository."
+          e repo-map  REPO  edn "The repository map of the deploy repository."
+          P pom       PATH  str "The pom.xml file to use (see install task)."
+          ]
+  (let [r (get (->> (get-env :repositories) (into {})) repo)
+        repo-map (merge r (when repo-map ((configure-repositories!) repo-map)))]
+    (fn [next-task]
+      (fn [fileset]
+        (println "REPOSITORY" {:repo repo
+                               :repo-map repo-map
+                               :pom pom
+
+
+                               })
+        (next-task fileset)))))
