@@ -15,4 +15,4 @@ pdg-core.iml
 .classpath
 dev-resources/**
 doc/**
-pom.xml
+settings.xml
