@@ -1,10 +1,8 @@
 # PDG-Core
 
-Microservice query language for Java
+PDG is a microservice query language for Java that makes easy to fetch information from multiple services in the most efficient manner.
 
-PDG is a microservice query language that orchestrates and parallelize multiple API calls. It's built upon the battle proved Clojure CSP and Http Kit to maximize throughput and performance.
-
-In PDG you build queries expressing the fields and resources to fetch. Example:
+In PDG you build queries expressing the fields and resources to fetch:
 
 ```java
 Query query = pdg.queryBuilder()
@@ -23,51 +21,28 @@ Query query = pdg.queryBuilder()
 pdg.execute(query);
 ```
 
-In this case, first PDG will fetch all users and right after perform parallel requests to fetch users bios and posts.  
+In the example above, first PDG will fetch all users and right after perform parallel requests to fetch users bios and posts.  
 
-### When to use PDG
+PDG is built upon the battle proved Clojure CSP and Http Kit to maximize throughput and performance.
 
-If your project performs multiple requests to different API urls and you need to match information from a previous call into the next ones, you should definitely give PDG a try.
+### Motivation
 
-Instead of making one call, waiting the results and then making another bunch of other calls using the received results, you can make just one graph call and receive all the data you need.
+When building a microservice architecture we often have to deal with services calling multiple services.
+
+PDG does the heavy lifting of orchestrating and parallelizing the API calls, alleviating the burden of working with async requests in Java.
 
 ## Getting Started
 
 ### Installation
-
 The best way to get started is to add the PDG dependency to your project file.
 
-#### Maven
-
-Add the dependency to your pom.xml
-
-```xml
-<dependency>
-  <groupId>com.b2wdigital</groupId>
-  <artifactId>pdg-core</artifactId>
-  <version>0.1.1</version>
-</dependency>
-```
-
-#### Gradle
-
-Add the dependency to your build.gradle
-
-```gradle
-dependencies {
-	compile 'com.b2wdigital:pdg-core:0.1.1'
-}
-```
-
 ### Configuration
-
 PDG receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface.
-
 The configuration must return a `RouteMap` object.
 
 #### Resources
 
-On PDG resources are the API urls to retrieve data. Examples of resource would be:
+In PDG resources are the API urls to retrieve data. Examples of resource would be:
 
 + planets: http://swapi.co/api/planets/
 + planet: http://swapi.co/api/planets/:id
@@ -77,7 +52,6 @@ Everytime you need an url route parameter, use the parameter name with `:` to re
 #### System Properties
 
 The class `SystemPropertiesConfigRepository` searches resources through the JVM arguments.
-
 An example of JVM args configuration is:
 
 ```
@@ -90,12 +64,13 @@ To use the class:
 
 ```java
 SystemPropertiesConfigRepository systemConfRepository = new SystemPropertiesConfigRepository();
+
+PDG pdg = new PDG(systemConfRepository);
 ```
 
 #### Properties File
 
 The class `PropertiesFileConfigRepository` will take a properties file and map the resources.
-
 An example of properties file (e.g.: pdg.properties):
 
 ```properties
@@ -104,7 +79,6 @@ An example of properties file (e.g.: pdg.properties):
 planets=http://swapi.co/api/planets/
 people=http://swapi.co/api/people/object()
 films=http://swapi.co/api/films/
-
 # Get one
 planet=http://swapi.co/api/planets/:id
 person=http://swapi.co/api/people/:id
@@ -115,22 +89,24 @@ To use the class:
 
 ```java
 PropertiesFileConfigRepository propsFileConfigRepository = new PropertiesFileConfigRepository("resources/pdg.properties");
+
+PDG pdg = new PDG(propsFileConfigRepository);
 ```
 
 #### Java Class
 
 The class `ClassConfigRepository` provides a class based Repository to configure resources directly using Java code.
-
 An example of configuration using a Java class:
 
 ```java
 ClassConfigRepository config = new ClassConfigRepository();
-
 config.put("forces", "https://data.police.uk/api/forces");
 config.put("force", "https://data.police.uk/api/forces/:forceid");
 config.put("neighbourhoods", "https://data.police.uk/api/:forceid/neighbourhoods");
 config.put("crimes", "https://data.police.uk/api/crimes-no-location");
 config.put("crimeDetails", "https://data.police.uk/api/outcomes-for-crime/:persistent_id");
+
+PDG pdg = new PDG(config);
 ```
 
 #### Custom PDG Configuration
@@ -140,10 +116,8 @@ The default query option sets the debug to false. If you want to use debug on yo
 ```java
 QueryOptions queryOptions = new QueryOptions();
 queryOptions.setDebugging(true);
-
 PDG pdg = new PDG(configRepository, queryOptions);
 ```
-
 ### Examples
 
 #### Simple Query
@@ -152,13 +126,11 @@ Retrieving all films from Star Wars API
 
 ```java
 PDG pdg = new PDG(new PropertiesFileConfigRepository("resources/pdg.properties"));
-
 Query query = pdg.queryBuilder()
 		.get("galaxyPlanets")
 			.from("planets")
 			.timeout(5000)
 		.getQuery();
-
 QueryResponse result = pdg.executeQuery(query);
 
 // The JSON String
@@ -175,7 +147,6 @@ Retrieving posts from a given user (id = 2), using chained parameters.
 
 ```java
 PDG pdg = new PDG(new PropertiesFileConfigRepository("resources/pdg.properties"));
-
 Query query = pdg.queryBuilder()
 		.get("user")
 			.from("user")
@@ -188,7 +159,6 @@ Query query = pdg.queryBuilder()
 			.with("userId")
 				.chained(new String[]{"user", "id"})
 		.getQuery();
-
 QueryResponse result = pdg.execute(query);
 
 // The JSON String
@@ -197,9 +167,7 @@ String jsonString = result.toString();
 // The mapped object
 BlogUser user = result.get("user", BlogUser.class);
 List<BlogPost> posts = result.getList("allPosts", BlogPost.class);
-
 ```
-
 ## Building From Source Code
 
 As prerequisites to build PDG from source we have:
