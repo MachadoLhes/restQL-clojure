@@ -16,3 +16,7 @@ pdg-core.iml
 dev-resources/**
 doc/**
 settings.xml
+*.iml
+**/*.iml
+.settings
+.settings/**

@@ -24,13 +24,31 @@ public class PropertiesFileConfigRepository implements ConfigRepository {
 		ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
 		fileProperties.load(classLoader.getResourceAsStream(filename));
 		
-		mappings = new RouteMap();
-		
-		for(Entry<Object, Object> property : fileProperties.entrySet()) {
-			mappings.put((String) property.getKey(), (String) property.getValue());
-		}
+		this.mapProperties(fileProperties);
 	}
-	
+
+	/**
+	 * Creates the class from a {@link Properties} class.
+	 *
+	 * @param properties {@link Properties}
+	 */
+	public PropertiesFileConfigRepository(Properties properties) {
+        this.mapProperties(properties);
+	}
+
+	/**
+	 * Maps the properties to the mappings.
+	 *
+	 * @param props {@link Properties}
+	 */
+	private void mapProperties(Properties props) {
+        mappings = new RouteMap();
+
+        for(Entry<Object, Object> property : props.entrySet()) {
+            mappings.put((String) property.getKey(), (String) property.getValue());
+        }
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */
