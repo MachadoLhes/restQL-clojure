@@ -1,9 +1,9 @@
 package pdg.query;
 
+import pdg.exception.UniqueNameViolationException;
+
 import java.util.HashMap;
 import java.util.Map.Entry;
-
-import pdg.exception.UniqueNameViolationException;
 
 public class Query {
 

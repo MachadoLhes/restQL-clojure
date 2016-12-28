@@ -1,13 +1,13 @@
 package pdg;
 
-import java.util.function.Consumer;
-
 import pdg.config.ConfigRepository;
 import pdg.interop.PDGJavaRunner;
 import pdg.query.Query;
 import pdg.query.QueryOptions;
 import pdg.querybuilder.QueryBuilder;
 import pdg.response.QueryResponse;
+
+import java.util.function.Consumer;
 
 public class PDG {
 

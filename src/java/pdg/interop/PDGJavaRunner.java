@@ -1,7 +1,5 @@
 package pdg.interop;
 
-import pdg.interop.ClojurePDGApi;
-
 import pdg.config.ConfigRepository;
 import pdg.config.RouteMap;
 import pdg.query.Query;

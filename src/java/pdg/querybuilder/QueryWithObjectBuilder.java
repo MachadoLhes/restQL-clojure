@@ -1,12 +1,6 @@
 package pdg.querybuilder;
 
-import com.fasterxml.jackson.databind.deser.std.FromStringDeserializer;
-
-import pdg.query.ChainedParameterValue;
-import pdg.query.ListParameterValue;
-import pdg.query.ObjectParameterValue;
-import pdg.query.Query;
-import pdg.query.SimpleParameterValue;
+import pdg.query.*;
 
 public class QueryWithObjectBuilder {
 	

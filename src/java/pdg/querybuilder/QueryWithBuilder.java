@@ -1,12 +1,6 @@
 package pdg.querybuilder;
 
-import pdg.query.ChainedParameterValue;
-import pdg.query.Expand;
-import pdg.query.ListParameterValue;
-import pdg.query.ObjectParameterValue;
-import pdg.query.Query;
-import pdg.query.QueryItem;
-import pdg.query.SimpleParameterValue;
+import pdg.query.*;
 
 public class QueryWithBuilder {
 		

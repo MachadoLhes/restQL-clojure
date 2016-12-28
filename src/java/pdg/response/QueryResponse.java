@@ -1,14 +1,14 @@
 package pdg.response;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import pdg.exception.ResponseParseException;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import pdg.exception.*;
 
 /**
  * Created by ideais on 14/12/16.
@@ -27,7 +27,7 @@ public class QueryResponse {
             this.parsed = mapper.readTree(pdgResponse);
         }
         catch(IOException e) {
-            throw new pdg.exception.ResponseParseException(e);
+            throw new ResponseParseException(e);
         }
     }
 
@@ -83,7 +83,7 @@ public class QueryResponse {
             }
         }
         catch(JsonProcessingException e) {
-            throw new PDGException(e);
+            throw new ResponseParseException(e);
         }
 
         return result;
@@ -97,10 +97,10 @@ public class QueryResponse {
                 return mapper.treeToValue(item.get("result"), clazz);
             }
             else {
-                throw new PDGException("Field [" + field + "] has failed");
+                throw new ResponseParseException("Field [" + field + "] has failed");
             }
         } catch (JsonProcessingException e) {
-            throw new PDGException(e);
+            throw new ResponseParseException(e);
         }
     }
 
