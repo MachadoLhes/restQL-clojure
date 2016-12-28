@@ -33,73 +33,109 @@ public class QueryResponse {
 
     @SuppressWarnings("unchecked")
     public <T> T get(String field, Class<T> clazz) {
+        return this.get(new String[]{field}, clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> T get(String path[], Class<T> clazz) {
         if (clazz.equals(QueryItemResponse.class)) {
-            return (T) new SimpleQueryItemResponse(parsed.get(field));
+            return (T) new SimpleQueryItemResponse(parsed.get(path[0]));
         }
         else {
-            return getClassResponse(field, clazz);
+            return getClassResponseFromPath(path, clazz);
         }
     }
 
     @SuppressWarnings("unchecked")
     public <T> List<T> getList(String field, Class<T> clazz) {
+        return this.getList(new String[]{field}, clazz);
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T> List<T> getList(String path[], Class<T> clazz) {
         if (clazz.equals(QueryItemResponse.class)) {
             ArrayList<QueryItemResponse> result = new ArrayList<>();
-            if (parsed.get(field).isArray()) {
-                Iterator<JsonNode> items = parsed.get(field).elements();
+            if (parsed.get(path[0]).isArray()) {
+                Iterator<JsonNode> items = parsed.get(path[0]).elements();
                 while(items.hasNext()) {
                     result.add(new SimpleQueryItemResponse(items.next()));
                 }
             }
             else {
-                Iterator<JsonNode> items = parsed.get(field).get("result").elements();
+                Iterator<JsonNode> items = parsed.get(path[0]).get("result").elements();
                 while(items.hasNext()) {
-                    result.add(new ArrayQueryItemResponse(parsed.get(field).get("details"), items.next()));
+                    result.add(new ArrayQueryItemResponse(parsed.get(path[0]).get("details"), items.next()));
                 }
             }
             return (List<T>) result;
         }
         else {
-            return getListClassResponse(field, clazz);
+            return getListClassResponseFromPath(path, clazz);
         }
     }
 
-    private <T> List<T> getListClassResponse(String field, Class<T> clazz) {
+    private <T> List<T> getListClassResponseFromPath(String path[], Class<T> clazz) {
         List<T> result = new ArrayList<>();
 
         try {
-            if (parsed.get(field).isArray()) {
-                Iterator<JsonNode> items = parsed.get(field).elements();
+            if (parsed.get(path[0]).isArray()) {
+                Iterator<JsonNode> items = parsed.get(path[0]).elements();
+
                 while(items.hasNext()) {
-                    result.add(mapper.treeToValue(items.next().get("result"), clazz));
+                    // Gets each item from multiple responses
+                    JsonNode nextItem = items.next().get("result");
+
+                    for(int i=1; i<path.length; i++) {
+                        nextItem = nextItem.get(path[i]);
+                    }
+
+                    Iterator<JsonNode> childItems = nextItem.elements();
+                    while (childItems.hasNext()) {
+                        result.add(mapper.treeToValue(childItems.next(), clazz));
+                    }
                 }
 
             } else {
-                Iterator<JsonNode> items = parsed.get(field).get("result").elements();
+                // Retrieving the result root node
+                JsonNode nextItem = parsed.get(path[0]).get("result");
+
+                for(int i=1; i<path.length; i++) {
+                    nextItem = nextItem.get(path[i]);
+                }
+
+                Iterator<JsonNode> items = nextItem.elements();
                 while (items.hasNext()) {
                     result.add(mapper.treeToValue(items.next(), clazz));
                 }
-
             }
         }
-        catch(JsonProcessingException e) {
+        catch(JsonProcessingException | IndexOutOfBoundsException e) {
             throw new ResponseParseException(e);
         }
 
         return result;
     }
 
-    private <T> T getClassResponse(String field, Class<T> clazz) {
+    private <T> T getClassResponseFromPath(String path[], Class<T> clazz) {
         try {
-            JsonNode item = parsed.get(field);
+            JsonNode item = parsed.get(path[0]);
             JsonNode details = item.get("details");
+
             if (details.get("success").asBoolean()) {
-                return mapper.treeToValue(item.get("result"), clazz);
+
+                JsonNode nextItem = item.get("result");
+
+                // Iterates over the tree to get the last element of the path
+                for(int i=1; i<path.length; i++) {
+                    nextItem = nextItem.get(path[i]);
+                }
+
+                return mapper.treeToValue(nextItem, clazz);
             }
             else {
-                throw new ResponseParseException("Field [" + field + "] has failed");
+                throw new ResponseParseException("Field [ " + path + " ] has failed");
             }
-        } catch (JsonProcessingException e) {
+        } catch(JsonProcessingException | IndexOutOfBoundsException e) {
             throw new ResponseParseException(e);
         }
     }
