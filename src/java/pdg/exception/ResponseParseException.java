@@ -1,4 +1,4 @@
-package pdg.response;
+package pdg.exception;
 
 import pdg.exception.PDGException;
 

@@ -8,7 +8,7 @@ import java.util.List;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import pdg.exception.PDGException;
+import pdg.exception.*;
 
 /**
  * Created by ideais on 14/12/16.
@@ -27,7 +27,7 @@ public class QueryResponse {
             this.parsed = mapper.readTree(pdgResponse);
         }
         catch(IOException e) {
-            throw new ResponseParseException(e);
+            throw new pdg.exception.ResponseParseException(e);
         }
     }
 
