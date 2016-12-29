@@ -188,7 +188,7 @@
     {:url          (matcher/interpolate url resolved-query-item)
      :resource     (:from query-item-data)
      :query-params (build-query-params query-item-data url resolved-query-item)
-     :timeout      (if (nil? timeout) 1000 timeout)
+     :timeout      timeout
      :headers      (:with-headers query-item-data)}))
 
 

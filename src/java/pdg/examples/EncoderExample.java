@@ -3,8 +3,6 @@ package pdg.examples;
 import pdg.PDG;
 import pdg.config.ClassConfigRepository;
 import pdg.interop.Encoder;
-import pdg.interop.EncoderName;
-import pdg.query.Query;
 import pdg.query.QueryOptions;
 import pdg.response.QueryItemResponse;
 import pdg.response.QueryResponse;

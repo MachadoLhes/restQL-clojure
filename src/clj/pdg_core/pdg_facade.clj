@@ -68,12 +68,17 @@
 (defn get-default-encoders []
   (context/get-encoders))
 
+(defn- set-default-query-options [query-options]
+       (into {:timeout 1000
+              :global-timeout 5000} query-options))
+
 (defn execute-query-channel [& {:keys [mappings encoders query query-opts]}]
   (let [do-request (partial request/do-request mappings)
+        query-opts (set-default-query-options query-opts)
         parsed-query (parse-query {:mappings mappings :encoders encoders} query)
         [output-ch exception-ch] (pdg/run do-request parsed-query encoders query-opts)
         result-ch (wait-until-finished output-ch query-opts)]
-    (extract-result parsed-query (timeout 5000) exception-ch result-ch)))
+    (extract-result parsed-query (timeout (:global-timeout query-opts)) exception-ch result-ch)))
 
 (defn execute-query-sync [& {:keys [mappings encoders query query-opts]}]
   (<!! (execute-query-channel :mappings mappings
@@ -88,3 +93,4 @@
                                              :query query
                                              :query-opts query-opts))]
       (callback result))))
+

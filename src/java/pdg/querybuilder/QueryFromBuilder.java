@@ -66,7 +66,7 @@ public class QueryFromBuilder {
 	 * @return {@link QueryWithBuilder}
 	 */
 	public QueryWithBuilder with(String name) {
-		return new QueryWithBuilder(name, this.queryItem ,this, Expand.EXPAND).setQueryBuilder(this.queryBuilder);
+		return new QueryWithBuilder(name, this.queryItem ,this, Expand.EXPAND, null).setQueryBuilder(this.queryBuilder);
 	}
 	
 	/**
@@ -78,8 +78,34 @@ public class QueryFromBuilder {
 	 * @return {@link QueryWithBuilder}
 	 */
 	public QueryWithBuilder with(String name, Boolean shouldExpand) {
-		return new QueryWithBuilder(name, this.queryItem ,this, shouldExpand).setQueryBuilder(this.queryBuilder);
+		return new QueryWithBuilder(name, this.queryItem ,this, shouldExpand, null).setQueryBuilder(this.queryBuilder);
 	}
+
+	/**
+	 * Filters the data to be retrieved with parameters, expansion and encoder.
+	 *
+	 * @param name {@link String}
+	 * @param encoderName {@link String}
+	 *
+	 * @return {@link QueryWithBuilder}
+	 */
+	public QueryWithBuilder with(String name, String encoderName) {
+		return new QueryWithBuilder(name, this.queryItem ,this, Expand.EXPAND, encoderName).setQueryBuilder(this.queryBuilder);
+	}
+
+	/**
+	 * Filters the data to be retrieved with parameters and encoder.
+	 *
+	 * @param name {@link String}
+	 * @param shouldExpand {@link Boolean}
+	 * @param encoderName {@link String}
+	 *
+	 * @return {@link QueryWithBuilder}
+	 */
+	public QueryWithBuilder with(String name, Boolean shouldExpand, String encoderName) {
+		return new QueryWithBuilder(name, this.queryItem ,this, shouldExpand, encoderName).setQueryBuilder(this.queryBuilder);
+	}
+
 	
 	/**
 	 * Goes back to the main query builder.

@@ -10,6 +10,11 @@ public class ObjectParameterValue implements ParameterValue {
 	 * The name identifier.
 	 */
 	private String name;
+
+	/**
+	 * The name of the encoder used to handle data
+	 */
+	private String encoderName;
 	
 	/**
 	 * The object body.
@@ -55,19 +60,37 @@ public class ObjectParameterValue implements ParameterValue {
 	public void setShouldExpand(Boolean parameterShouldExpand) {
 		this.parameterShouldExpand = parameterShouldExpand;
 	}
-	
-	
+
 	@Override
 	public Boolean shouldExpand() {
 		return this.parameterShouldExpand;
 	}
-	
+
+	@Override
+	public void setEncoderName(String encoderName) {
+		this.encoderName = encoderName;
+	}
+
+	@Override
+	public String getEncoderName() {
+		return this.encoderName;
+	}
+
 	@Override
 	public String toString() {
 		String queryString = ":" + this.getName() + " ";
-		
-		if(!this.shouldExpand()) {
-			queryString += "^{:expand false} ";
+
+		if(!this.shouldExpand() || this.getEncoderName() != null) {
+			queryString += "^{";
+
+			// If shouldn't expand
+			queryString += (!this.shouldExpand() ? ":expand false " : "");
+
+			// If it has encoder
+			queryString += (this.getEncoderName() != null ? ":encoder :"+this.getEncoderName()+" " : "" );
+
+
+			queryString = queryString.trim() + "} ";
 		}
 		
 		queryString += "{";

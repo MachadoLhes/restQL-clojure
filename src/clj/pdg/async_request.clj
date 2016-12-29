@@ -57,7 +57,7 @@
   ([request query-opts output-ch]
   (let [request (parse-query-params request)
         time-before (System/currentTimeMillis)
-        request-timeout (if (nil? (:timeout request)) 1000 (:timeout request))]
+        request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))]
     (info {:resource (:resource request)
            :requesttimeout request-timeout
            :url (:url request)

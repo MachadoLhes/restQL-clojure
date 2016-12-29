@@ -113,9 +113,11 @@ public class PDG {
 	}
 
 	/**
+	 * Sets an encoder
 	 *
 	 * @param name {@link String}
 	 * @param clazz {@link Class}
+	 * @param <T> T
      */
 	public <T> void setEncoder(String name, Class<T> clazz) {
 		pdgRunner.setEncoder(name, clazz);

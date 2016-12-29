@@ -28,6 +28,8 @@ public class SimpleQuery {
 
         QueryOptions opts = new QueryOptions();
         opts.setDebugging(true);
+        opts.setGlobalTimeout(10000);
+        opts.setTimeout(3000);
 
         QueryResponse response = pdg.execute(query, opts);
 

@@ -176,9 +176,34 @@ public class PDGQueryBuilderTest {
 		
 		assertEquals(correctQuery,query.toString());
 	}
+
+	@Test
+	public void testQueryWithChainedWithNoExpandAndEncoder() throws UniqueNameViolationException {
+		String correctQuery = "[:jedis {:from :galaxy :timeout 2000 :with {:role ^{:encoder :capitalize} \"jedi\"}} "+
+				":lightsabers {:from :lightsabers :with {:lightsaber ^{:expand false :encoder :json} [:jedis :lightsaber :id]}}]";
+
+		QueryBuilder queryBuilder = new QueryBuilder();
+
+		queryBuilder
+				.get("jedis")
+					.from("galaxy")
+					.timeout(2000)
+						.with("role", "capitalize")
+							.value("jedi")
+				.get("lightsabers")
+					.from("lightsabers")
+						.with("lightsaber", Expand.DONT_EXPAND, "json")
+						.chained(new String[]{"jedis", "lightsaber", "id"});
+
+		Query query = queryBuilder.getQuery();
+
+		System.out.println("PDGQueryBuilder[QueryWithChainedWithNoExpandAndEncoder]: " + query);
+
+		assertEquals(correctQuery,query.toString());
+	}
 	
 	@Test
-	public void testQueryWithListParameter() throws UniqueNameViolationException {
+	public void testQueryWithListParameter() {
 		String correctQuery = "[:jedis {:from :galaxy :timeout 2000 :with {:role \"jedi\" :name [\"Luke\" \"Obi-Wan\"]}}]";
 		
 		QueryBuilder queryBuilder = new QueryBuilder();

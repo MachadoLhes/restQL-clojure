@@ -3,8 +3,8 @@ package pdg.querybuilder;
 import pdg.query.*;
 
 public class QueryWithBuilder {
-		
-	
+
+
 	private QueryItem queryItem;
 	
 	private QueryFromBuilder queryFromBuilder;
@@ -12,7 +12,9 @@ public class QueryWithBuilder {
 	private QueryBuilder queryBuilder;
 
 	private String paramName;
-	
+
+	private final String encoderName;
+
 	private Boolean shouldExpand;
 	
 	
@@ -30,11 +32,12 @@ public class QueryWithBuilder {
 	 * @param fromBuilder {@link QueryFromBuilder}
 	 * @param shouldExpand {@link Boolean}
 	 */
-	public QueryWithBuilder(String paramName, QueryItem item, QueryFromBuilder fromBuilder, Boolean shouldExpand) {
+	public QueryWithBuilder(String paramName, QueryItem item, QueryFromBuilder fromBuilder, Boolean shouldExpand, String encoderName) {
 		this.queryItem = item;
 		this.paramName = paramName;
 		this.queryFromBuilder = fromBuilder;
 		this.shouldExpand = shouldExpand;
+		this.encoderName = encoderName;
 	}
 	
 	/**
@@ -45,7 +48,7 @@ public class QueryWithBuilder {
 	 * @return {@link QueryFromBuilder} with builder
 	 */
 	public <T> QueryFromBuilder value(T value) {
-		this.queryItem.addWithParameter(new SimpleParameterValue<T>(this.paramName, value));
+		this.queryItem.addWithParameter(new SimpleParameterValue<T>(this.paramName, value, this.encoderName));
 		
 		return this.queryFromBuilder;
 	}
@@ -64,6 +67,7 @@ public class QueryWithBuilder {
 		objectParam.setShouldExpand(this.shouldExpand);
 		
 		this.queryItem.addWithParameter(objectParam);
+		objectParam.setEncoderName(this.encoderName);
 		
 		QueryWithObjectBuilder objectBuilder = new QueryWithObjectBuilder(objectParam, this.queryFromBuilder);
 		
@@ -77,9 +81,8 @@ public class QueryWithBuilder {
 	 * @return {@link QueryFromBuilder} with builder
 	 */
 	public QueryFromBuilder chained(String path[]) {
-		ChainedParameterValue chainedValue = new ChainedParameterValue(this.paramName, path);
-		
-		chainedValue.setShouldExpand(this.shouldExpand);
+		ChainedParameterValue chainedValue = new ChainedParameterValue(this.paramName, path, this.shouldExpand, this.encoderName);
+
 		this.queryItem.addWithParameter(chainedValue);
 		
 		return this.queryFromBuilder;
@@ -96,6 +99,7 @@ public class QueryWithBuilder {
 		
 		ObjectParameterValue objectParam = new ObjectParameterValue(this.paramName);
 		objectParam.setShouldExpand(this.shouldExpand);
+		objectParam.setEncoderName(this.encoderName);
 		
 		this.queryItem.addWithParameter(objectParam);
 		
@@ -114,7 +118,7 @@ public class QueryWithBuilder {
 	 * @return {@link QueryFromBuilder} with builder
 	 */
 	public <T> QueryFromBuilder list(T params[]) {
-		this.queryItem.addWithParameter(new ListParameterValue<T>(this.paramName, params, this.shouldExpand));
+		this.queryItem.addWithParameter(new ListParameterValue<T>(this.paramName, params, this.shouldExpand, this.encoderName));
 		
 		return this.queryFromBuilder;
 	}
@@ -131,7 +135,8 @@ public class QueryWithBuilder {
 	public <T> QueryWithObjectBuilder list(String name, T params[]) {
 		ObjectParameterValue objectParam = new ObjectParameterValue(this.paramName);
 		objectParam.setShouldExpand(this.shouldExpand);
-		
+		objectParam.setEncoderName(this.encoderName);
+
 		this.queryItem.addWithParameter(objectParam);
 		
 		QueryWithObjectBuilder objectBuilder = new QueryWithObjectBuilder(objectParam, this.queryFromBuilder);
@@ -148,6 +153,7 @@ public class QueryWithBuilder {
 		
 		ObjectParameterValue objectParam = new ObjectParameterValue(this.paramName);
 		objectParam.setShouldExpand(this.shouldExpand);
+		objectParam.setEncoderName(this.encoderName);
 		
 		this.queryItem.addWithParameter(objectParam);
 		

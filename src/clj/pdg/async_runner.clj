@@ -67,7 +67,7 @@
    sending their result to result-ch"
   [do-request encoders {:keys [request-ch result-ch exception-ch]} {:keys [debugging] :as query-opts}]
   (go-loop [next-req (<! request-ch)
-            timeout-ch (timeout 5000)
+            timeout-ch (timeout (:global-timeout query-opts))
             uid  (generate-uuid!) ]
     (let [from (:from (second (second (first next-req))))]
       (go
@@ -84,7 +84,7 @@
             ([result]
               (log-status uid from result)
               (>! result-ch result)))))
-    (recur (<! request-ch) (timeout 5000) (generate-uuid!) )))
+    (recur (<! request-ch) (timeout (:global-timeout query-opts)) (generate-uuid!) )))
 
 (defn do-run
   "it separates all queries in three states, :done :requested and :to-do

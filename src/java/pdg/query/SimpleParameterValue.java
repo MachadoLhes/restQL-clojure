@@ -1,5 +1,7 @@
 package pdg.query;
 
+import pdg.interop.Encoder;
+
 /**
  * @author iago.osilva
  *
@@ -11,7 +13,12 @@ public class SimpleParameterValue<T> implements ParameterValue{
 	 * Stands for simple types like String, Boolean, Integer, etc.
 	 */
 	private T simpleValue;
-	
+
+	/**
+	 * The name of the encoder used to handle data
+	 */
+	private String encoderName;
+
 	/**
 	 * The parameter name
 	 */
@@ -20,21 +27,34 @@ public class SimpleParameterValue<T> implements ParameterValue{
 	/**
 	 * Class constructor.
 	 * 
-	 * @param name The parameter name
+	 * @param name The parameter name.
 	 */
 	public SimpleParameterValue(String name) {
 		this.name = name;
 	}
 	
 	/**
+	 * Class constructor.
+	 *
 	 * @param name Must be unique in the context.
-	 * @param value The parameter type
+	 * @param value The parameter type.
 	 */
 	public SimpleParameterValue(String name, T value) {
 		this(name);
 		this.simpleValue = value;
 	}
 
+	/**
+	 * Class constructor.
+	 *
+	 * @param name Must be unique in the context.
+	 * @param value The parameter type.
+	 * @param encoderName The encoder name.
+	 */
+	public SimpleParameterValue(String name, T value, String encoderName) {
+		this(name, value);
+		this.setEncoderName(encoderName);
+	}
 	
 	public String getName() {
 		return this.name;
@@ -47,17 +67,26 @@ public class SimpleParameterValue<T> implements ParameterValue{
 	public void setValue(T value) {
 		this.simpleValue = value;
 	}
-	
-	
+
+	@Override
+	public void setEncoderName(String encoderName) {
+		this.encoderName = encoderName;
+	}
+
+	@Override
+	public String getEncoderName() {
+		return this.encoderName;
+	}
+
 	@Override
 	public String toString() {
 		
-		String paramValue = "";
-		
+		String paramValue = (this.getEncoderName() != null ? "^{:encoder :"+this.getEncoderName()+"} " : "" );
+
 		if(this.simpleValue instanceof String)
-			paramValue = "\""+this.simpleValue+"\"";
+			paramValue += "\""+this.simpleValue+"\"";
 		else
-			paramValue = this.simpleValue.toString();
+			paramValue += this.simpleValue.toString();
 		
 		return ":"+this.name+" "+paramValue;
 	}

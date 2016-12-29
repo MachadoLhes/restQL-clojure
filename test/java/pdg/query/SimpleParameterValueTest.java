@@ -37,7 +37,15 @@ public class SimpleParameterValueTest {
 		
 		assertEquals(correctQuery, marriedParam.toString());
 	}
-	
-	
+
+	@Test
+	public void testStringParameterWithEncoder() {
+		String correctQuery = ":name ^{:encoder :json} \"Clark Kent\"";
+
+		SimpleParameterValue<String> nameParam = new SimpleParameterValue<>("name","Clark Kent");
+		nameParam.setEncoderName("json");
+
+		assertEquals(correctQuery, nameParam.toString());
+	}
 
 }

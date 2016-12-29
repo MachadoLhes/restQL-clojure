@@ -16,6 +16,31 @@ public class ObjectParameterValueTest {
 		
 		assertEquals(correctQuery, objectParam.toString());
 	}
+
+	@Test
+	public void testSimpleObjectParamNoExpand() {
+		String correctQuery = ":location ^{:expand false} {:lng -43.3333 :lat -22.4}";
+
+		ObjectParameterValue objectParam = new ObjectParameterValue("location");
+		objectParam.addParameter(new SimpleParameterValue<>("lat", -22.4000));
+		objectParam.addParameter(new SimpleParameterValue<>("lng", -43.3333));
+		objectParam.setShouldExpand(false);
+
+		assertEquals(correctQuery, objectParam.toString());
+	}
+
+	@Test
+	public void testSimpleObjectParamNoExpandAndEncoder() {
+		String correctQuery = ":location ^{:expand false :encoder :json} {:lng -43.3333 :lat -22.4}";
+
+		ObjectParameterValue objectParam = new ObjectParameterValue("location");
+		objectParam.addParameter(new SimpleParameterValue<>("lat", -22.4000));
+		objectParam.addParameter(new SimpleParameterValue<>("lng", -43.3333));
+		objectParam.setShouldExpand(false);
+		objectParam.setEncoderName("json");
+
+		assertEquals(correctQuery, objectParam.toString());
+	}
 	
 	@Test
 	public void testObjectParamWithList() {
