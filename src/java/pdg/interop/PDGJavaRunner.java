@@ -33,7 +33,7 @@ public class PDGJavaRunner {
     public void executeQueryAsync(String query, QueryOptions queryOptions, Consumer<QueryResponse> consumer) {
         ClojurePDGApi.queryAsync(
                 mappings.toMap(),
-                null,
+                encoders,
                 query,
                 queryOptions.toMap(),
                 result -> {
