@@ -173,10 +173,9 @@ List<BlogPost> posts = result.getList("allPosts", BlogPost.class);
 As prerequisites to build PDG from source we have:
 
 + Java 8
-+ Clojure
-+ Clojure Boot
++ Maven 3
 
-We use Clojure Boot to build PDG. If you're not familiar with Clojure or Boot, please take a look at [Clojure Boot GitHub Repository](https://github.com/boot-clj/boot).
+Just clone this repo and run "mvn clojure:compile install".
 
 ## Contributing
 
