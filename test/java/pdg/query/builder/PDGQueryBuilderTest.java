@@ -81,7 +81,7 @@ public class PDGQueryBuilderTest {
 	
 	@Test
 	public void testQueryWithAndWithHeaders() throws UniqueNameViolationException {
-		String correctQuery = "[:jedis {:from :galaxy :timeout 2000 :with {:role \"jedi\"} :with-headers {:secret \"SUPER_SECRET_JEDI_TRICK\"}}]";
+		String correctQuery = "[:jedis {:from :galaxy :timeout 2000 :with {:role \"jedi\"} :with-headers {\"secret\" \"SUPER_SECRET_JEDI_TRICK\"}}]";
 		
 		QueryBuilder queryBuilder = new QueryBuilder();
 		

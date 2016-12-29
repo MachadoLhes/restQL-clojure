@@ -133,7 +133,7 @@ public class QueryItem {
 		String withHeadersQueryString = ":with-headers {";
 		
 		for(Entry<String, String> entry : this.withHeaders.entrySet()) {
-			withHeadersQueryString += ":" + entry.getKey() + " \"" + entry.getValue() + "\" ";
+			withHeadersQueryString += "\"" + entry.getKey() + "\" \"" + entry.getValue() + "\" ";
 		}
 		
 		withHeadersQueryString = withHeadersQueryString.trim();

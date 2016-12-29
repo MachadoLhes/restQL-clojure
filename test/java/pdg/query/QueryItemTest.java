@@ -54,7 +54,7 @@ public class QueryItemTest {
 		String colorParam = ":color \"black\"";
 		String weightParam = ":weight 120";
 		String blackAnimalsName = ":blackAnimals";
-		String withHeaders = ":with-headers {:Authorization \"86fgr30hf40gh0834gf\"}";
+		String withHeaders = ":with-headers {\"Authorization\" \"86fgr30hf40gh0834gf\"}";
 		String queryString = blackAnimalsName + " {:from :animals :with {" + colorParam + " " + weightParam +"} "+withHeaders + "}";
 		
 		
