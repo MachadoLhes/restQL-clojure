@@ -6,6 +6,8 @@ import pdg.query.Query;
 import pdg.query.QueryOptions;
 import pdg.response.QueryResponse;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 /**
@@ -14,6 +16,7 @@ import java.util.function.Consumer;
 public class PDGJavaRunner {
 
     private RouteMap mappings;
+    private Map<String, Class> encoders = new HashMap<>();
 
     public PDGJavaRunner(ConfigRepository configRepository) {
         this.mappings = configRepository.getMappings();
@@ -22,7 +25,7 @@ public class PDGJavaRunner {
     public QueryResponse executeQuery(String query, QueryOptions queryOptions) {
         return new QueryResponse(ClojurePDGApi.query(
                 mappings.toMap(),
-                null,
+                encoders,
                 query,
                 queryOptions.toMap()));
     }
@@ -43,4 +46,7 @@ public class PDGJavaRunner {
     }
 
 
+    public <T> void setEncoder(String name, Class<T> clazz) {
+        encoders.put(name, clazz);
+    }
 }

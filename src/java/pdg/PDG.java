@@ -1,6 +1,7 @@
 package pdg;
 
 import pdg.config.ConfigRepository;
+import pdg.examples.EncoderExample;
 import pdg.interop.PDGJavaRunner;
 import pdg.query.Query;
 import pdg.query.QueryOptions;
@@ -110,5 +111,13 @@ public class PDG {
 	public QueryBuilder queryBuilder() {
 		return new QueryBuilder();
 	}
-	
+
+	/**
+	 *
+	 * @param name {@link String}
+	 * @param clazz {@link Class}
+     */
+	public <T> void setEncoder(String name, Class<T> clazz) {
+		pdgRunner.setEncoder(name, clazz);
+	}
 }

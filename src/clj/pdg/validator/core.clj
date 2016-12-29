@@ -29,8 +29,10 @@
 (defn all-keys-are-keywords [a-map]
   (->> a-map keys (filter (complement keyword?)) count (= 0)))
 
-(def valid-encoders
-  (->> (ctx/get-encoders) keys (into #{})))
+(defn valid-encoders [custom-encoders-map]
+  (let [base-encoders (->> (ctx/get-encoders) keys (into #{}))
+        custom-encoders (->> custom-encoders-map keys (into #{}))]
+    (into base-encoders custom-encoders)))
 
 (defn valid-timeout [data]
   (if (contains? data :timeout)
@@ -166,7 +168,7 @@
                             (map meta)
                             (map :encoder)
                             (filter (complement nil?))
-                            (filter (complement valid-encoders)))]
+                            (filter (complement (valid-encoders (:encoders context)))))]
           (if (= 0 (count invalids))
             true
             {:invalid (-> invalids first pr-str)})))

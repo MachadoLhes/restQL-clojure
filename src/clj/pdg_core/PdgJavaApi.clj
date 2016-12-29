@@ -10,13 +10,30 @@
                                              String
                                              java.util.Map
                                              java.util.function.Consumer] Void]])
-  (:require [clojure.walk :refer [keywordize-keys]]
+  (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
+            [pdg.log :refer [warn]]
             [pdg-core.pdg-facade :as pdg])
   )
 
+(defn wrap-java-encoder [java-encoder]
+  (fn [data]
+    (try
+      (let [encoder-obj (.newInstance java-encoder)]
+        (.setData encoder-obj (java.util.HashMap. (stringify-keys data)))
+        (.encode encoder-obj))
+      (catch Exception e
+        (warn "Error in encoding class " (.getName java-encoder) ": " (.getMessage e))
+        ""))))
+
+
+(defn wrap-java-encoders [java-encoders-map]
+  (reduce-kv (fn [result key value]
+               (assoc result key (wrap-java-encoder value))) {} java-encoders-map))
+
 (defn concat-encoders [java-encoders]
-  ;TODO criar interface de encoder
-  (pdg/get-default-encoders))
+  (let [java-encoders-map (keywordize-keys (into {} java-encoders))
+        default-encoders (pdg/get-default-encoders)]
+    (into default-encoders (wrap-java-encoders java-encoders-map))))
 
 (defn -query [mappings encoders query query-opts]
 
