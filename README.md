@@ -36,6 +36,17 @@ PDG does the heavy lifting of orchestrating and parallelizing the API calls, all
 ### Installation
 The best way to get started is to add the PDG dependency to your project file.
 
+Just add the following dependency to your maven project to download PDG from maven central:
+
+```xml
+<dependency>
+	<groupId>com.b2wdigital</groupId>
+        <artifactId>pdg-core</artifactId>
+       	<version>0.2.0</version>
+</dependency>
+```
+
+
 ### Configuration
 PDG receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface.
 The configuration must return a `RouteMap` object.

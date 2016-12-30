@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.b2wdigital</groupId>
     <artifactId>pdg-core</artifactId>
-    <version>0.1.2</version>
+    <version>0.2.0</version>
     <name>pdg-core</name>
     <description>Microservice query language for Java</description>
     <url>https://github.com/B2W-Digital/pdg-core</url>
