@@ -2,6 +2,9 @@ package pdg.response;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.util.Map;
 
 /**
  * Created by ideais on 15/12/16.
@@ -14,6 +17,7 @@ public class ResponseDetails {
     private String url;
     private int responseTime;
     private int timeout;
+    private Map<String, String> headers;
 
     public ResponseDetails() {
     }
@@ -33,6 +37,11 @@ public class ResponseDetails {
 
         if (json.get("response-time") != null) {
             details.setResponseTime(json.get("response-time").asInt());
+        }
+
+        if(json.get("headers") != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            details.setHeaders(mapper.convertValue(json.get("headers"), Map.class));
         }
 
         return details;
@@ -68,6 +77,14 @@ public class ResponseDetails {
 
     public void setResponseTime(int responseTime) {
         this.responseTime = responseTime;
+    }
+
+    public Map<String, String> getHeaders() {
+        return headers;
+    }
+
+    public void setHeaders(Map<String, String> headers) {
+        this.headers = headers;
     }
 
     public int getTimeout() {

@@ -29,9 +29,11 @@
               :status  (:status query-response)
               :url (mount-url (:url query-response) (:params query-response))
               :timeout (:timeout query-response)
-              :response-time (:response-time query-response)}
+              :response-time (:response-time query-response)
+              :headers (:headers query-response)}
              {:success (is-success query-response)
-              :status  (:status query-response)})
+              :status  (:status query-response)
+              :headers (:headers query-response)})
    :result (:body query-response)})
 
 (defn- make-map [{done :done} query-opts]

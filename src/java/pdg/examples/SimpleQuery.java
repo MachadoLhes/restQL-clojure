@@ -7,6 +7,8 @@ import pdg.query.QueryOptions;
 import pdg.response.QueryItemResponse;
 import pdg.response.QueryResponse;
 
+import java.util.Map;
+
 /**
  * Created by ideais on 22/12/16.
  */
@@ -33,11 +35,15 @@ public class SimpleQuery {
 
         QueryResponse response = pdg.execute(query, opts);
 
-        System.out.println(response);
+//        System.out.println(response);
 
         QueryItemResponse queryItem = response.get("luke", QueryItemResponse.class);
 
-        System.out.println(queryItem.getDetails().getStatus());
+//        System.out.println(queryItem.getDetails().getStatus());
+
+        for(Map.Entry<String, String> param : queryItem.getDetails().getHeaders().entrySet()) {
+            System.out.println(param.getKey() + " = " + param.getValue());
+        }
 
     }
 
