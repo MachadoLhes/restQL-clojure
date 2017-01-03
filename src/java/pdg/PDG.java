@@ -65,7 +65,7 @@ public class PDG {
 	 * @return {@link QueryResponse}
 	 */
 	public QueryResponse execute(Query query) {
-		return this.pdgRunner.executeQuery(query, queryOptions);
+		return this.pdgRunner.executeQuery(query, this.queryOptions);
 	}
 
 	/**
@@ -81,7 +81,7 @@ public class PDG {
 	}
 
 	/**
-	 * Executes a query using the {@link Query} object from the {@link QueryBuilder}.
+	 * Executes a query using a {@link String}.
 	 *
 	 * @param query {@link String}
 	 * @param queryOptions {@link QueryOptions}
@@ -104,7 +104,7 @@ public class PDG {
 	}
 
 	/**
-	 * Executes an asynchronous query using the {@link Query} object from the {@link QueryBuilder}.
+	 * Executes an asynchronous query using a {@link String}.
 	 *
 	 * @param query {@link String}
 	 * @param consumer {@link Consumer}
@@ -113,7 +113,31 @@ public class PDG {
 	public void executeAsync(String query, Consumer<QueryResponse> consumer) {
 		this.pdgRunner.executeQueryAsync(query, this.queryOptions, consumer);
 	}
-	
+
+    /**
+     * Executes an asynchronous query using the {@link Query} object from the {@link QueryBuilder}.
+     *
+     * @param query {@link Query}
+     * @param queryOptions {@link QueryOptions}
+     * @param consumer {@link Consumer}
+     *
+     */
+    public void executeAsync(Query query, QueryOptions queryOptions, Consumer<QueryResponse> consumer) {
+        this.pdgRunner.executeQueryAsync(query, queryOptions, consumer);
+    }
+
+    /**
+     * Executes an asynchronous query using a {@link String}.
+     *
+     * @param query {@link String}
+     * @param queryOptions {@link QueryOptions}
+     * @param consumer {@link Consumer}
+     *
+     */
+    public void executeAsync(String query, QueryOptions queryOptions, Consumer<QueryResponse> consumer) {
+        this.pdgRunner.executeQueryAsync(query, queryOptions, consumer);
+    }
+
 	/**
 	 * Gets a new instance of {@link QueryBuilder}.
 	 * 

@@ -142,7 +142,7 @@ Query query = pdg.queryBuilder()
 			.from("planets")
 			.timeout(5000)
 		.getQuery();
-QueryResponse result = pdg.executeQuery(query);
+QueryResponse result = pdg.execute(query);
 
 // The JSON String
 String jsonString = result.toString();
