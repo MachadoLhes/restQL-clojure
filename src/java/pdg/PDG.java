@@ -100,7 +100,18 @@ public class PDG {
 	 * 
 	 */
 	public void executeAsync(Query query, Consumer<QueryResponse> consumer) {
-		this.pdgRunner.executeQueryAsync(query.toString(), this.queryOptions, consumer);
+		this.pdgRunner.executeQueryAsync(query, this.queryOptions, consumer);
+	}
+
+	/**
+	 * Executes an asynchronous query using the {@link Query} object from the {@link QueryBuilder}.
+	 *
+	 * @param query {@link String}
+	 * @param consumer {@link Consumer}
+	 *
+	 */
+	public void executeAsync(String query, Consumer<QueryResponse> consumer) {
+		this.pdgRunner.executeQueryAsync(query, this.queryOptions, consumer);
 	}
 	
 	/**

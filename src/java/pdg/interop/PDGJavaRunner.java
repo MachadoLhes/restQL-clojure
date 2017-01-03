@@ -30,6 +30,10 @@ public class PDGJavaRunner {
                 queryOptions.toMap()));
     }
 
+    public QueryResponse executeQuery(Query query, QueryOptions queryOptions) {
+        return executeQuery(query.toString(), queryOptions);
+    }
+
     public void executeQueryAsync(String query, QueryOptions queryOptions, Consumer<QueryResponse> consumer) {
         ClojurePDGApi.queryAsync(
                 mappings.toMap(),
@@ -41,8 +45,8 @@ public class PDGJavaRunner {
                 });
     }
 
-    public QueryResponse executeQuery(Query query, QueryOptions queryOptions) {
-        return executeQuery(query.toString(), queryOptions);
+    public void executeQueryAsync(Query query, QueryOptions queryOptions, Consumer<QueryResponse> consumer) {
+        executeQueryAsync(query.toString(), queryOptions, consumer);
     }
 
 
