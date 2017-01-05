@@ -21,7 +21,7 @@
 
 ;;finally, the interpolated parameters must be removed from the parameters
 ;;map, so they will not pop up in the query strings
-(expect {:name "pdg"} 
-        (dissoc-params with-id {:id "123" :name "pdg"}))
-(expect {:name "pdg"} 
-        (dissoc-params with-two-ids {:customer-id "900" :address-id "800" :name "pdg"}))
+(expect {:name "restql_core"}
+        (dissoc-params with-id {:id "123" :name "restql_core"}))
+(expect {:name "restql_core"}
+        (dissoc-params with-two-ids {:customer-id "900" :address-id "800" :name "restql_core"}))

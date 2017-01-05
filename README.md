@@ -1,11 +1,11 @@
-# PDG-Core
+# RestQL-Core
 
-PDG is a microservice query language for Java that makes easy to fetch information from multiple services in the most efficient manner.
+RestQL is a microservice query language for Java that makes easy to fetch information from multiple services in the most efficient manner.
 
-In PDG you build queries expressing the fields and resources to fetch:
+In RestQL you build queries expressing the fields and resources to fetch:
 
 ```java
-Query query = pdg.queryBuilder()
+Query query = restql.queryBuilder()
         .get("user")
             .from("user")
             .with("id").value(2)
@@ -18,42 +18,42 @@ Query query = pdg.queryBuilder()
             .with("userId").chained(new String[]{"user", "id"})
         .getQuery();
 
-pdg.execute(query);
+restql.execute(query);
 ```
 
-In the example above, first PDG will fetch all users and right after perform parallel requests to fetch users bios and posts.  
+In the example above, first RestQL will fetch all users and right after perform parallel requests to fetch users bios and posts.  
 
-PDG is built upon the battle proven Clojure CSP and Http Kit to maximize throughput and performance.
+RestQL is built upon the battle proven Clojure CSP and Http Kit to maximize throughput and performance.
 
 ### Motivation
 
 When building a microservice architecture we often have to deal with services calling multiple services.
 
-PDG does the heavy lifting of orchestrating and parallelizing the API calls, alleviating the burden of working with async requests in Java.
+RestQL does the heavy lifting of orchestrating and parallelizing the API calls, alleviating the burden of working with async requests in Java.
 
 ## Getting Started
 
 ### Installation
-The best way to get started is to add the PDG dependency to your project file.
+The best way to get started is to add the RestQL dependency to your project file.
 
-Just add the following dependency to your maven project to download PDG from maven central:
+Just add the following dependency to your maven project to download RestQL from maven central:
 
 ```xml
 <dependency>
 	<groupId>com.b2wdigital</groupId>
-        <artifactId>pdg-core</artifactId>
+        <artifactId>restql-core</artifactId>
        	<version>0.2.0</version>
 </dependency>
 ```
 
 
 ### Configuration
-PDG receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface.
+RestQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface.
 The configuration must return a `RouteMap` object.
 
 #### Resources
 
-In PDG resources are the API urls to retrieve data. Examples of resource would be:
+In RestQL resources are the API urls to retrieve data. Examples of resource would be:
 
 + planets: http://swapi.co/api/planets/
 + planet: http://swapi.co/api/planets/:id
@@ -76,13 +76,13 @@ To use the class:
 ```java
 SystemPropertiesConfigRepository systemConfRepository = new SystemPropertiesConfigRepository();
 
-PDG pdg = new PDG(systemConfRepository);
+RestQL restql = new RestQL(systemConfRepository);
 ```
 
 #### Properties File
 
 The class `PropertiesFileConfigRepository` will take a properties file and map the resources.
-An example of properties file (e.g.: pdg.properties):
+An example of properties file (e.g.: restql.properties):
 
 ```properties
 #### Star Wars API ####
@@ -99,9 +99,9 @@ film=http://swapi.co/api/films/:id
 To use the class:
 
 ```java
-PropertiesFileConfigRepository propsFileConfigRepository = new PropertiesFileConfigRepository("resources/pdg.properties");
+PropertiesFileConfigRepository propsFileConfigRepository = new PropertiesFileConfigRepository("resources/restql.properties");
 
-PDG pdg = new PDG(propsFileConfigRepository);
+RestQL restql = new RestQL(propsFileConfigRepository);
 ```
 
 #### Java Class
@@ -117,17 +117,17 @@ config.put("neighbourhoods", "https://data.police.uk/api/:forceid/neighbourhoods
 config.put("crimes", "https://data.police.uk/api/crimes-no-location");
 config.put("crimeDetails", "https://data.police.uk/api/outcomes-for-crime/:persistent_id");
 
-PDG pdg = new PDG(config);
+RestQL restql = new RestQL(config);
 ```
 
-#### Custom PDG Configuration
+#### Custom RestQL Configuration
 
-The default query option sets the debug to false. If you want to use debug on your queries you can instantiate a new PDG class with the debug options as follow:
+The default query option sets the debug to false. If you want to use debug on your queries you can instantiate a new RestQL class with the debug options as follow:
 
 ```java
 QueryOptions queryOptions = new QueryOptions();
 queryOptions.setDebugging(true);
-PDG pdg = new PDG(configRepository, queryOptions);
+RestQL restql = new RestQL(configRepository, queryOptions);
 ```
 ### Examples
 
@@ -136,13 +136,13 @@ PDG pdg = new PDG(configRepository, queryOptions);
 Retrieving all films from Star Wars API
 
 ```java
-PDG pdg = new PDG(new PropertiesFileConfigRepository("resources/pdg.properties"));
-Query query = pdg.queryBuilder()
+RestQL restql = new RestQL(new PropertiesFileConfigRepository("resources/restql.properties"));
+Query query = restql.queryBuilder()
 		.get("galaxyPlanets")
 			.from("planets")
 			.timeout(5000)
 		.getQuery();
-QueryResponse result = pdg.execute(query);
+QueryResponse result = restql.execute(query);
 
 // The JSON String
 String jsonString = result.toString();
@@ -157,8 +157,8 @@ List<Planet> planets = result.getList("galaxyPlanets", Planet.class);
 Retrieving posts from a given user (id = 2), using chained parameters.
 
 ```java
-PDG pdg = new PDG(new PropertiesFileConfigRepository("resources/pdg.properties"));
-Query query = pdg.queryBuilder()
+RestQL restql = new RestQL(new PropertiesFileConfigRepository("resources/restql.properties"));
+Query query = restql.queryBuilder()
 		.get("user")
 			.from("user")
 			.timeout(2000)
@@ -170,7 +170,7 @@ Query query = pdg.queryBuilder()
 			.with("userId")
 				.chained(new String[]{"user", "id"})
 		.getQuery();
-QueryResponse result = pdg.execute(query);
+QueryResponse result = restql.execute(query);
 
 // The JSON String
 String jsonString = result.toString();
@@ -181,7 +181,7 @@ List<BlogPost> posts = result.getList("allPosts", BlogPost.class);
 ```
 ## Building From Source Code
 
-As prerequisites to build PDG from source we have:
+As prerequisites to build RestQL from source we have:
 
 + Java 8
 + Maven 3

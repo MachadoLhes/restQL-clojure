@@ -2,13 +2,13 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.b2wdigital</groupId>
-    <artifactId>pdg-core</artifactId>
-    <version>0.2.0</version>
-    <name>pdg-core</name>
+    <artifactId>restql-core</artifactId>
+    <version>0.3.0</version>
+    <name>RestQL Core</name>
     <description>Microservice query language for Java</description>
-    <url>https://github.com/B2W-Digital/pdg-core</url>
+    <url>https://github.com/B2W-Digital/restQL-core</url>
     <scm>
-        <url>https://github.com/B2W-Digital/pdg-core</url>
+        <url>https://github.com/B2W-Digital/restQL-core</url>
     </scm>
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>

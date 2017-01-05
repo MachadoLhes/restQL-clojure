@@ -10,7 +10,7 @@ pom.xml.asc
 .hg/
 /bin/
 .idea/
-pdg-core.iml
+restQL-core.iml
 .project
 .classpath
 dev-resources/**
