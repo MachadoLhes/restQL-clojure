@@ -80,7 +80,7 @@
         parsed-query (parse-query {:mappings mappings :encoders encoders} query)
         [output-ch exception-ch] (restql/run do-request parsed-query encoders query-opts)
         result-ch (wait-until-finished output-ch query-opts)]
-    (extract-result parsed-query (timeout (:global-timeout query-opts)) exception-ch result-ch)))
+    [(extract-result parsed-query (timeout (:global-timeout query-opts)) exception-ch result-ch) exception-ch]))
 
 (defn execute-query-sync [& {:keys [mappings encoders query query-opts]}]
   (<!! (execute-query-channel :mappings mappings
@@ -90,9 +90,10 @@
 
 (defn execute-query-async [& {:keys [mappings encoders query query-opts callback]}]
   (go
-    (let [result (<! (execute-query-channel :mappings mappings
-                                             :encoders encoders
-                                             :query query
-                                             :query-opts query-opts))]
+    (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
+                                                          :encoders encoders
+                                                          :query query
+                                                          :query-opts query-opts)
+          result (<! result-ch)]
       (callback result))))
 
