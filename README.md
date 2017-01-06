@@ -42,7 +42,7 @@ Just add the following dependency to your maven project to download RestQL from 
 <dependency>
 	<groupId>com.b2wdigital</groupId>
         <artifactId>restql-core</artifactId>
-       	<version>0.3.1</version>
+       	<version>0.3.2</version>
 </dependency>
 ```
 
