@@ -83,10 +83,11 @@
     [(extract-result parsed-query (timeout (:global-timeout query-opts)) exception-ch result-ch) exception-ch]))
 
 (defn execute-query-sync [& {:keys [mappings encoders query query-opts]}]
-  (<!! (execute-query-channel :mappings mappings
+  (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
                               :encoders encoders
                               :query query
-                              :query-opts query-opts)))
+                              :query-opts query-opts)]
+    (<!! result-ch)))
 
 (defn execute-query-async [& {:keys [mappings encoders query query-opts callback]}]
   (go
