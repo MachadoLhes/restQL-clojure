@@ -1,8 +1,8 @@
-# RestQL-Core
+# restQL-Core
 
 RestQL is a microservice query language for Java that makes easy to fetch information from multiple services in the most efficient manner.
 
-In RestQL you build queries expressing the fields and resources to fetch:
+In restQL you build queries expressing the fields and resources to fetch:
 
 ```java
 Query query = restql.queryBuilder()
@@ -21,7 +21,7 @@ Query query = restql.queryBuilder()
 restql.execute(query);
 ```
 
-In the example above, first RestQL will fetch all users and right after perform parallel requests to fetch users bios and posts.  
+In the example above, first restQL will fetch all users and right after perform parallel requests to fetch users bios and posts.  
 
 RestQL is built upon the battle proven Clojure CSP and Http Kit to maximize throughput and performance.
 
@@ -34,9 +34,9 @@ RestQL does the heavy lifting of orchestrating and parallelizing the API calls, 
 ## Getting Started
 
 ### Installation
-The best way to get started is to add the RestQL dependency to your project file.
+The best way to get started is to add the restQL dependency to your project file.
 
-Just add the following dependency to your maven project to download RestQL from maven central:
+Just add the following dependency to your maven project to download restQL from maven central:
 
 ```xml
 <dependency>
@@ -53,7 +53,7 @@ The configuration must return a `RouteMap` object.
 
 #### Resources
 
-In RestQL resources are the API urls to retrieve data. Examples of resource would be:
+In restQL resources are the API urls to retrieve data. Examples of resource would be:
 
 + planets: http://swapi.co/api/planets/
 + planet: http://swapi.co/api/planets/:id
@@ -120,9 +120,9 @@ config.put("crimeDetails", "https://data.police.uk/api/outcomes-for-crime/:persi
 RestQL restql = new RestQL(config);
 ```
 
-#### Custom RestQL Configuration
+#### Custom restQL Configuration
 
-The default query option sets the debug to false. If you want to use debug on your queries you can instantiate a new RestQL class with the debug options as follow:
+The default query option sets the debug to false. If you want to use debug on your queries you can instantiate a new restQL class with the debug options as follow:
 
 ```java
 QueryOptions queryOptions = new QueryOptions();
@@ -181,7 +181,7 @@ List<BlogPost> posts = result.getList("allPosts", BlogPost.class);
 ```
 ## Building From Source Code
 
-As prerequisites to build RestQL from source we have:
+As prerequisites to build restQL from source we have:
 
 + Java 8
 + Maven 3
