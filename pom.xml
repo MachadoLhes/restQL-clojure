@@ -97,7 +97,7 @@
         <dependency>
             <groupId>org.clojure</groupId>
             <artifactId>core.async</artifactId>
-            <version>0.1.346.0-17112a-alpha</version>
+            <version>0.2.395</version>
             <scope>compile</scope>
             <exclusions/>
         </dependency>
