@@ -51,12 +51,13 @@
 
   (let [clj-mappings (keywordize-keys (into {} mappings))
         clj-encoders (concat-encoders encoders)
-        clj-query-opts (keywordize-keys (into {} query-opts))]
+        clj-query-opts (keywordize-keys (into {} query-opts))
+        restql-ch (restql/execute-query-async
+                    :mappings clj-mappings
+                    :encoders clj-encoders
+                    :query query
+                    :query-opts clj-query-opts
+                    :callback (fn [result]
+                                (.accept callback result)))]
 
-    (restql/execute-query-async
-      :mappings clj-mappings
-      :encoders clj-encoders
-      :query query
-      :query-opts clj-query-opts
-      :callback (fn [result]
-                  (.accept callback result)))))
+    nil))

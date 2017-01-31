@@ -2,6 +2,7 @@ package restql.core.examples;
 
 import restql.core.RestQL;
 import restql.core.config.ClassConfigRepository;
+import restql.core.interop.Hook;
 import restql.core.response.QueryResponse;
 import restql.core.query.Query;
 import restql.core.query.QueryOptions;
@@ -13,6 +14,15 @@ import java.util.Map;
  * Created by ideais on 22/12/16.
  */
 public class SimpleQuery {
+
+    public static class SimpleHook extends Hook {
+
+        public void execute() {
+            for(Map.Entry<String, Object> e : this.getData().entrySet()) {
+                System.out.println(e.getKey()  + " - " + e.getValue());
+            }
+        }
+    }
 
     public static void main(String[] args) {
 
@@ -32,6 +42,8 @@ public class SimpleQuery {
         opts.setDebugging(true);
         opts.setGlobalTimeout(10000);
         opts.setTimeout(3000);
+        opts.addHook("before-query", SimpleHook.class);
+        opts.addHook("after-query", SimpleHook.class);
 
         QueryResponse response = restQL.execute(query, opts);
 

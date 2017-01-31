@@ -19,12 +19,12 @@ public class QueryResponse {
     private final ObjectMapper mapper;
     private final String rawString;
 
-    public QueryResponse(String pdgResponse) {
+    public QueryResponse(String response) {
         try {
             ObjectMapper mapper = new ObjectMapper();
-            this.rawString = pdgResponse;
+            this.rawString = response;
             this.mapper = mapper;
-            this.parsed = mapper.readTree(pdgResponse);
+            this.parsed = mapper.readTree(response);
         }
         catch(IOException e) {
             throw new ResponseParseException(e);

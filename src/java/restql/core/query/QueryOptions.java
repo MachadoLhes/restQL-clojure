@@ -1,5 +1,7 @@
 package restql.core.query;
 
+import restql.core.interop.Hook;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -13,6 +15,13 @@ public class QueryOptions {
     private Integer globalTimeout = 5000;
 
     private Integer timeout = 1000;
+
+    private Map<String, Class> hooks;
+
+
+    public QueryOptions() {
+        this.hooks = new HashMap<>();
+    }
 
     public void setDebugging(boolean debugging) {
         this.debugging = debugging;
@@ -38,14 +47,15 @@ public class QueryOptions {
         this.timeout = timeout;
     }
 
+    public void addHook(String name, Class clazz) { this.hooks.put(name, clazz); }
+
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
         map.put("debugging", debugging);
         map.put("timeout", timeout);
         map.put("global-timeout", globalTimeout);
+        map.put("java-hooks", hooks);
         return map;
     }
-
-
 
 }

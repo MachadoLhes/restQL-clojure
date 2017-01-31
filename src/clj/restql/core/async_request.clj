@@ -4,10 +4,12 @@
             [org.httpkit.client :as http]
             [restql.core.async-request-builder :as builder]
             [restql.core.query :as query]
+            [restql.core.hooks.core :as hook]
             [restql.core.log :refer [info warn error]]
             [restql.core.extractor :refer [traverse]]
             [slingshot.slingshot :refer [try+]]
-            [cheshire.core :as json])
+            [cheshire.core :as json]
+            [clojure.walk :refer [stringify-keys keywordize-keys]])
   (:import [java.net URLDecoder]))
 
 (defn get-service-endpoint [mappings entity]
@@ -57,13 +59,14 @@
   ([request query-opts output-ch]
   (let [request (parse-query-params request)
         time-before (System/currentTimeMillis)
-        request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))]
-    (info {:resource (:resource request)
-           :requesttimeout request-timeout
-           :url (:url request)
-           :queryparams (:query-params request)
-           :headers (:headers request)}
-           "Preparing request")
+        request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))
+        request-map {:resource (:resource request)
+                     :requesttimeout request-timeout
+                     :url (:url request)
+                     :queryparams (:query-params request)
+                     :headers (:headers request)}]
+    (info request-map "Preparing request")
+    (hook/execute-hook query-opts :before-request request-map)
     (http/get (:url request) {:headers (:headers request)
                               :query-params (:query-params request)
                               :timeout request-timeout}
@@ -78,17 +81,26 @@
                                   :statuscode (:status result)
                                   :time (- (System/currentTimeMillis) time-before))
                   "Request successful")
-            (go (>! output-ch (convert-response result {:debugging (:debugging query-opts)
-                                                        :url (:url request)
-                                                        :params (:query-params request)
-                                                        :timeout request-timeout
-                                                        :time (- (System/currentTimeMillis) time-before)}))))
+            (let [response (convert-response result {:debugging (:debugging query-opts)
+                                                     :url (:url request)
+                                                     :params (:query-params request)
+                                                     :timeout request-timeout
+                                                     :time (- (System/currentTimeMillis) time-before)})]
+              (hook/execute-hook query-opts :after-request (reduce-kv (fn [result k v]
+                                                                        (if (= k :body)
+                                                                          (assoc result k (json/generate-string v))
+                                                                          (assoc result k v)))
+                                                                      {} response))
+              (go (>! output-ch response))))
           (do
-            (error (assoc log-data :success false
-                                   :time (- (System/currentTimeMillis) time-before)
-                                   :errordetail (pr-str (:error result)))
-                   "Request failed")
-            (go (>! output-ch {:status 408 :body {:message "timeout"}}))))))))))
+            (let [error-data (assoc log-data :success false
+                                             :status (Integer. 408)
+                                             :time (- (System/currentTimeMillis) time-before)
+                                             :errordetail (pr-str (:error result)))]
+              (error error-data "Request failed")
+              (hook/execute-hook query-opts :after-request error-data)
+              (go (>! output-ch {:status 408 :body {:message "timeout"}})))))))))))
+
 
 (defn query-and-join [requests output-ch query-opts]
   (go-loop [[ch & others] (map #(make-request % query-opts) requests)

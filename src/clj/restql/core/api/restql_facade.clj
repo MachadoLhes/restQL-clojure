@@ -4,6 +4,7 @@
             [restql.core.validator.core :as validator]
             [restql.core.transformations.select :refer [select]]
             [restql.core.async-request :as request]
+            [restql.core.hooks.core :as hook]
             [cheshire.core :as json]
             [restql.core.context :as context]
             [ring.util.codec :refer [form-encode]]
@@ -75,19 +76,33 @@
               :global-timeout 5000} query-options))
 
 (defn execute-query-channel [& {:keys [mappings encoders query query-opts]}]
-  (let [do-request (partial request/do-request mappings)
+  (let [; Before query hook
+        _ (hook/execute-hook query-opts :before-query {:query query
+                                                       :query-options query-opts})
+
+        ; Executing query
+        do-request (partial request/do-request mappings)
         query-opts (set-default-query-options query-opts)
         parsed-query (parse-query {:mappings mappings :encoders encoders} query)
         [output-ch exception-ch] (restql/run do-request parsed-query encoders query-opts)
-        result-ch (wait-until-finished output-ch query-opts)]
-    [(extract-result parsed-query (timeout (:global-timeout query-opts)) exception-ch result-ch) exception-ch]))
+        result-ch (wait-until-finished output-ch query-opts)
+        parsed-ch (extract-result parsed-query (timeout (:global-timeout query-opts)) exception-ch result-ch)
+        return-ch (go
+                    (let [query-result (<! parsed-ch)
+
+                          ; After query hook
+                          _ (hook/execute-hook query-opts :after-query {:query query
+                                                                        :result query-result})]
+                      query-result))]
+    [return-ch exception-ch]))
 
 (defn execute-query-sync [& {:keys [mappings encoders query query-opts]}]
   (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
-                              :encoders encoders
-                              :query query
-                              :query-opts query-opts)]
-    (<!! result-ch)))
+                                                        :encoders encoders
+                                                        :query query
+                                                        :query-opts query-opts)
+        result (<!! result-ch)]
+    result))
 
 (defn execute-query-async [& {:keys [mappings encoders query query-opts callback]}]
   (go
