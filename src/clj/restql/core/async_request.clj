@@ -61,31 +61,34 @@
         time-before (System/currentTimeMillis)
         request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))
         request-map {:resource (:resource request)
-                     :requesttimeout request-timeout
+                     :timeout request-timeout
                      :url (:url request)
-                     :queryparams (:query-params request)
-                     :headers (:headers request)}]
+                     :query-params (:query-params request)
+                     :headers (:headers request)
+                     :time time-before}]
     (info request-map "Preparing request")
+    ; Before Request hook
     (hook/execute-hook query-opts :before-request request-map)
     (http/get (:url request) {:headers (:headers request)
                               :query-params (:query-params request)
                               :timeout request-timeout}
       (fn [result]
         (let [log-data {:resource (:resource request)
-                        :requesttimeout request-timeout
+                        :timeout request-timeout
                         :success true}]
         (if (nil? (:error result))
           (do
 
             (info (assoc log-data :success true
-                                  :statuscode (:status result)
+                                  :status (:status result)
                                   :time (- (System/currentTimeMillis) time-before))
                   "Request successful")
             (let [response (convert-response result {:debugging (:debugging query-opts)
                                                      :url (:url request)
-                                                     :params (:query-params request)
+                                                     :query-params (:query-params request)
                                                      :timeout request-timeout
                                                      :time (- (System/currentTimeMillis) time-before)})]
+              ; After Request hook
               (hook/execute-hook query-opts :after-request (reduce-kv (fn [result k v]
                                                                         (if (= k :body)
                                                                           (assoc result k (json/generate-string v))
@@ -94,7 +97,8 @@
               (go (>! output-ch response))))
           (do
             (let [error-data (assoc log-data :success false
-                                             :status (Integer. 408)
+                                             :url (:url request)
+                                             :status 408
                                              :time (- (System/currentTimeMillis) time-before)
                                              :errordetail (pr-str (:error result)))]
               (error error-data "Request failed")

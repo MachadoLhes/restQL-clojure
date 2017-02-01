@@ -2,7 +2,10 @@ package restql.core.examples;
 
 import restql.core.RestQL;
 import restql.core.config.ClassConfigRepository;
+import restql.core.hooks.AfterQueryHook;
 import restql.core.hooks.AfterRequestHook;
+import restql.core.hooks.QueryHook;
+import restql.core.hooks.RequestHook;
 import restql.core.interop.Hook;
 import restql.core.query.Query;
 import restql.core.query.QueryOptions;
@@ -14,7 +17,7 @@ import java.util.Map;
  */
 public class AsyncQuery {
 
-    public static class BeforeRequestHook extends Hook {
+    public static class BeforeRequestHook extends RequestHook {
 
         public void execute() {
             System.out.println("[BEFORE REQUEST]");
@@ -28,30 +31,32 @@ public class AsyncQuery {
 
         public void execute() {
             System.out.println("[AFTER REQUEST]");
+            System.out.println(this.getUrl() + " => " + this.getTimeout() + " CODE: " + this.getResponseStatusCode()
+                    + " (" + this.getReponseTime() + ")");
+
             if(this.isError())
                 System.out.println("Error: "+this.getData().get("errordetail"));
-            else
-                System.out.println(this.getResponseStatusCode());
+            else {
+                for(Map.Entry<String, String> e : this.getHeaders().entrySet()) {
+                    System.out.println(e.getKey() + " = " + e.getValue());
+                }
+            }
+
         }
     }
 
-    public static class BeforeQueryHook extends Hook {
+    public static class BeforeQueryHook extends QueryHook {
 
         public void execute() {
-            System.out.println("[BEFORE QUERY]");
-            for(Map.Entry<String, Object> e : this.getData().entrySet()) {
-                System.out.println(e.getKey()  + " - " + e.getValue());
-            }
+            System.out.println("[BEFORE QUERY] "+this.getQuery());
         }
     }
 
-    public static class AfterQueryHook extends Hook {
+    public static class SimpleAfterQueryHook extends AfterQueryHook {
 
         public void execute() {
-            System.out.println("[AFTER QUERY]");
-            for(Map.Entry<String, Object> e : this.getData().entrySet()) {
-                System.out.println(e.getKey()  + " - " + e.getValue());
-            }
+            System.out.println("[AFTER QUERY] "+this.getQuery());
+            System.out.println(this.getResult().toString());
         }
     }
 
@@ -72,10 +77,11 @@ public class AsyncQuery {
                 .getQuery();
 
         QueryOptions opts = new QueryOptions();
-        opts.addHook("before-query", BeforeQueryHook.class);
-        opts.addHook("after-query", AfterQueryHook.class);
-        opts.addHook("before-request", BeforeRequestHook.class);
-        opts.addHook("after-request", SimpleAfterRequestHook.class);
+
+        opts.setBeforeQueryHook(BeforeQueryHook.class);
+        opts.setAfterQuerytHook(SimpleAfterQueryHook.class);
+        opts.setBeforeRequestHook(BeforeRequestHook.class);
+        opts.setAfterRequestHook(SimpleAfterRequestHook.class);
 
         restQL.executeAsync(query, opts, System.out::println);
         Thread.sleep(5000);

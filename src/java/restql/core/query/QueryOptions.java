@@ -1,5 +1,9 @@
 package restql.core.query;
 
+import restql.core.hooks.AfterQueryHook;
+import restql.core.hooks.AfterRequestHook;
+import restql.core.hooks.QueryHook;
+import restql.core.hooks.RequestHook;
 import restql.core.interop.Hook;
 
 import java.util.HashMap;
@@ -47,7 +51,23 @@ public class QueryOptions {
         this.timeout = timeout;
     }
 
-    public void addHook(String name, Class clazz) { this.hooks.put(name, clazz); }
+    /* Binding hooks */
+    public <T> void setBeforeRequestHook(Class<T> hook) {
+        this.hooks.put("before-request", hook);
+    }
+
+    public <T> void setAfterRequestHook(Class<T> hook) {
+        this.hooks.put("after-request", hook);
+    }
+
+    public <T> void setBeforeQueryHook(Class<T> hook) {
+        this.hooks.put("before-query", hook);
+    }
+
+    public <T> void setAfterQuerytHook(Class<T> hook) {
+        this.hooks.put("after-query", hook);
+    }
+
 
     public Map<String, Object> toMap() {
         Map<String, Object> map = new HashMap<>();
