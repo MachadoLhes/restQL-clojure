@@ -18,6 +18,11 @@ public abstract class AfterRequestHook extends RequestHook {
         return (responseTime != null ? ((Number) responseTime).longValue() : null);
     }
 
+    public Long getTime() {
+        Object time = this.getData().get("time");
+        return (time != null ? ((Number) time).longValue() : null);
+    }
+
     public Long getResponseStatusCode() {
         return ((Number) this.getData().get("status")).longValue();
     }

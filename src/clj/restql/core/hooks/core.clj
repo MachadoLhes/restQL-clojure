@@ -17,7 +17,7 @@
   (if (contains? query-options :java-hooks)
     (let [hooks (into {} (query-options :java-hooks))]
       (reduce-kv (fn [result key value]
-                   (assoc result (keyword key) (wrap-java-hook value))) {} hooks))
+                   (assoc result (keyword key) (map wrap-java-hook value))) {} hooks))
     {}))
 
 (defn wrap-clojure-hooks [query-options]
@@ -33,5 +33,6 @@
 (defn execute-hook [query-options hook-name param-map]
   (let [hooks (concat-hooks query-options)]
     (if (contains? hooks hook-name)
-      (let [hook-fn (hooks hook-name)]
-        (hook-fn param-map)))))
+      (let [hook-fns (hooks hook-name)]
+        (doseq [hook-fn hook-fns]
+          (hook-fn param-map))))))

@@ -18,9 +18,9 @@ public abstract class RequestHook extends Hook {
         return ((Number) this.getData().get("timeout")).longValue();
     }
 
-    public Long getTime() {
-        Object time = this.getData().get("time");
-        return (time != null ? ((Number) time).longValue() : null);
+    public Map<String, String> getQueryParameters() {
+        Object queryParams = this.getData().get("query-params");
+        return (queryParams != null ? (Map<String, String> )queryParams : null);
     }
 
     public Map<String, String> getHeaders() {

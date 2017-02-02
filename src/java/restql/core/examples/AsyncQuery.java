@@ -6,7 +6,6 @@ import restql.core.hooks.AfterQueryHook;
 import restql.core.hooks.AfterRequestHook;
 import restql.core.hooks.QueryHook;
 import restql.core.hooks.RequestHook;
-import restql.core.interop.Hook;
 import restql.core.query.Query;
 import restql.core.query.QueryOptions;
 

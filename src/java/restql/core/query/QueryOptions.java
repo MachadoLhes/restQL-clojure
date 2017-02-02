@@ -6,7 +6,9 @@ import restql.core.hooks.QueryHook;
 import restql.core.hooks.RequestHook;
 import restql.core.interop.Hook;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -20,11 +22,16 @@ public class QueryOptions {
 
     private Integer timeout = 1000;
 
-    private Map<String, Class> hooks;
-
+    private List<Class> beforeRequestHooks;
+    private List<Class> afterRequesthooks;
+    private List<Class> beforeQueryHooks;
+    private List<Class> afterQueryHooks;
 
     public QueryOptions() {
-        this.hooks = new HashMap<>();
+        this.beforeRequestHooks = new ArrayList<>();
+        this.afterRequesthooks = new ArrayList<>();
+        this.beforeQueryHooks = new ArrayList<>();
+        this.afterQueryHooks = new ArrayList<>();
     }
 
     public void setDebugging(boolean debugging) {
@@ -53,19 +60,19 @@ public class QueryOptions {
 
     /* Binding hooks */
     public <T> void setBeforeRequestHook(Class<T> hook) {
-        this.hooks.put("before-request", hook);
+        this.beforeRequestHooks.add(hook);
     }
 
     public <T> void setAfterRequestHook(Class<T> hook) {
-        this.hooks.put("after-request", hook);
+        this.afterRequesthooks.add(hook);
     }
 
     public <T> void setBeforeQueryHook(Class<T> hook) {
-        this.hooks.put("before-query", hook);
+        this.beforeQueryHooks.add(hook);
     }
 
     public <T> void setAfterQuerytHook(Class<T> hook) {
-        this.hooks.put("after-query", hook);
+        this.afterQueryHooks.add(hook);
     }
 
 
@@ -74,6 +81,13 @@ public class QueryOptions {
         map.put("debugging", debugging);
         map.put("timeout", timeout);
         map.put("global-timeout", globalTimeout);
+
+        Map<String, List> hooks = new HashMap<>();
+        hooks.put("before-request", this.beforeRequestHooks);
+        hooks.put("after-request", this.afterRequesthooks);
+        hooks.put("before-query", this.beforeQueryHooks);
+        hooks.put("after-query", this.afterQueryHooks);
+
         map.put("java-hooks", hooks);
         return map;
     }
