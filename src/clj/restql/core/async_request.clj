@@ -21,7 +21,10 @@
   (reduce-kv #(assoc %1 %2 (f %3)) {} m))
 
 (defn decode-url [string]
-  (URLDecoder/decode string "utf-8"))
+  (try
+    (URLDecoder/decode string "utf-8")
+    (catch Exception e
+      string)))
 
 (defn parse-query-params
   "this function takes a request object (with :url and :query-params)
