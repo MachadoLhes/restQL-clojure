@@ -36,13 +36,14 @@
           (->> query-param-value (map decode-url) (into []))
           (decode-url query-param-value))) %)))
 
-(defn convert-response [{:keys [status body headers]} {:keys [debugging time url params timeout]} ]
+(defn convert-response [{:keys [status body headers]} {:keys [debugging time url params timeout resource]} ]
   (let [parsed (if (string? body) body (slurp body))
         base {:status status
               :headers headers
               :url url
               :timeout timeout
               :params params
+              :resource resource
               :response-time time}]
     (try
       (assoc base
@@ -87,6 +88,7 @@
                                   :time (- (System/currentTimeMillis) time-before))
                   "Request successful")
             (let [response (convert-response result {:debugging (:debugging query-opts)
+                                                     :resource (:resource request)
                                                      :url (:url request)
                                                      :query-params (:query-params request)
                                                      :timeout request-timeout
