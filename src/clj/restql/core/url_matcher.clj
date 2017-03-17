@@ -1,5 +1,6 @@
 (ns restql.core.url-matcher
-  (:require [clojure.string :as str]))
+  (:require [clojure.string :as str]
+            [ring.util.codec :refer [url-encode]]))
 
 (defn extract-parameters 
   "receives an string containing a url pattern and returns
@@ -15,9 +16,9 @@
    a string with a result url, with the values applied"
   [url params]
   (reduce (fn [result param-key]
-            (str/replace result
+              (str/replace result
                          (re-pattern (str ":" (name param-key)))
-                         (str (param-key params))))
+                           (url-encode (str (param-key params)))))
           url (extract-parameters url)))
 
 (defn dissoc-params
