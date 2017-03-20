@@ -20,3 +20,4 @@ settings.xml
 **/*.iml
 .settings
 .settings/**
+.vscode/
