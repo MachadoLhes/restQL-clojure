@@ -1,7 +1,7 @@
 (ns restql.core.async-request-builder
   (:require [restql.core.query :as query]
             [restql.core.encoders.core :as encoders]
-            [restql.core.log :refer [info]]
+            [restql.core.log :refer [info debug]]
             [restql.core.url-matcher :as matcher]
             [restql.core.extractor :refer [traverse has-multiples extract-multiple]]
             [cheshire.core :as json]

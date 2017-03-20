@@ -5,7 +5,7 @@
             [restql.core.async-request-builder :as builder]
             [restql.core.query :as query]
             [restql.core.hooks.core :as hook]
-            [restql.core.log :refer [info warn error]]
+            [restql.core.log :refer [debug error]]
             [restql.core.extractor :refer [traverse]]
             [slingshot.slingshot :refer [try+]]
             [cheshire.core :as json]
@@ -70,7 +70,7 @@
                      :query-params (:query-params request)
                      :headers (:headers request)
                      :time time-before}]
-    (info request-map "Preparing request")
+    (debug request-map "Preparing request")
     ; Before Request hook
     (hook/execute-hook query-opts :before-request request-map)
     (http/get (:url request) {:headers (:headers request)
@@ -83,7 +83,7 @@
         (if (nil? (:error result))
           (do
 
-            (info (assoc log-data :success true
+            (debug (assoc log-data :success true
                                   :status (:status result)
                                   :time (- (System/currentTimeMillis) time-before))
                   "Request successful")

@@ -1,7 +1,7 @@
 (ns restql.core.async-runner
   (:require [clojure.core.async :as a :refer [go-loop go <! >! chan alt! timeout]]
             [restql.core.query :as query]
-            [restql.core.log :refer [info warn error]]
+            [restql.core.log :refer [debug info warn error]]
             [clojure.set :as s]))
 
 (defn generate-uuid! []

@@ -10,6 +10,9 @@
 (defn log-error [& text]
   (log/error text))
 
+(defn log-debug [& text]
+  (log/debug text))
+
 (defmacro info [& text]
   `(log-info ~@text))
 
@@ -18,3 +21,6 @@
 
 (defmacro error [& text]
   `(log-error ~@text))
+
+(defmacro debug [& text]
+  `(log-debug ~@text))
