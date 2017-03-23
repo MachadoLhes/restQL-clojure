@@ -1,6 +1,6 @@
 # restQL-Core
 
-RestQL is a microservice query language for Java that makes easy to fetch information from multiple services in the most efficient manner.
+RestQL is a microservice query language for Java that makes easy to fetch information from multiple services in the most efficient manner. RestQL-core is a lib that does the heavy lifting. You can check [restQL-Server here](https://github.com/B2W-BIT/restQL-server).
 
 In restQL you build queries expressing the fields and resources to fetch:
 
