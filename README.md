@@ -31,7 +31,7 @@ RestQL is built upon the battle proven Clojure CSP and Http Kit to maximize thro
 
 When building a microservice architecture we often have to deal with services calling multiple services.
 
-RestQL does the heavy lifting of orchestrating and parallelizing the API calls, alleviating the burden of working with async requests in Java.
+restQL does the heavy lifting of orchestrating and parallelizing the API calls, alleviating the burden of working with async requests in Java.
 
 ## Getting Started
 
