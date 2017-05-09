@@ -186,6 +186,7 @@
   (let [resolved-query-item (strip-nils (resolve-query-item query-item-data encoders state))
         timeout             (:timeout query-item-data)]
     {:url          (matcher/interpolate url resolved-query-item)
+     :metadata     (meta query-item-data)
      :resource     (:from query-item-data)
      :query-params (build-query-params query-item-data url resolved-query-item)
      :timeout      timeout

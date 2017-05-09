@@ -72,7 +72,6 @@
     (let [from (:from (second (second (first next-req))))]
       (go
         (alt!
-
           timeout-ch
             ([]
               (warn {:session uid
@@ -101,9 +100,9 @@
       (recur new-state))))
 
 (defn run [do-request query encoders {:keys [debugging] :as query-opts}]
-  (let [chans {:output-ch (chan)
-               :request-ch (chan)
-               :result-ch (chan)
+  (let [chans {:output-ch    (chan)
+               :request-ch   (chan)
+               :result-ch    (chan)
                :exception-ch (chan)}]
     (make-requests do-request encoders chans query-opts)
     (do-run query chans)

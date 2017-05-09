@@ -36,11 +36,12 @@
           (->> query-param-value (map decode-url) (into []))
           (decode-url query-param-value))) %)))
 
-(defn convert-response [{:keys [status body headers]} {:keys [debugging time url params timeout resource]} ]
+(defn convert-response [{:keys [status body headers]} {:keys [debugging metadata time url params timeout resource]} ]
   (let [parsed (if (string? body) body (slurp body))
         base {:status status
               :headers headers
               :url url
+              :metadata metadata
               :timeout timeout
               :params params
               :resource resource
@@ -82,12 +83,12 @@
                         :success true}]
         (if (nil? (:error result))
           (do
-
             (debug (assoc log-data :success true
                                   :status (:status result)
                                   :time (- (System/currentTimeMillis) time-before))
                   "Request successful")
             (let [response (convert-response result {:debugging (:debugging query-opts)
+                                                     :metadata (:metadata request)
                                                      :resource (:resource request)
                                                      :url (:url request)
                                                      :query-params (:query-params request)
@@ -102,13 +103,16 @@
               (go (>! output-ch response))))
           (do
             (let [error-data (assoc log-data :success false
+                                             :metadata (:metadata request)
                                              :url (:url request)
                                              :status 408
                                              :time (- (System/currentTimeMillis) time-before)
                                              :errordetail (pr-str (:error result)))]
               (error error-data "Request failed")
               (hook/execute-hook query-opts :after-request error-data)
-              (go (>! output-ch {:status 408 :body {:message "timeout"}})))))))))))
+              (go (>! output-ch {:status 408 
+                                 :metadata (:metadata request)
+                                 :body {:message "timeout"}})))))))))))
 
 
 (defn query-and-join [requests output-ch query-opts]

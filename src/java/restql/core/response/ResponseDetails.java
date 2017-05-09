@@ -18,6 +18,7 @@ public class ResponseDetails {
     private int responseTime;
     private int timeout;
     private Map<String, String> headers;
+    private Map<String, String> metadata;
 
     public ResponseDetails() {
     }
@@ -42,6 +43,11 @@ public class ResponseDetails {
         if(json.get("headers") != null) {
             ObjectMapper mapper = new ObjectMapper();
             details.setHeaders(mapper.convertValue(json.get("headers"), Map.class));
+        }
+
+        if(json.get("metadata") != null) {
+            ObjectMapper mapper = new ObjectMapper();
+            details.setHeaders(mapper.convertValue(json.get("metadata"), Map.class));
         }
 
         return details;
@@ -85,6 +91,14 @@ public class ResponseDetails {
 
     public void setHeaders(Map<String, String> headers) {
         this.headers = headers;
+    }
+
+    public Map<String, String> getMetadata() {
+        return metadata;
+    }
+
+    public void setMetadata(Map<String, String> headers) {
+        this.headers = metadata;
     }
 
     public int getTimeout() {

@@ -23,18 +23,32 @@
 (defn- mount-url [url params]
   (str url "?" (form-encode params)))
 
+(defn stringify-values [a-map]
+  (reduce-kv (fn [m k v] (assoc m k (str v))) {} a-map))
+
+(defn- append-metadata [response query-response]
+  (let [metadata (:metadata query-response)]
+    (if (nil? metadata)
+      (assoc response :metadata {})
+      (assoc response :metadata (stringify-values metadata)))))
+
+(defn append-debug-data [response query-opts query-response]
+  (if (:debugging query-opts)
+    (assoc response :url (mount-url (:url query-response) (:params query-response))
+                    :timeout (:timeout query-response)
+                    :response-time (:response-time query-response))
+    response))
+
+(defn build-details [query-opts query-response]
+  (-> {}
+      (assoc :success (is-success query-response)
+             :status  (:status query-response)
+             :headers (:headers query-response))
+      (append-metadata query-response)
+      (append-debug-data query-opts query-response)))
+
 (defn- prepare-response [query-opts query-response]
-  {:details
-           (if (:debugging query-opts)
-             {:success (is-success query-response)
-              :status  (:status query-response)
-              :url (mount-url (:url query-response) (:params query-response))
-              :timeout (:timeout query-response)
-              :response-time (:response-time query-response)
-              :headers (:headers query-response)}
-             {:success (is-success query-response)
-              :status  (:status query-response)
-              :headers (:headers query-response)})
+  {:details (build-details query-opts query-response)
    :result (:body query-response)})
 
 (defn- make-map [{done :done} query-opts]
