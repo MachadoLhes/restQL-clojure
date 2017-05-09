@@ -135,6 +135,7 @@
     </distributionManagement>
     <build>
         <sourceDirectory>./src/java</sourceDirectory>
+        <testSourceDirectory>./test/java</testSourceDirectory>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -149,13 +150,13 @@
             <plugin>
                 <groupId>com.theoryinpractise</groupId>
                 <artifactId>clojure-maven-plugin</artifactId>
-                <version>1.3.10</version>
+                <version>1.8.1</version>
                 <configuration>
                     <sourceDirectories>
-                        <sourceDirectory>./src/clj</sourceDirectory>
+                        <sourceDirectory>src/clj</sourceDirectory>
                     </sourceDirectories>
                     <testSourceDirectories>
-                        <testSourceDirectory>./test/pdg</testSourceDirectory>
+                        <testSourceDirectory>test/clj</testSourceDirectory>
                     </testSourceDirectories>
                 </configuration>
                 <executions>

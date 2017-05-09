@@ -1,4 +1,4 @@
-(ns pdg.encoders.core-test
+(ns restql.core.encoders.core-test
   (:require [slingshot.slingshot :refer [try+]])
   (:use pdg.encoders.core)
   (:use expectations))
