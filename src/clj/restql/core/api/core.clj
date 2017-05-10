@@ -23,23 +23,3 @@
                                               (when-not (nil? callback)
                                                 (callback result)))))
     output))
-
-(comment
-
-  (require 'restql.core.api.core :reload-all)
-  (in-ns 'restql.core.api.core)
-
-  (query :mappings {:cart "http://acom-cart-v3.sa-east-1.elasticbeanstalk.com/cart/:id"}
-         :encoders {}
-         :query [:c ^{:foo "bar"} {:from :cart :with {:id 123}}]
-         :query-opts {}
-         :callback (fn [result] (println result)))
-
-  (query :mappings {:cart "http://acom-cart-v3.sa-east-1.elasticbeanstalk.com/cart/:id"}
-         :encoders {}
-         :query [:c {:from :cart :with {:id 123}}]
-         :query-opts {}
-         :callback (fn [result] (println result)))
-
-
-         )
