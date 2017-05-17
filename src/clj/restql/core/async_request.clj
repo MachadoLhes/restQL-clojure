@@ -76,7 +76,9 @@
     (hook/execute-hook query-opts :before-request request-map)
     (http/get (:url request) {:headers (:headers request)
                               :query-params (:query-params request)
-                              :timeout request-timeout}
+                              :timeout request-timeout
+                              :idle-timeout request-timeout
+                              :connect-timeout request-timeout}
       (fn [result]
         (let [log-data {:resource (:resource request)
                         :timeout request-timeout
@@ -101,8 +103,7 @@
                                                                           (assoc result k v)))
                                                                       {} response))
               (go (>! output-ch response))))
-          (do
-            (let [error-data (assoc log-data :success false
+          (let [error-data (assoc log-data :success false
                                              :metadata (:metadata request)
                                              :url (:url request)
                                              :status 408
@@ -112,7 +113,7 @@
               (hook/execute-hook query-opts :after-request error-data)
               (go (>! output-ch {:status 408 
                                  :metadata (:metadata request)
-                                 :body {:message "timeout"}})))))))))))
+                                 :body {:message "timeout"}}))))))))))
 
 
 (defn query-and-join [requests output-ch query-opts]
