@@ -19,11 +19,6 @@
     (map? value) (extract-complex-dependencies value)
     :else #{}))
 
-(comment
-  (get-dependency-paths {:from :cart
-                         :with {:opn "123"
-                                :id [:checkout :cartId]}}))
-
 (defn get-dependency-paths
   "given only a query-item-data ({:from ... :with ...}), returns a set of
    vectors with the dependency paths listed"
@@ -42,6 +37,9 @@
   [[query-item-name query-item-data]]
   (let [deps (get-dependency-paths query-item-data)]
     (->> deps (map first) (into #{}))))
+
+(defn get-dependencies-from-data [query-item-data]
+  (get-dependencies [:_ query-item-data]))
 
 (defn find-query-item
   "given a query-item-name (a keyword) returns the query-item (a pair with keyword and data)

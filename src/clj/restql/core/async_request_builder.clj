@@ -182,15 +182,36 @@
                      (map-values strip-nils))
     :else item))
 
+(defn success? [state-item]
+  (let [value (second state-item)
+        status (:status value)]
+    (cond
+      (nil? status)   false
+      (< status 200)  false
+      (>= status 300) false
+      :else           true)))
+
+(defn all-true [values]
+  (reduce (fn [result item] (and result item)) true values))
+
+(defn are-dependencies-ok? [query-item-data state]
+  (->> (query/get-dependencies-from-data query-item-data)
+       (map #(query/find-query-item % (:done state)))
+       (map success?)
+       (all-true)))
+
 (defn build-request [url query-item-data encoders state]
-  (let [resolved-query-item (strip-nils (resolve-query-item query-item-data encoders state))
+  (if (are-dependencies-ok? query-item-data state)
+    (let [resolved-query-item (strip-nils (resolve-query-item query-item-data encoders state))
         timeout             (:timeout query-item-data)]
-    {:url          (matcher/interpolate url resolved-query-item)
-     :metadata     (meta query-item-data)
-     :resource     (:from query-item-data)
-     :query-params (build-query-params query-item-data url resolved-query-item)
-     :timeout      timeout
-     :headers      (:with-headers query-item-data)}))
+      {:url          (matcher/interpolate url resolved-query-item)
+       :metadata     (meta query-item-data)
+       :resource     (:from query-item-data)
+       :query-params (build-query-params query-item-data url resolved-query-item)
+       :timeout      timeout
+       :headers      (:with-headers query-item-data)})
+
+    nil))
 
 
 (defn get-multiple-requests [query-item-data state]

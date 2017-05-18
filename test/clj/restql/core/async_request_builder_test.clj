@@ -191,3 +191,17 @@
                    {}
                    {:done []}))))
 
+(deftest produce-nil-when-chaining-fails
+  (is (nil?
+        (build-request "http://foo.url/:id"
+                       {:from :foo :with {:id [:bar :fooid]}}
+                       {}
+                       {:done [[:bar {:status 404
+                                      :headers {}
+                                      :url "http://bar.url/123"
+                                      :timeout 1000
+                                      :params {}
+                                      :response-time 23
+                                      :body {:errorCode "404"}}]]
+                        :requested []
+                        :to-do [[:foo {:from :foo :with {:id [:bar :fooid]}}]]}))))
