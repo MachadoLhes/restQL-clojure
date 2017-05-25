@@ -103,7 +103,7 @@
         result-ch (wait-until-finished output-ch query-opts)
         parsed-ch (extract-result parsed-query (timeout (:global-timeout query-opts)) exception-ch result-ch)
         return-ch (go
-                    (let [[query-result ch] (alts! parsed-ch exception-ch)
+                    (let [[query-result ch] (alts! [parsed-ch exception-ch])
 
                           ; After query hook
                           _ (hook/execute-hook query-opts :after-query {:query-options query-opts
