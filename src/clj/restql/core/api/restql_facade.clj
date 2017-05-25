@@ -93,6 +93,7 @@
   (let [; Before query hook
         _ (hook/execute-hook query-opts :before-query {:query query
                                                        :query-options query-opts})
+        time-before (System/currentTimeMillis)
 
         ; Executing query
         do-request (partial request/do-request mappings)
@@ -107,7 +108,8 @@
                           ; After query hook
                           _ (hook/execute-hook query-opts :after-query {:query-options query-opts
                                                                         :query query
-                                                                        :result query-result})]
+                                                                        :result query-result
+                                                                        :response-time (- (System/currentTimeMillis) time-before)})]
                       query-result))]
     [return-ch exception-ch]))
 
