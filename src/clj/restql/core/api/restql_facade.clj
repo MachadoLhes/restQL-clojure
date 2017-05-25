@@ -105,7 +105,8 @@
                     (let [[query-result ch] (alts! parsed-ch exception-ch)
 
                           ; After query hook
-                          _ (hook/execute-hook query-opts :after-query {:query query
+                          _ (hook/execute-hook query-opts :after-query {:query-options query-opts
+                                                                        :query query
                                                                         :result query-result})]
                       query-result))]
     [return-ch exception-ch]))
