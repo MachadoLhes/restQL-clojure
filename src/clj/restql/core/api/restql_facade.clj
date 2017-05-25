@@ -8,7 +8,7 @@
             [cheshire.core :as json]
             [restql.core.context :as context]
             [ring.util.codec :refer [form-encode]]
-            [clojure.core.async :refer [go go-loop <!! <! >! alt! timeout]]))
+            [clojure.core.async :refer [go go-loop <!! <! >! alt! alts! timeout]]))
 
 (defn- status-code-ok [query-response]
   (and
@@ -102,7 +102,7 @@
         result-ch (wait-until-finished output-ch query-opts)
         parsed-ch (extract-result parsed-query (timeout (:global-timeout query-opts)) exception-ch result-ch)
         return-ch (go
-                    (let [query-result (<! parsed-ch)
+                    (let [[query-result ch] (alts! parsed-ch exception-ch)
 
                           ; After query hook
                           _ (hook/execute-hook query-opts :after-query {:query query

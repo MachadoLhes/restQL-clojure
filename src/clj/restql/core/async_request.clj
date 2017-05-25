@@ -83,7 +83,9 @@
         (let [log-data {:resource (:resource request)
                         :timeout request-timeout
                         :success true}]
-        (if (nil? (:error result))
+        (if (and
+              (not (nil? result))
+              (nil? (:error result)))
           (do
             (debug (assoc log-data :success true
                                   :status (:status result)
@@ -104,11 +106,11 @@
                                                                       {} response))
               (go (>! output-ch response))))
           (let [error-data (assoc log-data :success false
-                                             :metadata (:metadata request)
-                                             :url (:url request)
+                                             :metadata (some-> request :metadata)
+                                             :url (some-> request :url)
                                              :status 408
                                              :time (- (System/currentTimeMillis) time-before)
-                                             :errordetail (pr-str (:error result)))]
+                                             :errordetail (pr-str (some-> result :error)))]
               (error error-data "Request failed")
               (hook/execute-hook query-opts :after-request error-data)
               (go (>! output-ch {:status 408 
