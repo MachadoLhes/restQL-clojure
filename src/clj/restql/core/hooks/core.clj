@@ -35,7 +35,7 @@
     (if (contains? hooks hook-name)
       (let [hook-fns (hooks hook-name)]
         (doseq [hook-fn hook-fns]
-          (hook-fn param-map))))))
+          (hook-fn (assoc param-map :query-options query-options)))))))
 
 (comment
   "
@@ -51,4 +51,4 @@
                :java-hooks {:before-query [class-bq-1]
                             :after-query [class-aq-1 class-aq-2]
                             :before-request [class-br-1, class-br-2]
-                            :after-request [class-ar-1]}} )
+                            :after-request [class-ar-1]}})
