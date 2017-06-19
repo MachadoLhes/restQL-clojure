@@ -65,20 +65,21 @@
   (let [request (parse-query-params request)
         time-before (System/currentTimeMillis)
         request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))
+        forward (some-> query-opts :forward-params)
+        forward-params (if (nil? forward) {} forward)
         request-map {:resource (:resource request)
                      :timeout request-timeout
+                     :idle-timeout (/ request-timeout 5)
+                     :connect-timeout request-timeout
                      :url (:url request)
-                     :query-params (:query-params request)
+                     :query-params (into (:query-params request) forward-params)
                      :headers (:headers request)
                      :time time-before}]
     (debug request-map "Preparing request")
     ; Before Request hook
     (hook/execute-hook query-opts :before-request request-map)
-    (http/get (:url request) {:headers (:headers request)
-                              :query-params (:query-params request)
-                              :timeout request-timeout
-                              :idle-timeout request-timeout
-                              :connect-timeout request-timeout}
+    (http/get (:url request) request-map
+                              
       (fn [result]
         (let [log-data {:resource (:resource request)
                         :timeout request-timeout
