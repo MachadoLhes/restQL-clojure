@@ -35,11 +35,12 @@ public class SimpleQuery {
 
         QueryResponse response = restQL.execute(query, opts);
 
-//        System.out.println(response);
+        //System.out.println(response);
 
         QueryItemResponse queryItem = response.get("luke", QueryItemResponse.class);
 
-//        System.out.println(queryItem.getDetails().getStatus());
+        System.out.println(queryItem.getDetails().getStatus());
+        System.out.println(queryItem.getDetails().getUrl());
 
         for(Map.Entry<String, String> param : queryItem.getDetails().getHeaders().entrySet()) {
             System.out.println(param.getKey() + " = " + param.getValue());
