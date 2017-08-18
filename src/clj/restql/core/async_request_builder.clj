@@ -132,11 +132,8 @@
         chained-items  (filter #(not (:literal %)) multiple-items)]
     (case (count (->> chained-items (map :body) (into #{}) ))
       0 (map-values (partial interpolate-item state) value)
-      1 (interpolate-map-items chained-items value state)
-      (throw+ {:type :invalid-parameter-repetition
-               :message (str "Repeating a parameter based on more than one list is not allowed: Details\n"
-                             (pr-str (count (->> chained-items (map :body) (into #{}))))
-                             )}))))
+      :else (interpolate-map-items chained-items value state))))
+
 
 (defn interpolate-item [state value]
   (cond
@@ -269,7 +266,61 @@
   (update-in query-item-data [:with]
              #(resolve-template-query multiple-item multiple-data %)))
 
+
+
+(defn get-multiple-data-rownames [multiple-data]
+  (map :fullpath multiple-data))
+
+(defn build-columns [vectors]
+  (apply map (fn [& args] args) vectors))
+
+(defn get-multiple-data-columns [multiple-data]
+  (->> multiple-data
+    (map (fn [item]
+           (traverse (:body item) (:path item))))
+    (build-columns)))
+
+(defn replace-path-with-value [query-item-with dict column]
+  (reduce-kv (fn [target key value]
+               (let [path-index (.indexOf dict value)]
+                 (if
+                   (>= path-index 0)
+                   (assoc target key (attach-meta (nth column path-index) value))
+                   (assoc target key value))))
+             {}
+             query-item-with))
+
+(defn replace-query-item-data-with-dict [query-item-data dict column]
+  (->>
+    (replace-path-with-value (:with query-item-data) dict column)
+    (assoc query-item-data :with)))
+
+; Before
+(comment {:from :product
+          :with {:id [:cart :lines :productId]
+                 :sku [:cart :skus :id]
+                 :offer [:offer :id]}})
+; After
+(comment {:from :product
+          :with {:id "123"
+                 :sku "ABC"
+                 :offer [:offer :id]}})
+
+(defn generate-multiple-query-item-data [query-item-data multiple-data]
+  (let [columns (get-multiple-data-columns multiple-data)
+        rownames  (get-multiple-data-rownames multiple-data)]
+    (map (fn [col dict]
+           (let [res (replace-query-item-data-with-dict query-item-data dict col)]
+             res))
+         columns (repeat rownames))))
+
 (defn build-multiple-requests [url query-item-data encoders state]
+  (let [multiple-data (get-multiple-data query-item-data state) ;:body :path :base (-> x :body (traverse (:path x))
+        query-item-multiple-data (generate-multiple-query-item-data query-item-data multiple-data)
+        requests (map #(build-request url % encoders state) query-item-multiple-data)]
+    requests))
+
+#_(defn build-multiple-requests [url query-item-data encoders state]
   (let [multiple-data (get-multiple-data query-item-data state)
         entity-body   (->> multiple-data (map :body) first)
         requests (map #(build-request url (build-query query-item-data % multiple-data) encoders state) entity-body)]
@@ -283,8 +334,7 @@
         expanded (count multiple-entities)]
     (cond
       (= 0 expanded) (build-request url query-item-data encoders state)
-      (= 1 expanded) (build-multiple-requests url
+      :else (build-multiple-requests url
                                               query-item-data
                                               encoders
-                                              state)
-      :else          (throw+ {:type :expansion-error :message "Query tried to expand based on multiple entities. This is not allowed."} ))))
+                                              state))))

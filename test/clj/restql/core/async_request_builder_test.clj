@@ -13,6 +13,29 @@
                    [:blebs [{:body {:id "aaa"}}
                             {:body {:id "bbb"}}]]]})
 
+
+(deftest replace-simple-path-with-value
+  (is (=
+        {:productId "123"}
+        (replace-path-with-value {:productId [:product :id]} [[:product :id]] ["123"]))))
+
+(deftest replace-complex-path-with-value
+  (is (=
+        {:productId "123" :sku "456" :data {:bar "foo"}}
+        (replace-path-with-value
+          {:productId [:product :id] :sku [:product :lines :sku] :data {:bar "foo"}}
+          [[:product :id] [:product :lines :sku]]
+          ["123" "456"]))))
+
+(deftest should-not-replace-any-key-value
+  (is (=
+        {:productId "123" :sku "456" :test [:foo :bar]}
+        (replace-path-with-value
+          {:productId "123" :sku "456" :test [:foo :bar]}
+          [[:foo :baz]]
+          ["lalaland"]))))
+
+
 (deftest build-requests-test
   (is (=
     [{:url "http://example/123"
