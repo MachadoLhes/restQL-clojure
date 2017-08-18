@@ -6,6 +6,8 @@
                            :body {:id 1
                                   :lines [{:productId "123" :sku "111"}
                                           {:productId "456" :sku "222"}]
+                                  :offers [{:id "123111"}
+                                           {:id "456222"}]
                                   :headers {:Location "Location Field"}}}]
 
                    [:blobs {:body [{:id "999"}
@@ -39,7 +41,7 @@
 (deftest build-requests-test
   (is (=
     [{:url "http://example/123"
-      :query-params {:sku "111"}
+      :query-params {:sku "111"  :offer "123111"}
       :resource :example
       :metadata nil
       :timeout nil
@@ -47,14 +49,15 @@
       {:url "http://example/456"
       :resource :example
       :metadata nil
-      :query-params {:sku "222"}
+      :query-params {:sku "222" :offer "456222"}
       :timeout nil
       :headers nil}]
     
     (build-requests "http://example/:id"
                     {:from :example
                       :with {:id [:cart :lines :productId]
-                            :sku [:cart :lines :sku]}}
+                             :sku [:cart :lines :sku]
+                             :offer [:cart :offers :id]}}
                     {}
                     state))))
 
