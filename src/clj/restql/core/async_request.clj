@@ -96,7 +96,7 @@
                                                      :metadata (:metadata request)
                                                      :resource (:resource request)
                                                      :url (:url request)
-                                                     :query-params (:query-params request)
+                                                     :params (:query-params request)
                                                      :timeout request-timeout
                                                      :time (- (System/currentTimeMillis) time-before)})]
               ; After Request hook

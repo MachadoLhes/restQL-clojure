@@ -90,7 +90,8 @@
         values             (map #(get-multiple-path-data % state) paths)
         chained-values     (map format-for-expansion values)
         formatted-literals (map (fn [lit] {:body lit
-                                           :literal true}) multiple-literals)]
+                                           :literal true
+                                           :fullpath lit}) multiple-literals)]
     (reduce into #{} [chained-values formatted-literals])))
 
 (defn requests-from-header? [path]
@@ -200,7 +201,7 @@
 (defn build-request [url query-item-data encoders state]
   (if (are-dependencies-ok? query-item-data state)
     (let [resolved-query-item (strip-nils (resolve-query-item query-item-data encoders state))
-        timeout             (:timeout query-item-data)]
+          timeout             (:timeout query-item-data)]
       {:url          (matcher/interpolate url resolved-query-item)
        :metadata     (meta query-item-data)
        :resource     (:from query-item-data)
@@ -221,52 +222,6 @@
        (map :body)
        (into #{})))
 
-(defn interpolate-template-value [multiple-item multiple-data template-value]
-  (let [definition  (->> multiple-data
-                         (filter #(= template-value (:fullpath %)))
-                         first)]
-    (if (nil? definition)
-      template-value
-      (traverse multiple-item (:path definition)))))
-
-(defn substitute-expansion-literal [multiple-item multiple-data template-value]
-  (let [definition (->> multiple-data
-                        (filter :literal)
-                        first)]
-    (cond
-      (nil? definition) template-value
-      (= (:body definition) template-value) multiple-item
-      :else template-value)))
-
-(defn interpolate-template-item
-  ([multiple-item multiple-data template-item]
-   (interpolate-template-item multiple-item multiple-data template-item true))
-
-  ([multiple-item multiple-data template-item expand-literal]
-   (cond
-     (map? template-item)
-     (map-values #(interpolate-template-item multiple-item multiple-data % false) template-item)
-
-     (query/vector-of-keywords? template-item)
-     (interpolate-template-value multiple-item multiple-data template-item)
-
-     (sequential? template-item)
-     (if expand-literal
-       (substitute-expansion-literal multiple-item multiple-data template-item)
-       (into []  (map #(interpolate-template-item multiple-item multiple-data % false) template-item)))
-
-     :else template-item)))
-
-(defn resolve-template-query [multiple-item multiple-data template-query]
-  (map-values (fn [value]
-                (interpolate-template-item multiple-item multiple-data value))
-              template-query))
-
-(defn build-query [query-item-data multiple-item multiple-data]
-  (update-in query-item-data [:with]
-             #(resolve-template-query multiple-item multiple-data %)))
-
-
 
 (defn get-multiple-data-rownames [multiple-data]
   (map :fullpath multiple-data))
@@ -279,6 +234,7 @@
     (map (fn [item]
            (traverse (:body item) (:path item))))
     (build-columns)))
+
 
 (defn replace-path-with-value [query-item-with dict column]
   (reduce-kv (fn [target key value]
@@ -310,8 +266,7 @@
   (let [columns (get-multiple-data-columns multiple-data)
         rownames  (get-multiple-data-rownames multiple-data)]
     (map (fn [col dict]
-           (let [res (replace-query-item-data-with-dict query-item-data dict col)]
-             res))
+           (replace-query-item-data-with-dict query-item-data dict col))
          columns (repeat rownames))))
 
 (defn build-multiple-requests [url query-item-data encoders state]
@@ -320,11 +275,6 @@
         requests (map #(build-request url % encoders state) query-item-multiple-data)]
     requests))
 
-#_(defn build-multiple-requests [url query-item-data encoders state]
-  (let [multiple-data (get-multiple-data query-item-data state)
-        entity-body   (->> multiple-data (map :body) first)
-        requests (map #(build-request url (build-query query-item-data % multiple-data) encoders state) entity-body)]
-    requests))
 
 (defn build-requests
   "takes a url as a string;

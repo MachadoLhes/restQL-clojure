@@ -43,7 +43,8 @@
   (-> {}
       (assoc :success (is-success query-response)
              :status  (:status query-response)
-             :headers (:headers query-response))
+             :headers (:headers query-response)
+             :params (:params query-response))
       (append-metadata query-response)
       (append-debug-data query-opts query-response)))
 

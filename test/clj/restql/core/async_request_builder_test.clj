@@ -37,7 +37,6 @@
           [[:foo :baz]]
           ["lalaland"]))))
 
-
 (deftest build-requests-test
   (is (=
     [{:url "http://example/123"
@@ -61,6 +60,29 @@
                     {}
                     state))))
 
+(deftest build-requests-with-list-of-params
+  (is (=
+        [{:url "http://example/123"
+          :query-params {:name "ABC"}
+          :resource :example
+          :metadata nil
+          :timeout nil
+          :headers nil}
+         {:url "http://example/456"
+          :resource :example
+          :metadata nil
+          :query-params {:name "DEF"}
+          :timeout nil
+          :headers nil}]
+
+        (build-requests "http://example/:id"
+                        {:from :example
+                         :with {:id ["123" "456"]
+                                :name ["ABC" "DEF"]}}
+                        {}
+                        state))))
+
+
 (deftest search-multiple-entities-test
   (is (=
     #{[{:productId "123" :sku "111"}
@@ -69,46 +91,6 @@
     (get-multiple-entities {:from :blibs
                             :with {:product [:cart :lines :productId]
                                    :sku     [:cart :lines :sku]}} state))))
-
-(deftest multiple-query-expansion-test
-  (is (=
-    "id1"
-    (interpolate-template-item {:id "id1" :sku "sku1"}
-
-                               #{{:body [{:id "id1" :sku "sku1"}
-                                         {:id "id2" :sku "sku2"}]
-                                  :path [:id]
-                                  :fullpath [:cart :lines :id]}}
-
-                               [:cart :lines :id]))))
-
-(deftest multiple-query-expansion-with-complex-parameters-test
-  (is (=
-    {:data "id1"
-     :blabs [:cart :id]}
-
-    (interpolate-template-item {:id "id1" :sku "sku1"}
-
-                               #{{:body [{:id "id1" :sku "sku1"}
-                                         {:id "id2" :sku "sku2"}]
-                                  :path [:id]
-                                  :fullpath [:cart :lines :id]}}
-
-                               {:data [:cart :lines :id]
-                                :blabs [:cart :id]}))))
-
-(deftest multiple-query-expansion-with-vectors-test
-  (is (=
-    ["bla" "id1"  [:cart :id]]
-
-    (interpolate-template-item {:id "id1" :sku "sku1"}
-
-                               #{{:body [{:id "id1" :sku "sku1"}
-                                         {:id "id2" :sku "sku2"}]
-                                  :path [:id]
-                                  :fullpath [:cart :lines :id]}}
-
-                               ["bla" [:cart :lines :id] [:cart :id]] false))))
 
 (deftest create-request-with-headers-test
   (is (=
