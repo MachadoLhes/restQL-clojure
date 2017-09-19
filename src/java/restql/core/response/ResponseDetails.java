@@ -47,7 +47,7 @@ public class ResponseDetails {
 
         if(json.get("metadata") != null) {
             ObjectMapper mapper = new ObjectMapper();
-            details.setHeaders(mapper.convertValue(json.get("metadata"), Map.class));
+            details.setMetadata(mapper.convertValue(json.get("metadata"), Map.class));
         }
 
         return details;
