@@ -133,7 +133,7 @@
         chained-items  (filter #(not (:literal %)) multiple-items)]
     (case (count (->> chained-items (map :body) (into #{}) ))
       0 (map-values (partial interpolate-item state) value)
-      :else (interpolate-map-items chained-items value state))))
+      (interpolate-map-items chained-items value state))))
 
 
 (defn interpolate-item [state value]
@@ -208,6 +208,7 @@
        :query-params (build-query-params query-item-data url resolved-query-item)
        :timeout      timeout
        :headers      (:with-headers query-item-data)})
+    
 
     nil))
 
