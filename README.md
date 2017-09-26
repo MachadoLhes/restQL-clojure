@@ -44,7 +44,7 @@ Just add the following dependency to your maven project to download restQL from 
 <dependency>
 	<groupId>com.b2wdigital</groupId>
         <artifactId>restql-core</artifactId>
-       	<version>0.8.0</version>
+       	<version>1.1.0</version>
 </dependency>
 ```
 
