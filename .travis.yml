@@ -3,5 +3,5 @@ jdk:
   - openjdk8
   - oraclejdk8
 
-install: mvn clojure:compile install -B -V -Dgpg.skip=true
+install: mvn compile install -B -V -Dgpg.skip=true
 script: mvn test -B
