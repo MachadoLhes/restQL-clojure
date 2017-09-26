@@ -95,6 +95,20 @@
             <exclusions/>
         </dependency>
         <dependency>
+            <groupId>instaparse</groupId>
+            <artifactId>instaparse</artifactId>
+            <version>1.4.5</version>
+            <scope>compile</scope>
+            <exclusions/>
+        </dependency>
+        <dependency>
+            <groupId>prismatic</groupId>
+            <artifactId>schema</artifactId>
+            <version>1.1.6</version>
+            <scope>compile</scope>
+            <exclusions/>
+        </dependency>
+        <dependency>
             <groupId>org.clojure</groupId>
             <artifactId>core.async</artifactId>
             <version>0.2.395</version>
@@ -136,6 +150,14 @@
     <build>
         <sourceDirectory>./src/java</sourceDirectory>
         <testSourceDirectory>./test/java</testSourceDirectory>
+        <resources>
+            <resource>
+                <directory>src/resources</directory>
+                <includes>
+                    <include>**/*.ebnf</include>
+                </includes>
+            </resource>
+        </resources>
         <plugins>
             <plugin>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -146,7 +168,6 @@
                     </includes>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>com.theoryinpractise</groupId>
                 <artifactId>clojure-maven-plugin</artifactId>
@@ -162,7 +183,7 @@
                 <executions>
                     <execution>
                         <id>compile</id>
-                        <phase>compile</phase>
+                        <phase>process-resources</phase>
                         <goals>
                             <goal>compile</goal>
                         </goals>
