@@ -49,6 +49,24 @@ public class RestQLJavaRunner {
         executeQueryAsync(query.toString(), queryOptions, consumer);
     }
 
+    public QueryResponse executeFromLanguage(String query, QueryOptions queryOptions) {
+        return new QueryResponse(ClojureRestQLApi.queryFromLanguage(mappings.toMap(), encoders, query, queryOptions.toMap()));
+    }
+
+    public void executeQueryAsyncFromLanguage(Query query, QueryOptions queryOptions, Consumer<QueryResponse> consumer) {
+        executeQueryAsyncFromLanguage(query.toString(), queryOptions, consumer);
+    }
+
+    public void executeQueryAsyncFromLanguage(String query, QueryOptions queryOptions, Consumer<QueryResponse> consumer) {
+        ClojureRestQLApi.queryAsyncFromLanguage(
+                mappings.toMap(),
+                encoders,
+                query,
+                queryOptions.toMap(),
+                result -> {
+                    consumer.accept(new QueryResponse((String) result));
+                });
+    }
 
     public <T> void setEncoder(String name, Class<T> clazz) {
         encoders.put(name, clazz);
