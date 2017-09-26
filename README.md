@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/B2W-BIT/restQL-core.svg?branch=master)](https://travis-ci.org/B2W-BIT/restQL-core)
 # restQL-Core
 
 restQL is a microservice query language that makes easy to fetch information from multiple services in the most efficient manner. restQL-core is a lib that does the heavy lifting and can be used directly in Java clients. 
