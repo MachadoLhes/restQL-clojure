@@ -8,7 +8,8 @@
             [cheshire.core :as json]
             [restql.core.context :as context]
             [ring.util.codec :refer [form-encode]]
-            [clojure.core.async :refer [go go-loop <!! <! >! alt! alts! timeout]]))
+            [clojure.core.async :refer [go go-loop <!! <! >! alt! alts! timeout]]
+            [restql.parser.core :as parser]))
 
 (defn- status-code-ok [query-response]
   (and
@@ -131,3 +132,17 @@
           result (<! result-ch)]
       (callback result))))
 
+(defn execute-query-from-language-sync [& {:keys [mappings encoders query query-opts]}]
+  (let [parsed-query (parser/parse-query query)]
+    (execute-query-sync :mappings mappings
+                         :encoders encoders
+                         :query parsed-query
+                         :query-opts query-opts)))
+
+(defn execute-query-from-language-async [& {:keys [mappings encoders query query-opts callback]}]
+  (let [parsed-query (parser/parse-query query)]
+  (execute-query-async :mappings mappings
+                       :encoders encoders
+                       :query parsed-query
+                       :query-opts query-opts
+                       :callback callback)))
