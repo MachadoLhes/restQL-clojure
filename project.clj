@@ -16,6 +16,7 @@
                  [adzerk/bootlaces "0.1.13"]]
   :profiles {:test {:dependencies [[se.haleby/stub-http "0.2.1"]]}
              :uberjar { :aot :all }}
+  :plugins [[lein-cloverage "1.0.7-SNAPSHOT"]]
   :source-paths ["src" "src/clj"]
   :resource-paths ["src/resources"]
   :test-paths ["test" "test/clj"]
