@@ -70,7 +70,7 @@ public class AsyncQueryFromLanguage {
 		opts.setBeforeRequestHook(BeforeRequestHook.class);
 		opts.setAfterRequestHook(SimpleAfterRequestHook.class);
 
-		restQL.executeAsyncFromLanguage(query, opts, System.out::println);
+		restQL.executeQueryAsync(query, opts, System.out::println);
 		Thread.sleep(5000);
 	}
 }

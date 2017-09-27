@@ -2,51 +2,32 @@ package restql.core.examples;
 
 import restql.core.RestQL;
 import restql.core.config.ClassConfigRepository;
-import restql.core.response.QueryResponse;
-import restql.core.query.Query;
 import restql.core.query.QueryOptions;
 import restql.core.response.QueryItemResponse;
+import restql.core.response.QueryResponse;
 
-import java.util.Map;
 
-/**
- * Created by ideais on 22/12/16.
- */
 public class SimpleQuery {
 
-    public static void main(String[] args) {
+	public static void main(String[] args) {
 
-        ClassConfigRepository config = new ClassConfigRepository();
-        config.put("person", "http://swapi.co/api/people/:id");
+		ClassConfigRepository config = new ClassConfigRepository();
+		config.put("cards", "http://api.magicthegathering.io/v1/cards/:id");
 
-        RestQL restQL = new RestQL(config);
+		RestQL restQL = new RestQL(config);
 
-        Query query = restQL.queryBuilder()
-                .get("luke")
-                    .from("person")
-                    .with("id")
-                        .value(1)
-                .getQuery();
+		String query = "from cards as card with id = \"693f4d338e4f041ccf4dd158ccde0b14dfc51ee0\"";
+		QueryOptions opts = new QueryOptions();
+		opts.setDebugging(false);
+		opts.setGlobalTimeout(10000);
+		opts.setTimeout(3000);
 
-        QueryOptions opts = new QueryOptions();
-        opts.setDebugging(false);
-        opts.setGlobalTimeout(10000);
-        opts.setTimeout(3000);
+		QueryResponse response = restQL.executeQuery(query, opts);
 
-        QueryResponse response = restQL.execute(query, opts);
+		System.out.println(response);
 
-        System.out.println(response);
+		QueryItemResponse queryItem = response.get("card", QueryItemResponse.class);
 
-        QueryItemResponse queryItem = response.get("luke", QueryItemResponse.class);
-
-        System.out.println(queryItem.getDetails().getHeaders());
-//        System.out.println(queryItem.getDetails().getStatus());
-//        System.out.println(queryItem.getDetails().getUrl());
-//
-//        for(Map.Entry<String, String> param : queryItem.getDetails().getHeaders().entrySet()) {
-//            System.out.println(param.getKey() + " = " + param.getValue());
-//        }
-
-    }
-
+		System.out.println(queryItem.getDetails().getHeaders());
+	}
 }

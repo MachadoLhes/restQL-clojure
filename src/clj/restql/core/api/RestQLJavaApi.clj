@@ -9,16 +9,7 @@
                                            java.util.Map
                                            String
                                            java.util.Map
-                                           java.util.function.Consumer] Void]
-              ^{:static true} [queryFromLanguage [java.util.Map
-                                                  java.util.Map
-                                                  String
-                                                  java.util.Map] String]
-              ^{:static true} [queryAsyncFromLanguage [java.util.Map
-                                                       java.util.Map
-                                                       String
-                                                       java.util.Map
-                                                       java.util.function.Consumer] Void]])
+                                           java.util.function.Consumer] Void]])
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
             [restql.core.log :refer [warn]]
             [restql.core.api.restql-facade :as restql]))
@@ -43,34 +34,8 @@
         default-encoders (restql/get-default-encoders)]
     (into default-encoders (wrap-java-encoders java-encoders-map))))
 
+
 (defn -query [mappings encoders query query-opts]
-
-  (let [clj-mappings (keywordize-keys (into {} mappings))
-        clj-encoders (concat-encoders encoders)
-        clj-query-opts (keywordize-keys (into {} query-opts))]
-
-    (restql/execute-query-sync
-      :mappings clj-mappings
-      :encoders clj-encoders
-      :query query
-      :query-opts clj-query-opts)))
-
-(defn -queryAsync [mappings encoders query query-opts callback]
-
-  (let [clj-mappings (keywordize-keys (into {} mappings))
-        clj-encoders (concat-encoders encoders)
-        clj-query-opts (keywordize-keys (into {} query-opts))
-        restql-ch (restql/execute-query-async
-                    :mappings clj-mappings
-                    :encoders clj-encoders
-                    :query query
-                    :query-opts clj-query-opts
-                    :callback (fn [result]
-                                (.accept callback result)))]
-
-    nil))
-
-(defn -queryFromLanguage [mappings encoders query query-opts]
   (let [clj-mappings (keywordize-keys (into {} mappings))
         clj-encoders (concat-encoders encoders)
         clj-query-opts (keywordize-keys (into {} query-opts))]
@@ -81,7 +46,7 @@
       :query query
       :query-opts clj-query-opts)))
 
-(defn -queryAsyncFromLanguage [mappings encoders query query-opts callback]
+(defn -queryAsync [mappings encoders query query-opts callback]
   (let [clj-mappings (keywordize-keys (into {} mappings))
         clj-encoders (concat-encoders encoders)
         clj-query-opts (keywordize-keys (into {} query-opts))
