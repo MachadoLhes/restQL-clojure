@@ -2,6 +2,7 @@ package restql.core;
 
 import restql.core.config.ConfigRepository;
 import restql.core.interop.ClojureRestQLApi;
+import restql.core.query.QueryInterpolator;
 import restql.core.query.QueryOptions;
 import restql.core.response.QueryResponse;
 
@@ -43,7 +44,7 @@ public class RestQL {
 	 * Class constructor with custom query options.
 	 *
 	 * @param configRepository {@link ConfigRepository}
-	 * @param queryOptions {@link QueryOptions}
+	 * @param queryOptions     {@link QueryOptions}
 	 */
 	public RestQL(ConfigRepository configRepository, QueryOptions queryOptions) {
 		this.configRepository = configRepository;
@@ -53,7 +54,7 @@ public class RestQL {
 	public QueryResponse executeQuery(String query, QueryOptions queryOptions, Object... args) {
 		return new QueryResponse(ClojureRestQLApi.query(configRepository.getMappings().toMap(),
 				this.encoders,
-				query,
+				QueryInterpolator.interpolate(query, args),
 				queryOptions.toMap()));
 	}
 
@@ -64,7 +65,7 @@ public class RestQL {
 	public void executeQueryAsync(String query, QueryOptions queryOptions, Consumer<QueryResponse> consumer, Object... args) {
 		ClojureRestQLApi.queryAsync(configRepository.getMappings().toMap(),
 				this.encoders,
-				query,
+				QueryInterpolator.interpolate(query, args),
 				queryOptions.toMap(),
 				result -> consumer.accept(new QueryResponse((String) result)));
 	}

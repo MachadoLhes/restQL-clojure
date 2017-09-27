@@ -16,13 +16,13 @@ public class SimpleQuery {
 
 		RestQL restQL = new RestQL(config);
 
-		String query = "from cards as card with id = \"693f4d338e4f041ccf4dd158ccde0b14dfc51ee0\"";
+		String query = "from cards as card with id = ?";
 		QueryOptions opts = new QueryOptions();
 		opts.setDebugging(false);
 		opts.setGlobalTimeout(10000);
 		opts.setTimeout(3000);
 
-		QueryResponse response = restQL.executeQuery(query, opts);
+		QueryResponse response = restQL.executeQuery(query, opts, 1L);
 
 		System.out.println(response);
 
