@@ -207,9 +207,10 @@
        :resource     (:from query-item-data)
        :query-params (build-query-params query-item-data url resolved-query-item)
        :timeout      timeout
-       :headers      (:with-headers query-item-data)})
-    
-
+       :headers      (:with-headers query-item-data)
+       :post-body    (some-> query-item-data
+                             :with-body
+                             json/generate-string)})
     nil))
 
 

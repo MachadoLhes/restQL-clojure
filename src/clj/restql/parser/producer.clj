@@ -32,19 +32,20 @@
 
 
 (defn produce-query-item [query-clauses]
-  (let [resource     (->> query-clauses (find-first :FromResource) produce)
-        alias-rule   (->> query-clauses (find-first :ResultAlias))
-        alias        (if (nil? alias-rule) resource (produce alias-rule))
-        header-rule  (->> query-clauses (find-first :HeaderRule) produce)
-        timeout-rule (->> query-clauses (find-first :TimeoutRule) produce)
-        with-rule    (->> query-clauses (find-first :WithRule) produce)
-        only-rule    (->> query-clauses (find-first :OnlyRule) produce)
-        hide-rule    (->> query-clauses (find-first :HideRule) produce)
-        flags-rule   (->> query-clauses (find-first :FlagsRule) produce)
+  (let [resource          (->> query-clauses (find-first :FromResource) produce)
+        alias-rule        (->> query-clauses (find-first :ResultAlias))
+        alias             (if (nil? alias-rule) resource (produce alias-rule))
+        header-rule       (->> query-clauses (find-first :HeaderRule) produce)
+        timeout-rule      (->> query-clauses (find-first :TimeoutRule) produce)
+        with-rule         (->> query-clauses (find-first :WithRule) produce)
+        with-body-rule    (->> query-clauses (find-first :WithBodyRule) produce)
+        only-rule         (->> query-clauses (find-first :OnlyRule) produce)
+        hide-rule         (->> query-clauses (find-first :HideRule) produce)
+        flags-rule        (->> query-clauses (find-first :FlagsRule) produce)
         ]
     (str alias
          flags-rule
-         " {:from " resource header-rule timeout-rule with-rule only-rule hide-rule "}")))
+         " {:from " resource header-rule timeout-rule with-rule with-body-rule only-rule hide-rule "}")))
 
 
 (defn produce-from-rule [from-rule-items]
@@ -136,6 +137,12 @@
 (defn produce-chaining [path-items]
   (let [produced-path-items (map produce path-items)]
     (str "[" (join " " produced-path-items) "]")))
+
+
+(defn produce-with-body-rule [with-body-field]
+  (let [body-value (->> with-body-field (find-first :ComplexParamValue) :content)]
+    (str " :with-body " (produce-complex-value body-value))))
+
 
 (defn format-variable [value]
   (cond
@@ -243,6 +250,8 @@
       :WithModifierFunctionName    (join-chars "" content)
       :WithModifierFunctionArgList (product-with-modifier-function-arg-list content)
       :WithModifierFunctionArg     (read-string (join-chars "" content))
+
+      :WithBodyRule                (produce-with-body-rule content)
 
       :ComplexParamItem            (produce-complex-param-item content)
       :ComplexParamKey             (join-chars ":" content)

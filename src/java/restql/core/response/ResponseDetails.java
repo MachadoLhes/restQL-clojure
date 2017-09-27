@@ -98,7 +98,7 @@ public class ResponseDetails {
     }
 
     public void setMetadata(Map<String, String> headers) {
-        this.headers = metadata;
+        this.metadata = metadata;
     }
 
     public int getTimeout() {

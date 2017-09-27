@@ -12,6 +12,36 @@
     (is (= (read-string (parse-query "from heroes"))
            [:heroes {:from :heroes}])))
 
+  (testing "Testing simple query with-body json"
+    (is (= (read-string (parse-query "from heroes
+                                        with-body
+                                          {
+                                            foo: \"bar\"
+                                          }"))
+           [:heroes {:from :heroes :with-body {:foo "bar"}}])))
+
+  (testing "Testing simple query with-body complex json"
+    (is (= (read-string (parse-query "from heroes
+                                        with-body
+                                          {
+                                            foo: \"bar\",
+                                            bar: {
+                                              baz: \"baz\"
+                                            }
+                                          }"))
+           [:heroes {:from :heroes :with-body {:foo "bar" :bar {:baz "baz"}}}])))
+
+  (testing "Testing simple query with-body complex json and chaining"
+    (is (= (read-string (parse-query "from heroes
+                                        with-body
+                                          {
+                                            id: api.id,
+                                            bar: {
+                                              baz: \"baz\"
+                                            }
+                                          }"))
+           [:heroes {:from :heroes :with-body {:id [:api :id] :bar {:baz "baz"}}}])))
+
   (testing "Testing simple query with a use clause"
     (is (= (parse-query "use cache-control = 900
                                       from heroes as hero")

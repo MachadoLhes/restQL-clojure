@@ -44,13 +44,15 @@
       :resource :example
       :metadata nil
       :timeout nil
-      :headers nil}
+      :headers nil
+      :post-body nil}
       {:url "http://example/456"
       :resource :example
       :metadata nil
       :query-params {:sku "222" :offer "456222"}
       :timeout nil
-      :headers nil}]
+      :headers nil
+       :post-body nil}]
     
     (build-requests "http://example/:id"
                     {:from :example
@@ -67,13 +69,15 @@
           :resource :example
           :metadata nil
           :timeout nil
-          :headers nil}
+          :headers nil
+          :post-body nil}
          {:url "http://example/456"
           :resource :example
           :metadata nil
           :query-params {:name "DEF"}
           :timeout nil
-          :headers nil}]
+          :headers nil
+          :post-body nil}]
 
         (build-requests "http://example/:id"
                         {:from :example
@@ -99,7 +103,8 @@
      :resource :cart
      :metadata nil
      :timeout nil
-     :headers {"tid" "aaaaaaaaaa"}}
+     :headers {"tid" "aaaaaaaaaa"}
+     :post-body nil}
     
     (build-request "http://localhost:9999" 
                    {:from :cart 
@@ -115,7 +120,8 @@
      :metadata nil
      :resource :cart
      :timeout nil
-     :headers nil}
+     :headers nil
+     :post-body nil}
     
     (build-request "http://localhost:9999" 
                    {:from :cart 
@@ -192,12 +198,32 @@
      :resource :cart
      :metadata nil
      :timeout 2000
-     :headers nil}
+     :headers nil
+     :post-body nil}
     
     (build-request "http://localhost:9999" 
                    {:from :cart :timeout 2000 :with {:id "123"}}
                    {}
                    {:done []}))))
+
+
+(deftest create-request-with-post-body
+  (is (=
+        {:url "http://localhost:9999"
+         :query-params {:id "123"}
+         :resource :cart
+         :metadata nil
+         :timeout nil
+         :headers nil
+         :post-body "{\"jedi\":{\"name\":\"Luke Skywalker\",\"weaponId\":1}}"}
+
+        (build-request "http://localhost:9999"
+                       {:from :cart
+                        :with {:id "123"}
+                        :with-body {:jedi {:name "Luke Skywalker" :weaponId 1}}}
+                       {}
+                       {:done []}))))
+
 
 (deftest produce-nil-when-chaining-fails
   (is (nil?
