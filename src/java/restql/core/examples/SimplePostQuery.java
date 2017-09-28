@@ -18,7 +18,7 @@ public class SimplePostQuery {
 
 		RestQL restQL = new RestQL(config);
 
-		String query = "from mock with-body {foo: \"bar\"}";
+		String query = "from mock body foo = \"bar\"";
 		QueryOptions opts = new QueryOptions();
 		opts.setDebugging(false);
 		opts.setGlobalTimeout(10000);
