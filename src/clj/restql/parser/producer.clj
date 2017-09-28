@@ -47,13 +47,6 @@
          flags-rule
          " {:from " resource header-rule timeout-rule with-rule with-body-rule only-rule hide-rule "}")))
 
-
-(defn produce-from-rule [from-rule-items]
-  (let [resource (->> from-rule-items (find-first :FromRuleResource) produce)
-        alias    (->> from-rule-items (find-first :FromRuleAlias) produce)]
-    (str alias " {:from " resource "}")))
-
-
 (defn produce-header-rule [content]
   (let [produced-header-items (map produce content)]
     (str " :with-headers {" (join " " produced-header-items) "}")))
@@ -139,9 +132,9 @@
     (str "[" (join " " produced-path-items) "]")))
 
 
-(defn produce-with-body-rule [with-body-field]
-  (let [body-value (->> with-body-field (find-first :ComplexParamValue) :content)]
-    (str " :with-body " (produce-complex-value body-value))))
+(defn produce-with-body-rule [with-body-rule-items]
+  (let [produced-items (map produce with-body-rule-items)]
+    (str " :with-body {" (join " " produced-items) "}")))
 
 
 (defn format-variable [value]
