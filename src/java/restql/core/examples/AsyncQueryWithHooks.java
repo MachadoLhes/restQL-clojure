@@ -11,7 +11,7 @@ import restql.core.query.QueryOptions;
 import java.util.Map;
 
 
-public class AsyncQueryFromLanguage {
+public class AsyncQueryWithHooks {
 
 	public static class BeforeRequestHook extends RequestHook {
 
@@ -62,7 +62,7 @@ public class AsyncQueryFromLanguage {
 		config.put("cards", "http://api.magicthegathering.io/v1/cards/:id");
 
 		RestQL restQL = new RestQL(config);
-		String query = "from cards as card with id = \"693f4d338e4f041ccf4dd158ccde0b14dfc51ee0\"";
+		String query = "from cards as card with id = ?";
 		QueryOptions opts = new QueryOptions();
 
 		opts.setBeforeQueryHook(BeforeQueryHook.class);
@@ -70,7 +70,7 @@ public class AsyncQueryFromLanguage {
 		opts.setBeforeRequestHook(BeforeRequestHook.class);
 		opts.setAfterRequestHook(SimpleAfterRequestHook.class);
 
-		restQL.executeQueryAsync(query, opts, System.out::println);
+		restQL.executeQueryAsync(query, opts, System.out::println, "693f4d338e4f041ccf4dd158ccde0b14dfc51ee0");
 		Thread.sleep(5000);
 	}
 }
