@@ -12,7 +12,7 @@ ClassConfigRepository config = new ClassConfigRepository();
 config.put("user", "http://your.api.url/users/:id");
 
 RestQL restQL = new RestQL(config);
-String query = "from user with id = ?";
+String query = "from user params id = ?";
 
 QueryResponse response = restql.executeQuery(query, 1);
 ```
@@ -137,7 +137,7 @@ config.put("cards", "http://api.magicthegathering.io/v1/cards");
 
 RestQL restQL = new RestQL(config);
 
-String query = "from cards as cardslist with type = ?";
+String query = "from cards as cardslist params type = ?";
 
 QueryResponse response = restQL.executeQuery(query, "Artifact");
 
@@ -159,8 +159,8 @@ config.put("card", "http://api.magicthegathering.io/v1/cards/:id");
 
 RestQL restQL = new RestQL(config);
 
-String queryCardsAndDetails = "from cards as cardsList with type = ? \n"
-        + "from card as cardWithDetails with id = cardsList.id";
+String queryCardsAndDetails = "from cards as cardsList params type = ? \n"
+        + "from card as cardWithDetails params id = cardsList.id";
 
 QueryResponse response = restQL.executeQuery(query, "Artifact");
 
