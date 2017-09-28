@@ -1,12 +1,13 @@
 package restql.core;
 
 import restql.core.config.ConfigRepository;
-import restql.core.interop.RestQLJavaRunner;
-import restql.core.query.Query;
+import restql.core.interop.ClojureRestQLApi;
+import restql.core.query.QueryInterpolator;
 import restql.core.query.QueryOptions;
-import restql.core.querybuilder.QueryBuilder;
 import restql.core.response.QueryResponse;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Consumer;
 
 public class RestQL {
@@ -17,9 +18,14 @@ public class RestQL {
 	private QueryOptions queryOptions;
 
 	/**
-	 * The java runner bridge to the clojure code
+	 * restQL configurations
 	 */
-	private RestQLJavaRunner pdgRunner;
+	private ConfigRepository configRepository;
+
+	/**
+	 * Query encoders
+	 */
+	private Map<String, Class> encoders = new HashMap<>();
 
 	/**
 	 * Class constructor with query options set to a production environment.
@@ -27,7 +33,7 @@ public class RestQL {
 	 * @param configRepository {@link ConfigRepository}
 	 */
 	public RestQL(ConfigRepository configRepository) {
-		this.pdgRunner = new RestQLJavaRunner(configRepository);
+		this.configRepository = configRepository;
 		this.queryOptions = new QueryOptions();
 
 		// Production default to false
@@ -41,154 +47,34 @@ public class RestQL {
 	 * @param queryOptions     {@link QueryOptions}
 	 */
 	public RestQL(ConfigRepository configRepository, QueryOptions queryOptions) {
-		this(configRepository);
-
+		this.configRepository = configRepository;
 		this.queryOptions = queryOptions;
 	}
 
-	/**
-	 * Executes a query using a query string.
-	 *
-	 * @param query {@link String}
-	 * @return {@link QueryResponse}
-	 */
-	public QueryResponse execute(String query) {
-		return pdgRunner.executeQuery(query, queryOptions);
+	public QueryResponse executeQuery(String query, QueryOptions queryOptions, Object... args) {
+		return new QueryResponse(ClojureRestQLApi.query(configRepository.getMappings().toMap(),
+				this.encoders,
+				QueryInterpolator.interpolate(query, args),
+				queryOptions.toMap()));
 	}
 
-	/**
-	 * Executes a query using the {@link Query} object from the {@link QueryBuilder}.
-	 *
-	 * @param query {@link Query}
-	 * @return {@link QueryResponse}
-	 */
-	public QueryResponse execute(Query query) {
-		return this.pdgRunner.executeQuery(query, this.queryOptions);
+	public QueryResponse executeQuery(String query, Object... args) {
+		return this.executeQuery(query, this.queryOptions, args);
 	}
 
-	/**
-	 * Executes a query using the {@link Query} object from the {@link QueryBuilder}.
-	 *
-	 * @param query        {@link Query}
-	 * @param queryOptions {@link QueryOptions}
-	 * @return {@link QueryResponse}
-	 */
-	public QueryResponse execute(Query query, QueryOptions queryOptions) {
-		return this.pdgRunner.executeQuery(query, queryOptions);
+	public void executeQueryAsync(String query, QueryOptions queryOptions, Consumer<QueryResponse> consumer, Object... args) {
+		ClojureRestQLApi.queryAsync(configRepository.getMappings().toMap(),
+				this.encoders,
+				QueryInterpolator.interpolate(query, args),
+				queryOptions.toMap(),
+				result -> consumer.accept(new QueryResponse((String) result)));
 	}
 
-	/**
-	 * Executes a query using a {@link String}.
-	 *
-	 * @param query        {@link String}
-	 * @param queryOptions {@link QueryOptions}
-	 * @return {@link QueryResponse}
-	 */
-	public QueryResponse execute(String query, QueryOptions queryOptions) {
-		return this.pdgRunner.executeQuery(query, queryOptions);
+	public void executeQueryAsync(String query, Consumer<QueryResponse> consumer, Object... args) {
+		this.executeQueryAsync(query, this.queryOptions, consumer, args);
 	}
 
-	/**
-	 * Executes an asynchronous query using the {@link Query} object from the {@link QueryBuilder}.
-	 *
-	 * @param query    {@link Query}
-	 * @param consumer {@link Consumer}
-	 */
-	public void executeAsync(Query query, Consumer<QueryResponse> consumer) {
-		this.pdgRunner.executeQueryAsync(query, this.queryOptions, consumer);
-	}
-
-	/**
-	 * Executes an asynchronous query using a {@link String}.
-	 *
-	 * @param query    {@link String}
-	 * @param consumer {@link Consumer}
-	 */
-	public void executeAsync(String query, Consumer<QueryResponse> consumer) {
-		this.pdgRunner.executeQueryAsync(query, this.queryOptions, consumer);
-	}
-
-	/**
-	 * Executes an asynchronous query using the {@link Query} object from the {@link QueryBuilder}.
-	 *
-	 * @param query        {@link Query}
-	 * @param queryOptions {@link QueryOptions}
-	 * @param consumer     {@link Consumer}
-	 */
-	public void executeAsync(Query query, QueryOptions queryOptions, Consumer<QueryResponse> consumer) {
-		this.pdgRunner.executeQueryAsync(query, queryOptions, consumer);
-	}
-
-	/**
-	 * Executes an asynchronous query using a {@link String}.
-	 *
-	 * @param query        {@link String}
-	 * @param queryOptions {@link QueryOptions}
-	 * @param consumer     {@link Consumer}
-	 */
-	public void executeAsync(String query, QueryOptions queryOptions, Consumer<QueryResponse> consumer) {
-		this.pdgRunner.executeQueryAsync(query, queryOptions, consumer);
-	}
-
-	/**
-	 * Executes a query using a {@link String}.
-	 *
-	 * @param query {@link String}
-	 * @return {@link QueryResponse}
-	 */
-	public QueryResponse executeFromLanguage(String query) {
-		return executeFromLanguage(query, this.queryOptions);
-	}
-
-	/**
-	 * Executes a query using a {@link String}.
-	 *
-	 * @param query        {@link String}
-	 * @param queryOptions {@link QueryOptions}
-	 * @return {@link QueryResponse}
-	 */
-	public QueryResponse executeFromLanguage(String query, QueryOptions queryOptions) {
-		return this.pdgRunner.executeFromLanguage(query, queryOptions);
-	}
-
-	/**
-	 * Executes an asynchronous query using a {@link String}.
-	 *
-	 * @param query    {@link String}
-	 * @param consumer {@link Consumer}
-	 */
-	public void executeAsyncFromLanguage(String query, Consumer<QueryResponse> consumer) {
-		executeAsyncFromLanguage(query, this.queryOptions, consumer);
-	}
-
-	/**
-	 * Executes an asynchronous query using a {@link String}.
-	 *
-	 * @param query        {@link String}
-	 * @param queryOptions {@link QueryOptions}
-	 * @param consumer     {@link Consumer}
-	 */
-	public void executeAsyncFromLanguage(String query, QueryOptions queryOptions, Consumer<QueryResponse> consumer) {
-		this.pdgRunner.executeQueryAsyncFromLanguage(query, queryOptions, consumer);
-	}
-
-	/**
-	 * Gets a new instance of {@link QueryBuilder}.
-	 *
-	 * @return {@link QueryBuilder}
-	 */
-	public QueryBuilder queryBuilder() {
-		return new QueryBuilder();
-	}
-
-	/**
-	 * Sets an encoder
-	 *
-	 * @param name  {@link String}
-	 * @param clazz {@link Class}
-	 * @param <T>   T
-	 */
 	public <T> void setEncoder(String name, Class<T> clazz) {
-		pdgRunner.setEncoder(name, clazz);
+		this.encoders.put(name, clazz);
 	}
 }

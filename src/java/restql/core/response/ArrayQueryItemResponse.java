@@ -3,7 +3,7 @@ package restql.core.response;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import restql.core.exception.PDGException;
+import restql.core.exception.RestQLException;
 
 /**
  * Created by ideais on 20/12/16.
@@ -26,7 +26,7 @@ public class ArrayQueryItemResponse implements QueryItemResponse {
         try {
             return mapper.treeToValue(result, clazz);
         } catch (JsonProcessingException e) {
-            throw new PDGException(e);
+            throw new RestQLException(e);
         }
     }
 

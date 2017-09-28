@@ -8,20 +8,13 @@ To use restQL regular syntax please check [restQL-Server here](https://github.co
 In restQL you build queries expressing the fields and resources to fetch:
 
 ```java
-Query query = restql.queryBuilder()
-        .get("user")
-            .from("user")
-            .with("id").value(2)
-        .get("bio")
-        .from("bio")
-            .with("userId").chained(new String[]{"user", "id"})
-        .get("allPosts")
-            .from("posts")
-            .timeout(5000)
-            .with("userId").chained(new String[]{"user", "id"})
-        .getQuery();
+ClassConfigRepository config = new ClassConfigRepository();
+config.put("user", "http://your.api.url/users/:id");
 
-restql.execute(query);
+RestQL restQL = new RestQL(config);
+String query = "from user params id = ?";
+
+QueryResponse response = restql.executeQuery(query, 1);
 ```
 
 In the example above, first restQL will fetch all users and right after perform parallel requests to fetch users bios and posts.  
@@ -45,7 +38,7 @@ Just add the following dependency to your maven project to download restQL from 
 <dependency>
 	<groupId>com.b2wdigital</groupId>
         <artifactId>restql-core</artifactId>
-       	<version>1.1.0</version>
+       	<version>2.0.0</version>
 </dependency>
 ```
 
@@ -139,20 +132,20 @@ RestQL restql = new RestQL(configRepository, queryOptions);
 Retrieving all films from Star Wars API
 
 ```java
-RestQL restql = new RestQL(new PropertiesFileConfigRepository("resources/restql.properties"));
-Query query = restql.queryBuilder()
-		.get("galaxyPlanets")
-			.from("planets")
-			.timeout(5000)
-		.getQuery();
-QueryResponse result = restql.execute(query);
+ClassConfigRepository config = new ClassConfigRepository();
+config.put("cards", "http://api.magicthegathering.io/v1/cards");
+
+RestQL restQL = new RestQL(config);
+
+String query = "from cards as cardslist params type = ?";
+
+QueryResponse response = restQL.executeQuery(query, "Artifact");
 
 // The JSON String
-String jsonString = result.toString();
+String jsonString = response.toString();
 
 // The mapped object
-List<Planet> planets = result.getList("galaxyPlanets", Planet.class);
-
+List<MTGCard> cards = result.getList("cardslist", MTGCard.class);
 ```
 
 #### Chained Query
@@ -160,27 +153,22 @@ List<Planet> planets = result.getList("galaxyPlanets", Planet.class);
 Retrieving posts from a given user (id = 2), using chained parameters.
 
 ```java
-RestQL restql = new RestQL(new PropertiesFileConfigRepository("resources/restql.properties"));
-Query query = restql.queryBuilder()
-		.get("user")
-			.from("user")
-			.timeout(2000)
-			.with("id")
-				.value(2)
-		.get("allPosts")
-			.from("posts")
-			.timeout(5000)
-			.with("userId")
-				.chained(new String[]{"user", "id"})
-		.getQuery();
-QueryResponse result = restql.execute(query);
+ClassConfigRepository config = new ClassConfigRepository();
+config.put("cards", "http://api.magicthegathering.io/v1/cards");
+config.put("card", "http://api.magicthegathering.io/v1/cards/:id");
+
+RestQL restQL = new RestQL(config);
+
+String queryCardsAndDetails = "from cards as cardsList params type = ? \n"
+        + "from card as cardWithDetails params id = cardsList.id";
+
+QueryResponse response = restQL.executeQuery(query, "Artifact");
 
 // The JSON String
-String jsonString = result.toString();
+String jsonString = response.toString();
 
 // The mapped object
-BlogUser user = result.get("user", BlogUser.class);
-List<BlogPost> posts = result.getList("allPosts", BlogPost.class);
+List<MTGCard> cards = result.getList("cardWithDetails", MTGCard.class);
 ```
 ## Building From Source Code
 
@@ -189,11 +177,7 @@ As prerequisites to build restQL from source we have:
 + Java 8
 + Maven 3
 
-Just clone this repo and run "mvn clojure:compile install".
-
-## Contributing
-
-Take a look at our contributing guidelines.
+Just clone this repo and run "mvn compile install".
 
 ## License
 

@@ -74,7 +74,7 @@ WithParamPrimitiveValue =
   Primitive;
 
 WithBodyRule =
-  KW_WITH_BODY WS_MAND ComplexParamValue;
+  KW_WITH_BODY WS_MAND WithRuleItem (WS LS WS WithRuleItem)*;
 
 ListParamValue =
   BEGIN_LIST WS END_LIST |
@@ -177,10 +177,10 @@ IgnoreErrorsFlag =
   <"timeout">;
 
 <KW_WITH> =
-  <"with">;
+  <"with"|"params">;
 
 <KW_WITH_BODY> =
-  <"with-body">;
+  <"body">;
 
 
 <KW_ONLY> =

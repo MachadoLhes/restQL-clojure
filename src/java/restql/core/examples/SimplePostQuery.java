@@ -1,6 +1,5 @@
 package restql.core.examples;
 
-import com.fasterxml.jackson.databind.util.JSONPObject;
 import restql.core.RestQL;
 import restql.core.config.ClassConfigRepository;
 import restql.core.query.QueryOptions;
@@ -10,7 +9,7 @@ import restql.core.response.QueryResponse;
 import java.util.HashMap;
 
 
-public class SimplePostQueryFromLanguage {
+public class SimplePostQuery {
 
 	public static void main(String[] args) {
 
@@ -19,13 +18,13 @@ public class SimplePostQueryFromLanguage {
 
 		RestQL restQL = new RestQL(config);
 
-		String query = "from mock with-body {foo: \"bar\"}";
+		String query = "from mock body foo = \"bar\"";
 		QueryOptions opts = new QueryOptions();
 		opts.setDebugging(false);
 		opts.setGlobalTimeout(10000);
 		opts.setTimeout(3000);
 
-		QueryResponse response = restQL.executeFromLanguage(query, opts);
+		QueryResponse response = restQL.executeQuery(query, opts);
 
 		System.out.println(response);
 
