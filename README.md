@@ -56,7 +56,7 @@ In the example above restQL will call user API with passing "Mad Max" in the nam
 ### Configuration
 restQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface. 
 
-You can check more about endpoints configuration [here](Endpoint configuration)
+You can check more about endpoints configuration [here](https://github.com/B2W-BIT/restQL-core/wiki/Endpoint-configuration)
 
 ## Examples
 
