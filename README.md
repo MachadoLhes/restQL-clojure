@@ -3,7 +3,21 @@
 
 restQL-core allows you to run restQL queries directly from JVM applications, making easy to fetch information from multiple services in the most efficient manner.
 
+```
+from search
+    with
+        role = "hero"
+
+from hero as heroes
+    with
+        name = search.results.name
+```
+
+More about restQL query language [here](https://github.com/B2W-BIT/restQL-server/wiki/RestQL-Query-Language) and [here](http://restql.b2w.io)
+
 If you're using another languagem or working in a client application you may want to check  [restQL-Server](https://github.com/B2W-BIT/restQL-server).
+
+# Getting Started
 
 In restQL you build queries expressing the fields and resources to fetch:
 
