@@ -19,6 +19,8 @@ If you're using another languagem or working in a client application you may wan
 
 # Getting Started
 
+### Installation
+
 Add restQL dependency to your project
 
 #### Maven
@@ -37,7 +39,7 @@ Add restQL dependency to your project
 com.b2wdigital:restql-core:2.0.0
 ```
 
-## First query
+### First query
 
 ```java
 ClassConfigRepository config = new ClassConfigRepository();
@@ -45,20 +47,22 @@ config.put("user", "http://your.api.url/users/:id");
 
 RestQL restQL = new RestQL(config);
 QueryResponse response = restql.executeQuery("from user with name = ?", "Mad Max");
+
+System.out.println("The response JSON is: " + response.toString());
 ```
 
-In the example above restQL will call user API with passing "Mad Max" in the name param.
+In the example above restQL will call user API with passing "Mad Max" in the name param and print the JSON output.
 
-## Configuration
+### Configuration
 restQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface. 
 
 You can check more about endpoints configuration [here](Endpoint configuration)
 
-### Examples
+# Examples
 
-#### Simple Query
+### Simple Query
 
-Retrieving all films from Star Wars API
+Retrieving all magic cards
 
 ```java
 ClassConfigRepository config = new ClassConfigRepository();
@@ -77,7 +81,7 @@ String jsonString = response.toString();
 List<MTGCard> cards = result.getList("cardslist", MTGCard.class);
 ```
 
-#### Chained Query
+### Chained Query
 
 Retrieving posts from a given user (id = 2), using chained parameters.
 
@@ -89,7 +93,7 @@ config.put("card", "http://api.magicthegathering.io/v1/cards/:id");
 RestQL restQL = new RestQL(config);
 
 String queryCardsAndDetails = "from cards as cardsList params type = ? \n"
-        + "from card as cardWithDetails params id = cardsList.id";
+                            + "from card as cardWithDetails params id = cardsList.id";
 
 QueryResponse response = restQL.executeQuery(query, "Artifact");
 
@@ -99,7 +103,7 @@ String jsonString = response.toString();
 // The mapped object
 List<MTGCard> cards = result.getList("cardWithDetails", MTGCard.class);
 ```
-## Building From Source Code
+# Building From Source Code
 
 As prerequisites to build restQL from source we have:
 
