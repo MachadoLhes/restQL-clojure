@@ -19,8 +19,9 @@ If you're using another languagem or working in a client application you may wan
 
 # Getting Started
 
-## Installation
 Add restQL dependency to your project
+
+#### Maven
 
 ```xml
 <dependency>
@@ -28,6 +29,12 @@ Add restQL dependency to your project
         <artifactId>restql-core</artifactId>
        	<version>2.0.0</version>
 </dependency>
+```
+
+#### Gradle
+
+```
+com.b2wdigital:restql-core:2.0.0
 ```
 
 ## Installation
