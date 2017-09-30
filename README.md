@@ -23,7 +23,7 @@ If you're using another languagem or working in a client application you may wan
 
 Add restQL dependency to your project
 
-#### Maven
+**Maven**
 
 ```xml
 <dependency>
@@ -33,7 +33,7 @@ Add restQL dependency to your project
 </dependency>
 ```
 
-#### Gradle
+**Gradle**
 
 ```
 com.b2wdigital:restql-core:2.0.0
