@@ -37,104 +37,23 @@ Add restQL dependency to your project
 com.b2wdigital:restql-core:2.0.0
 ```
 
-## Installation
+## First query
 
 ```java
 ClassConfigRepository config = new ClassConfigRepository();
 config.put("user", "http://your.api.url/users/:id");
 
 RestQL restQL = new RestQL(config);
-String query = "from user params id = ?";
-
-QueryResponse response = restql.executeQuery(query, 1);
+QueryResponse response = restql.executeQuery("from user with name = ?", "Mad Max");
 ```
 
-In the example above, first restQL will fetch all users and right after perform parallel requests to fetch users bios and posts.  
+In the example above restQL will call user API with passing "Mad Max" in the name param.
 
-restQL is built upon the battle proven Clojure CSP and Http Kit to maximize throughput and performance.
+## Configuration
+restQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface. 
 
-### Configuration
-RestQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface.
-The configuration must return a `RouteMap` object.
+You can check more about endpoints configuration [here](Endpoint configuration)
 
-#### Resources
-
-In restQL resources are the API urls to retrieve data. Examples of resource would be:
-
-+ planets: http://swapi.co/api/planets/
-+ planet: http://swapi.co/api/planets/:id
-
-Everytime you need an url route parameter, use the parameter name with `:` to reference to that path variable, as we can see on the `planet` resource above.
-
-#### System Properties
-
-The class `SystemPropertiesConfigRepository` searches resources through the JVM arguments.
-An example of JVM args configuration is:
-
-```
-[Other JVM arguments...]
--Dplanets=http://swapi.co/api/planets/
--Dplanet=http://swapi.co/api/planets/:id
-```
-
-To use the class:
-
-```java
-SystemPropertiesConfigRepository systemConfRepository = new SystemPropertiesConfigRepository();
-
-RestQL restql = new RestQL(systemConfRepository);
-```
-
-#### Properties File
-
-The class `PropertiesFileConfigRepository` will take a properties file and map the resources.
-An example of properties file (e.g.: restql.properties):
-
-```properties
-#### Star Wars API ####
-# Get all
-planets=http://swapi.co/api/planets/
-people=http://swapi.co/api/people/object()
-films=http://swapi.co/api/films/
-# Get one
-planet=http://swapi.co/api/planets/:id
-person=http://swapi.co/api/people/:id
-film=http://swapi.co/api/films/:id
-```
-
-To use the class:
-
-```java
-PropertiesFileConfigRepository propsFileConfigRepository = new PropertiesFileConfigRepository("resources/restql.properties");
-
-RestQL restql = new RestQL(propsFileConfigRepository);
-```
-
-#### Java Class
-
-The class `ClassConfigRepository` provides a class based Repository to configure resources directly using Java code.
-An example of configuration using a Java class:
-
-```java
-ClassConfigRepository config = new ClassConfigRepository();
-config.put("forces", "https://data.police.uk/api/forces");
-config.put("force", "https://data.police.uk/api/forces/:forceid");
-config.put("neighbourhoods", "https://data.police.uk/api/:forceid/neighbourhoods");
-config.put("crimes", "https://data.police.uk/api/crimes-no-location");
-config.put("crimeDetails", "https://data.police.uk/api/outcomes-for-crime/:persistent_id");
-
-RestQL restql = new RestQL(config);
-```
-
-#### Custom restQL Configuration
-
-The default query option sets the debug to false. If you want to use debug on your queries you can instantiate a new restQL class with the debug options as follow:
-
-```java
-QueryOptions queryOptions = new QueryOptions();
-queryOptions.setDebugging(true);
-RestQL restql = new RestQL(configRepository, queryOptions);
-```
 ### Examples
 
 #### Simple Query
