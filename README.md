@@ -8,7 +8,7 @@ from search
     with
         role = "hero"
 
-from hero as heroes
+from hero
     with
         name = search.results.name
 ```
