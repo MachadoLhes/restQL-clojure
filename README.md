@@ -17,7 +17,7 @@ More about restQL query language [here](https://github.com/B2W-BIT/restQL-server
 
 If you're using another languagem or working in a client application you may want to check  [restQL-Server](https://github.com/B2W-BIT/restQL-server).
 
-# Getting Started
+## Getting Started
 
 ### Installation
 
@@ -58,7 +58,7 @@ restQL receives a configuration class with the API mappings. You can use the ava
 
 You can check more about endpoints configuration [here](Endpoint configuration)
 
-# Examples
+## Examples
 
 ### Simple Query
 
@@ -103,7 +103,7 @@ String jsonString = response.toString();
 // The mapped object
 List<MTGCard> cards = result.getList("cardWithDetails", MTGCard.class);
 ```
-# Building From Source Code
+## Building From Source Code
 
 As prerequisites to build restQL from source we have:
 
