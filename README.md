@@ -19,7 +19,18 @@ If you're using another languagem or working in a client application you may wan
 
 # Getting Started
 
-In restQL you build queries expressing the fields and resources to fetch:
+## Installation
+Add restQL dependency to your project
+
+```xml
+<dependency>
+	<groupId>com.b2wdigital</groupId>
+        <artifactId>restql-core</artifactId>
+       	<version>2.0.0</version>
+</dependency>
+```
+
+## Installation
 
 ```java
 ClassConfigRepository config = new ClassConfigRepository();
@@ -33,29 +44,7 @@ QueryResponse response = restql.executeQuery(query, 1);
 
 In the example above, first restQL will fetch all users and right after perform parallel requests to fetch users bios and posts.  
 
-RestQL is built upon the battle proven Clojure CSP and Http Kit to maximize throughput and performance.
-
-### Motivation
-
-When building a microservice architecture we often have to deal with services calling multiple services.
-
-restQL does the heavy lifting of orchestrating and parallelizing the API calls, alleviating the burden of working with async requests in Java.
-
-## Getting Started
-
-### Installation
-The best way to get started is to add the restQL dependency to your project file.
-
-Just add the following dependency to your maven project to download restQL from maven central:
-
-```xml
-<dependency>
-	<groupId>com.b2wdigital</groupId>
-        <artifactId>restql-core</artifactId>
-       	<version>2.0.0</version>
-</dependency>
-```
-
+restQL is built upon the battle proven Clojure CSP and Http Kit to maximize throughput and performance.
 
 ### Configuration
 RestQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface.
