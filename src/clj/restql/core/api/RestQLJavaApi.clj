@@ -12,7 +12,7 @@
                                            java.util.function.Consumer] Void]])
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
             [restql.core.log :refer [warn]]
-            [restql.core.api.restql-facade :as restql]))
+            [restql.core.api.restql :as restql]))
 
 (defn wrap-java-encoder [java-encoder]
   (fn [data]
@@ -39,8 +39,7 @@
   (let [clj-mappings (keywordize-keys (into {} mappings))
         clj-encoders (concat-encoders encoders)
         clj-query-opts (keywordize-keys (into {} query-opts))]
-
-    (restql/execute-query-from-language-sync
+    (restql/execute-query
       :mappings clj-mappings
       :encoders clj-encoders
       :query query
@@ -50,7 +49,7 @@
   (let [clj-mappings (keywordize-keys (into {} mappings))
         clj-encoders (concat-encoders encoders)
         clj-query-opts (keywordize-keys (into {} query-opts))
-        restql-ch (restql/execute-query-from-language-async
+        restql-ch (restql/execute-query-async
                     :mappings clj-mappings
                     :encoders clj-encoders
                     :query query

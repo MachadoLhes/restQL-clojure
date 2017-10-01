@@ -1,10 +1,11 @@
-(ns restql.core.api.restql-facade
+(ns restql.core.api.restql
   (:require [clojure.edn :as edn]
             [restql.core.async-runner :as restql]
             [restql.core.validator.core :as validator]
             [restql.core.transformations.select :refer [select]]
             [restql.core.async-request :as request]
             [restql.core.hooks.core :as hook]
+            [clojure.walk :refer [stringify-keys]]
             [cheshire.core :as json]
             [restql.core.context :as context]
             [ring.util.codec :refer [form-encode]]
@@ -115,7 +116,7 @@
                       query-result))]
     [return-ch exception-ch]))
 
-(defn execute-query-sync [& {:keys [mappings encoders query query-opts]}]
+(defn do-execute-query [& {:keys [mappings encoders query query-opts]}]
   (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
                                                         :encoders encoders
                                                         :query query
@@ -123,7 +124,7 @@
         result (<!! result-ch)]
     result))
 
-(defn execute-query-async [& {:keys [mappings encoders query query-opts callback]}]
+(defn do-execute-query-async [& {:keys [mappings encoders query query-opts callback]}]
   (go
     (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
                                                           :encoders encoders
@@ -132,16 +133,16 @@
           result (<! result-ch)]
       (callback result))))
 
-(defn execute-query-from-language-sync [& {:keys [mappings encoders query query-opts]}]
-  (let [parsed-query (parser/parse-query query)]
-    (execute-query-sync :mappings mappings
+(defn execute-query [& {:keys [mappings encoders query context query-opts]}]
+  (let [parsed-query (parser/parse-query query :context (stringify-keys context))]
+    (do-execute-query :mappings mappings
                          :encoders encoders
                          :query parsed-query
                          :query-opts query-opts)))
 
-(defn execute-query-from-language-async [& {:keys [mappings encoders query query-opts callback]}]
-  (let [parsed-query (parser/parse-query query)]
-  (execute-query-async :mappings mappings
+(defn execute-query-async [& {:keys [mappings encoders query context query-opts callback]}]
+  (let [parsed-query (parser/parse-query query (stringify-keys context))]
+  (do-execute-query-async :mappings mappings
                        :encoders encoders
                        :query parsed-query
                        :query-opts query-opts

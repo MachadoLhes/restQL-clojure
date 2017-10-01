@@ -1,5 +1,5 @@
 (ns restql.core.api.core
-  (:require [restql.core.api.restql-facade :as restql]
+  (:require [restql.core.api.restql :as restql]
             [cheshire.core :as json]))
 
 (defn concat-encoders [encoders]
