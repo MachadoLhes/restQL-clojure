@@ -64,8 +64,8 @@ In the example above restQL will call user API with passing "Mad Max" in the nam
 ### First query Clojure
 
 ```clojure
-    (require '[restql.core.api.restql :as restql])
-    (restql/execute-query :mappings { :user "http://your.api.url/users/:id" } :query "from user with name = $name" :context { :name "Duke Nukem" } )
+(require '[restql.core.api.restql :as restql])
+(restql/execute-query :mappings { :user "http://your.api.url/users/:id" } :query "from user with name = $name" :context { :name "Duke Nukem" } )
 ```
 
 ### Configuration
