@@ -16,7 +16,7 @@
     (restql/execute-query-async :mappings mappings
                                 :encoders (concat-encoders encoders)
                                 :query (stringify-query query)
-                                :query-opts query-opts
+                                :options query-opts
                                 :callback (fn [result]
                                             (let [parsed (json/parse-string result true)]
                                               (deliver output parsed)

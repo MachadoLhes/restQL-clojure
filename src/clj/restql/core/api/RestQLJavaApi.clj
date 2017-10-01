@@ -43,7 +43,7 @@
       :mappings clj-mappings
       :encoders clj-encoders
       :query query
-      :query-opts clj-query-opts)))
+      :options clj-query-opts)))
 
 (defn -queryAsync [mappings encoders query query-opts callback]
   (let [clj-mappings (keywordize-keys (into {} mappings))
@@ -53,7 +53,7 @@
                     :mappings clj-mappings
                     :encoders clj-encoders
                     :query query
-                    :query-opts clj-query-opts
+                    :options clj-query-opts
                     :callback (fn [result]
                                 (.accept callback result)))]
 

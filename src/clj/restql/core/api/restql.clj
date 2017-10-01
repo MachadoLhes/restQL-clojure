@@ -116,7 +116,7 @@
                       query-result))]
     [return-ch exception-ch]))
 
-(defn do-execute-query [& {:keys [mappings encoders query query-opts]}]
+(defn execute-parsed-query [& {:keys [mappings encoders query query-opts]}]
   (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
                                                         :encoders encoders
                                                         :query query
@@ -124,7 +124,7 @@
         result (<!! result-ch)]
     result))
 
-(defn do-execute-query-async [& {:keys [mappings encoders query query-opts callback]}]
+(defn execute-parsed-query-async [& {:keys [mappings encoders query query-opts callback]}]
   (go
     (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
                                                           :encoders encoders
@@ -133,17 +133,17 @@
           result (<! result-ch)]
       (callback result))))
 
-(defn execute-query [& {:keys [mappings encoders query context query-opts]}]
-  (let [parsed-query (parser/parse-query query :context (stringify-keys context))]
-    (do-execute-query :mappings mappings
-                         :encoders encoders
-                         :query parsed-query
-                         :query-opts query-opts)))
+(defn execute-query [& {:keys [mappings encoders query params options]}]
+  (let [parsed-query (parser/parse-query query :context (stringify-keys params))]
+    (execute-parsed-query :mappings mappings
+                          :encoders encoders
+                          :query parsed-query
+                          :query-opts options)))
 
-(defn execute-query-async [& {:keys [mappings encoders query context query-opts callback]}]
-  (let [parsed-query (parser/parse-query query (stringify-keys context))]
-  (do-execute-query-async :mappings mappings
-                       :encoders encoders
-                       :query parsed-query
-                       :query-opts query-opts
-                       :callback callback)))
+(defn execute-query-async [& {:keys [mappings encoders query params options callback]}]
+  (let [parsed-query (parser/parse-query query (stringify-keys params))]
+  (execute-parsed-query-async :mappings mappings
+                              :encoders encoders
+                              :query parsed-query
+                              :query-opts options
+                              :callback callback)))
