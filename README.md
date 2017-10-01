@@ -41,19 +41,32 @@ Add restQL dependency to your project
 com.b2wdigital:restql-core:2.0.0
 ```
 
-### First query
+**Lein**
+
+```
+[com.b2wdigital/restql-core "2.0.0"]
+```
+
+### First query Java
 
 ```java
 ClassConfigRepository config = new ClassConfigRepository();
 config.put("user", "http://your.api.url/users/:id");
 
 RestQL restQL = new RestQL(config);
-QueryResponse response = restql.executeQuery("from user with name = ?", "Mad Max");
+QueryResponse response = restql.executeQuery("from user with name = ?", "Duke Nukem");
 
 System.out.println("The response JSON is: " + response.toString());
 ```
 
 In the example above restQL will call user API with passing "Mad Max" in the name param and print the JSON output.
+
+### First query Clojure
+
+```clojure
+    (require '[restql.core.api.restql :as restql])
+    (restql/execute-query :mappings { :user "http://your.api.url/users/:id" } :query "from user with name = $name" :context { :name "Duke Nukem" } )
+```
 
 ### Configuration
 restQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface. 
@@ -105,6 +118,7 @@ String jsonString = response.toString();
 // The mapped object
 List<MTGCard> cards = result.getList("cardWithDetails", MTGCard.class);
 ```
+
 ## Building From Source Code
 
 As prerequisites to build restQL from source we have:
@@ -112,7 +126,7 @@ As prerequisites to build restQL from source we have:
 + Java 8
 + Maven 3
 
-Just clone this repo and run "mvn compile install".
+Just clone this repo and run "mvn compile".
 
 ## License
 
