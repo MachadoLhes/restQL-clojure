@@ -68,7 +68,7 @@ System.out.println("The response JSON is: " + response.toString());
 (restql/execute-query :mappings { :user "http://your.api.url/users/:id" } :query "from user with name = $name" :context { :name "Duke Nukem" } )
 ```
 
-In the example above restQL will call user API passing "Mad Max" in the name param.
+In the example above restQL will call user API passing "Duke Nukem" in the name param.
 
 ### Configuration
 restQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface. 
