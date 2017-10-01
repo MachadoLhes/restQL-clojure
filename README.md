@@ -65,7 +65,7 @@ System.out.println("The response JSON is: " + response.toString());
 
 ```clojure
 (require '[restql.core.api.restql :as restql])
-(restql/execute-query :mappings { :user "http://your.api.url/users/:id" } :query "from user with name = $name" :context { :name "Duke Nukem" } )
+(restql/execute-query :mappings { :user "http://your.api.url/users/:id" } :query "from user with name = $name" :params { :name "Duke Nukem" } )
 ```
 
 In the example above restQL will call user API passing "Duke Nukem" in the name param.
