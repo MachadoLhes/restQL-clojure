@@ -141,7 +141,7 @@
                           :query-opts options)))
 
 (defn execute-query-async [& {:keys [mappings encoders query params options callback]}]
-  (let [parsed-query (parser/parse-query query (stringify-keys params))]
+  (let [parsed-query (parser/parse-query query :context (stringify-keys params))]
   (execute-parsed-query-async :mappings mappings
                               :encoders encoders
                               :query parsed-query
