@@ -83,7 +83,7 @@ List<MTGCard> cards = result.getList("cardslist", MTGCard.class);
 
 ### Chained Query
 
-Retrieving posts from a given user (id = 2), using chained parameters.
+Listing all cards and then fetching its details.
 
 ```java
 ClassConfigRepository config = new ClassConfigRepository();
