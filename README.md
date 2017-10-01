@@ -47,7 +47,9 @@ com.b2wdigital:restql-core:2.0.0
 [com.b2wdigital/restql-core "2.0.0"]
 ```
 
-### First query Java
+### First query
+
+**Java**
 
 ```java
 ClassConfigRepository config = new ClassConfigRepository();
@@ -59,14 +61,14 @@ QueryResponse response = restql.executeQuery("from user with name = ?", "Duke Nu
 System.out.println("The response JSON is: " + response.toString());
 ```
 
-In the example above restQL will call user API with passing "Mad Max" in the name param and print the JSON output.
-
-### First query Clojure
+**Clojure**
 
 ```clojure
 (require '[restql.core.api.restql :as restql])
 (restql/execute-query :mappings { :user "http://your.api.url/users/:id" } :query "from user with name = $name" :context { :name "Duke Nukem" } )
 ```
+
+In the example above restQL will call user API with passing "Mad Max" in the name param and print the JSON output.
 
 ### Configuration
 restQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface. 
