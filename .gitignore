@@ -16,6 +16,7 @@ restQL-core.iml
 dev-resources/**
 doc/**
 settings.xml
+!.travis/settings.xml
 *.iml
 **/*.iml
 .settings

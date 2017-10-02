@@ -5,3 +5,21 @@ jdk:
 
 install: mvn compile install -B -V -Dgpg.skip=true
 script: mvn test -B
+
+deploy:
+  -
+    provider: script
+    script: .travis/deploy.sh
+    skip_cleanup: true
+    on:
+      repo: B2W-BIT/restQL-core
+      branch: master
+      jdk: oraclejdk8
+  -
+    provider: script
+    script: .travis/deploy.sh
+    skip_cleanup: true
+    on:
+      repo: B2W-BIT/restQL-core
+      tags: true
+      jdk: oraclejdk8
