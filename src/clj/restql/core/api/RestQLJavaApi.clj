@@ -12,7 +12,11 @@
                                            java.util.function.Consumer] Void]])
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
             [restql.core.log :refer [warn]]
-            [restql.core.api.restql :as restql]))
+            [restql.core.api.restql :as restql]
+            [cheshire.core :as json]))
+
+(defn json-adapter [json-result]
+  (-> (json/generate-string json-result)))
 
 (defn wrap-java-encoder [java-encoder]
   (fn [data]
@@ -39,11 +43,11 @@
   (let [clj-mappings (keywordize-keys (into {} mappings))
         clj-encoders (concat-encoders encoders)
         clj-query-opts (keywordize-keys (into {} query-opts))]
-    (restql/execute-query
+    (json-adapter (restql/execute-query
       :mappings clj-mappings
       :encoders clj-encoders
       :query query
-      :options clj-query-opts)))
+      :options clj-query-opts))))
 
 (defn -queryAsync [mappings encoders query query-opts callback]
   (let [clj-mappings (keywordize-keys (into {} mappings))
@@ -55,6 +59,6 @@
                     :query query
                     :options clj-query-opts
                     :callback (fn [result]
-                                (.accept callback result)))]
+                                (.accept callback (json-adapter result))))]
 
     nil))

@@ -1,6 +1,7 @@
 (ns restql.parser.producer
   (:require [clojure.string :refer [join]]
-            [restql.parser.only-rule-formatter :as only]))
+            [restql.parser.only-rule-formatter :as only]
+            [clojure.tools.reader :as edn]))
 
 (def ^:dynamic *restql-variables* {})
 
@@ -242,7 +243,7 @@
       :WithModifierFunction        (produce-with-modifier-function content)
       :WithModifierFunctionName    (join-chars "" content)
       :WithModifierFunctionArgList (product-with-modifier-function-arg-list content)
-      :WithModifierFunctionArg     (read-string (join-chars "" content))
+      :WithModifierFunctionArg     (edn/read-string (join-chars "" content))
 
       :WithBodyRule                (produce-with-body-rule content)
 

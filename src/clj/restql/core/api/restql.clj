@@ -1,6 +1,5 @@
 (ns restql.core.api.restql
-  (:require [clojure.edn :as edn]
-            [restql.core.async-runner :as restql]
+  (:require [restql.core.async-runner :as restql]
             [restql.core.validator.core :as validator]
             [restql.core.transformations.select :refer [select]]
             [restql.core.async-request :as request]
@@ -10,7 +9,8 @@
             [restql.core.context :as context]
             [ring.util.codec :refer [form-encode]]
             [clojure.core.async :refer [go go-loop <!! <! >! alt! alts! timeout]]
-            [restql.parser.core :as parser]))
+            [restql.parser.core :as parser]
+            [clojure.tools.reader :as edn]))
 
 (defn- status-code-ok [query-response]
   (and
@@ -81,8 +81,7 @@
       exception-ch ([err] err)
       query-ch ([result]
                  (let [output (->> result
-                                   (select (flatten parsed-query))
-                                   json/generate-string)]
+                                   (select (flatten parsed-query)))]
                    output)))))
 
 (defn get-default-encoders []

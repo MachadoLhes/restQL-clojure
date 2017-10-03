@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by ideais on 14/12/16.
@@ -27,6 +28,18 @@ public class QueryResponse {
             this.parsed = mapper.readTree(response);
         }
         catch(IOException e) {
+            throw new ResponseParseException(e);
+        }
+    }
+
+    public QueryResponse(Map response) {
+        try {
+
+            ObjectMapper mapper = new ObjectMapper();
+            this.mapper = mapper;
+            this.parsed = mapper.valueToTree(response);
+            this.rawString = mapper.writerWithDefaultPrettyPrinter().writeValueAsString(this.parsed);
+        } catch (JsonProcessingException e) {
             throw new ResponseParseException(e);
         }
     }

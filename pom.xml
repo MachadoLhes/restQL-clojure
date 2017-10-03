@@ -136,6 +136,11 @@
             <scope>compile</scope>
             <exclusions/>
         </dependency>
+        <dependency>
+            <groupId>org.clojure</groupId>
+            <artifactId>tools.reader</artifactId>
+            <version>1.0.5</version>
+        </dependency>
     </dependencies>
     <distributionManagement>
         <snapshotRepository>
