@@ -31,20 +31,20 @@ Add restQL dependency to your project
 <dependency>
 	<groupId>com.b2wdigital</groupId>
         <artifactId>restql-core</artifactId>
-       	<version>2.0.0</version>
+       	<version>2.1.0</version>
 </dependency>
 ```
 
 **Gradle**
 
 ```
-com.b2wdigital:restql-core:2.0.0
+com.b2wdigital:restql-core:2.1.0
 ```
 
 **Lein**
 
 ```
-[com.b2wdigital/restql-core "2.0.0"]
+[com.b2wdigital/restql-core "2.1.0"]
 ```
 
 ### First query
