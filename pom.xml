@@ -62,6 +62,12 @@
             <exclusions/>
         </dependency>
         <dependency>
+            <groupId>se.haleby</groupId>
+            <artifactId>stub-http</artifactId>
+            <version>0.2.3</version>
+            <score>test</score>
+        </dependency>
+        <dependency>
             <groupId>org.clojure</groupId>
             <artifactId>tools.logging</artifactId>
             <version>0.3.1</version>
