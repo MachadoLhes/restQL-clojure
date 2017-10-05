@@ -13,8 +13,9 @@
                  [org.clojure/core.async "0.3.443"]
                  [com.fasterxml.jackson.core/jackson-databind "2.8.5"]
                  [cheshire "5.5.0"]
+                 [se.haleby/stub-http "0.2.3"]
                  [adzerk/bootlaces "0.1.13"]]
-  :profiles {:test {:dependencies [[se.haleby/stub-http "0.2.1"]]}
+  :profiles {:test {:dependencies [[se.haleby/stub-http "0.2.3"]]}
              :uberjar { :aot :all }}
   :source-paths ["src" "src/clj"]
   :resource-paths ["src/resources"]
