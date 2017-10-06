@@ -65,7 +65,7 @@
             <groupId>se.haleby</groupId>
             <artifactId>stub-http</artifactId>
             <version>0.2.3</version>
-            <score>test</score>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.clojure</groupId>
