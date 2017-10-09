@@ -9,7 +9,7 @@
                                            java.util.Map
                                            String
                                            java.util.Map
-                                           java.util.function.Consumer] Void]])
+                                           java.util.function.BiConsumer] Void]])
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
             [restql.core.log :refer [warn]]
             [restql.core.api.restql :as restql]
@@ -58,7 +58,7 @@
                     :encoders clj-encoders
                     :query query
                     :options clj-query-opts
-                    :callback (fn [result]
-                                (.accept callback (json-adapter result))))]
+                    :callback (fn [result error]
+                                (.accept callback (json-adapter result) error)))]
 
     nil))

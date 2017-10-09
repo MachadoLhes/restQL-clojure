@@ -8,7 +8,7 @@ import restql.core.response.QueryResponse;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Consumer;
+import java.util.function.BiConsumer;
 
 public class RestQL {
 
@@ -62,15 +62,16 @@ public class RestQL {
 		return this.executeQuery(query, this.queryOptions, args);
 	}
 
-	public void executeQueryAsync(String query, QueryOptions queryOptions, Consumer<QueryResponse> consumer, Object... args) {
+	public void executeQueryAsync(String query, QueryOptions queryOptions, BiConsumer<QueryResponse, Object> consumer, Object... args) {
 		ClojureRestQLApi.queryAsync(configRepository.getMappings().toMap(),
 				this.encoders,
 				QueryInterpolator.interpolate(query, args),
 				queryOptions.toMap(),
-				result -> consumer.accept(new QueryResponse((String) result)));
+				(result, error) ->
+						consumer.accept(new QueryResponse((String) result), error));
 	}
 
-	public void executeQueryAsync(String query, Consumer<QueryResponse> consumer, Object... args) {
+	public void executeQueryAsync(String query, BiConsumer<QueryResponse, Object> consumer, Object... args) {
 		this.executeQueryAsync(query, this.queryOptions, consumer, args);
 	}
 

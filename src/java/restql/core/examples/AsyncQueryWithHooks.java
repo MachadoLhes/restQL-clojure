@@ -7,8 +7,10 @@ import restql.core.hooks.AfterRequestHook;
 import restql.core.hooks.QueryHook;
 import restql.core.hooks.RequestHook;
 import restql.core.query.QueryOptions;
+import restql.core.response.QueryResponse;
 
 import java.util.Map;
+import java.util.function.BiConsumer;
 
 
 public class AsyncQueryWithHooks {
@@ -69,8 +71,9 @@ public class AsyncQueryWithHooks {
 		opts.setAfterQuerytHook(SimpleAfterQueryHook.class);
 		opts.setBeforeRequestHook(BeforeRequestHook.class);
 		opts.setAfterRequestHook(SimpleAfterRequestHook.class);
-
-		restQL.executeQueryAsync(query, opts, System.out::println, "693f4d338e4f041ccf4dd158ccde0b14dfc51ee0");
+		BiConsumer<QueryResponse, Object> callback = (result, error) ->
+				System.out.println("Result: " + result + ". Error: " + error);
+		restQL.executeQueryAsync(query, opts, callback, "693f4d338e4f041ccf4dd158ccde0b14dfc51ee0");
 		Thread.sleep(5000);
 	}
 }

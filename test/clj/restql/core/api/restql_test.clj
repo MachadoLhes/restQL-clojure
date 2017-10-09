@@ -1,5 +1,6 @@
 (ns restql.core.api.restql-test
-  (:require [clojure.test :refer [deftest is]]
+  (:require [clojure.test :refer :all]
+            [clojure.core.async :refer [<!!]]
             [restql.core.api.restql :as restql]
             [cheshire.core :as json]
             [stub-http.core :refer :all]
@@ -106,3 +107,24 @@
   )
 )
 
+(deftest simple-async-request
+  (with-routes!
+    {"/hero" (hero-route)}
+    (let [expected (atom nil)
+          result (<!! (execute-query-async uri "from hero" (fn [result error] (compare-and-set! expected @expected result))))]
+      (is (= 200 (get-in @expected [:hero :details :status])))
+      (is (= "I'm hero" (get-in @expected [:hero :result :hi]))))))
+
+(deftest unmapped-resource-should-throw-exception-async
+  (with-routes!
+    {"/hero" (hero-route)}
+    (let [expected (atom nil)
+          result (<!! (execute-query-async uri "from villain" (fn [result error] (compare-and-set! expected @expected error))))]
+      (is (= :validation-error (:type @expected))))))
+
+(deftest error-async-request-should-throw-exception
+  (with-routes!
+    {"/hero" (assoc (hero-route) :status 500)}
+    (let [expected (atom nil)
+          result (<!! (execute-query-async uri "from hero" (fn [result error] (compare-and-set! expected @expected error))))]
+    (is (= :resource-failed (:type @expected))))))

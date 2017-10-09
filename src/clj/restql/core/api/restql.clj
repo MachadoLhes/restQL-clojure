@@ -143,12 +143,16 @@
 
 (defn execute-parsed-query-async [& {:keys [mappings encoders query query-opts callback]}]
   (go
-    (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
-                                                          :encoders encoders
-                                                          :query query
-                                                          :query-opts query-opts)
-          result (<! result-ch)]
-      (callback result))))
+    (try+
+      (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
+                                                            :encoders encoders
+                                                            :query query
+                                                            :query-opts query-opts)]
+      (alt!
+        exception-ch ([err] (callback nil err))
+        result-ch ([result] (callback result nil))))
+      (catch Object e
+        (callback nil e)))))
 
 (defn execute-query [& {:keys [mappings encoders query params options]}]
   (let [parsed-query (parser/parse-query query :context (stringify-keys params))]
