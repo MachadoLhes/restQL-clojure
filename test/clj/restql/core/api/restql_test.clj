@@ -44,7 +44,7 @@
   (with-routes!
     {"/hero" (assoc (hero-route) :status 500)}
     (let [excp (try+ (execute-query uri "from hero")
-                     (catch [:type :resource-failed] e
+                     (catch [:type :request-failed] e
                        e))
           {:keys [resource response result]} excp]
       (is (= 500 (get-in response [:details :status])))
@@ -127,4 +127,4 @@
     {"/hero" (assoc (hero-route) :status 500)}
     (let [expected (atom nil)
           result (<!! (execute-query-async uri "from hero" (fn [result error] (compare-and-set! expected @expected error))))]
-    (is (= :resource-failed (:type @expected))))))
+    (is (= :request-failed (:type @expected))))))

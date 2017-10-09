@@ -83,7 +83,7 @@
     (cond
       ignore-errors (assoc init resource result)
       (= 408 status) (assoc init resource result)
-      (false? success) (throw+ {:type :resource-failed :resource resource :response result})
+      (false? success) (throw+ {:type :request-failed :resource resource :response result})
       :else (assoc init resource result))))
 
 (defn- check-all-status [result]
@@ -128,7 +128,7 @@
                                                                           :result        query-result
                                                                           :response-time (- (System/currentTimeMillis) time-before)})]
                         query-result)
-                      (catch [:type :resource-failed] e
+                      (catch [:type :request-failed] e
                         (>! exception-ch e))))]
     [return-ch exception-ch]))
 

@@ -58,7 +58,7 @@
 
 (defn- get-error-status [result message]
   (cond
-    (some? (:status result)) result
+    (some? (:status result)) (:status result)
     (= "Connection refused" message) nil
     :else 408))
 
