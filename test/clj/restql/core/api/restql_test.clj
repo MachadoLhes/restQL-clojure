@@ -3,8 +3,8 @@
             [restql.core.api.restql :as restql]
             [cheshire.core :as json]
             [stub-http.core :refer :all]
-  )
-)
+            [slingshot.slingshot :refer [try+]])
+  (:import (clojure.lang ExceptionInfo)))
 
 (defn hero-route []
   {:status 200 :content-type "application/json" :body (json/generate-string { :hi "I'm hero" :sidekickId "A20"})}
@@ -14,9 +14,15 @@
   {:status 200 :content-type "application/json" :body (json/generate-string { :hi "I'm sidekick"})}
 )
 
+(defn sidekick-route-404 []
+  {:status 404 :content-type "text/plain" :body "404 Not Found"})
+
 (defn execute-query [baseUrl query]
   (restql/execute-query :mappings { :hero (str baseUrl "/hero") :sidekick (str baseUrl "/sidekick") } :query query)
 )
+
+(defn execute-query-async [baseUrl query callback]
+  (restql/execute-query-async :mappings { :hero (str baseUrl "/hero") :sidekick (str baseUrl "/sidekick") } :query query :callback callback))
 
 (deftest simple-request
    (with-routes!
@@ -28,12 +34,21 @@
    )
 )
 
-;(deftest error-request-should-throw-exception
- ; (with-routes!
-  ;  {"/hero" (assoc (hero-route) :status 500)}
-   ; (is (thrown? Exception (execute-query uri "from hero")))
-  ;)
-;)
+(deftest error-request-should-throw-exception
+  (with-routes!
+    {"/hero" (assoc (hero-route) :status 500)}
+    (is (thrown? ExceptionInfo (execute-query uri "from hero")))))
+
+(deftest error-request-should-return-original-response
+  (with-routes!
+    {"/hero" (assoc (hero-route) :status 500)}
+    (let [excp (try+ (execute-query uri "from hero")
+                     (catch [:type :resource-failed] e
+                       e))
+          {:keys [resource response result]} excp]
+      (is (= 500 (get-in response [:details :status])))
+      (is (= {:hi "I'm hero", :sidekickId "A20"} (:result response)))
+      (is (= :hero resource)))))
 
 (deftest unmapped-resource-should-throw-exception
   (is (thrown? Exception (execute-query "http://any" "from villain")))
@@ -57,11 +72,9 @@
   )
 )
 
-;(deftest unreachable-resource-should-return-503
- ; (let [result (execute-query "http://localhost:9999" "from hero ignore-errors")]
-  ;  (is (= 503 (get-in result [:hero :details :status])))
-  ;)
-;)
+(deftest unreachable-resource-should-return-503
+  (let [result (execute-query "http://localhost:9999" "from hero ignore-errors")]
+    (is (= nil (get-in result [:hero :details :status])))))
 
 (deftest chained-call
   (with-routes!
@@ -74,13 +87,13 @@
   )
 )
 
-;(deftest should-throw-exeption-if-chainned-resource-fails
- ; (with-routes!
-    ;{"/hero" (hero-route)
-     ; "/sidekick" (sidekick-route)}
-    ;(is (thrown? Exception (execute-query uri "from hero\nfrom sidekick with id = hero.sidekickId")))
-  ;)
-;)
+(deftest should-throw-exeption-if-chainned-resource-fails
+  (with-routes!
+    {"/hero" (hero-route)
+      "/sidekick" (sidekick-route-404)}
+    (is (thrown? Exception (execute-query uri "from hero\nfrom sidekick with id = hero.sidekickId")))
+  )
+)
 
 (deftest shouldnt-throw-exeption-if-chainned-resource-timeout-and-ignore-error
   (with-routes!

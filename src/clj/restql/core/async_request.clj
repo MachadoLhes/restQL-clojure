@@ -56,6 +56,12 @@
                :parse-error true
                :body parsed)))))
 
+(defn- get-error-status [result message]
+  (cond
+    (some? (:status result)) result
+    (= "Connection refused" message) nil
+    :else 408))
+
 (defn request-callback [result & {:keys [request
                                          request-timeout
                                          time-before
@@ -87,17 +93,20 @@
                                                                       (assoc result k v)))
                                                                   {} response))
           (go (>! output-ch response))))
-      (let [error-data (assoc log-data :success false
+      (let [error-detail (Throwable->map (:error result))
+            message (:cause error-detail)
+            status (get-error-status result message)
+            error-data (assoc log-data :success false
                                        :metadata (some-> request :metadata)
                                        :url (some-> request :url)
-                                       :status 408
+                                       :status status
                                        :time (- (System/currentTimeMillis) time-before)
-                                       :errordetail (pr-str (some-> result :error)))]
+                                       :errordetail (pr-str error-detail))]
         (error error-data "Request failed")
         (hook/execute-hook query-opts :after-request error-data)
-        (go (>! output-ch {:status 408
+        (go (>! output-ch {:status status
                            :metadata (:metadata request)
-                           :body {:message "timeout"}}))))))
+                           :body {:message (or message "timeout")}}))))))
 
 (defn make-request
   ([request query-opts]

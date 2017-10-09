@@ -8,9 +8,10 @@
             [cheshire.core :as json]
             [restql.core.context :as context]
             [ring.util.codec :refer [form-encode]]
-            [clojure.core.async :refer [go go-loop <!! <! >! alt! alts! timeout]]
+            [clojure.core.async :refer [go go-loop <!! <! >! alt! alts! alt!! timeout]]
             [restql.parser.core :as parser]
-            [clojure.tools.reader :as edn]))
+            [clojure.tools.reader :as edn]
+            [slingshot.slingshot :refer [throw+ try+]]))
 
 (defn- status-code-ok [query-response]
   (and
@@ -74,6 +75,20 @@
       (validator/validate context)
       (partition 2)))
 
+(defn- check-status [init resource result]
+  (let [details (:details result)
+        success (:success details)
+        status (:status details)
+        ignore-errors (= "ignore" (get-in details [:metadata :ignore-errors]))]
+    (cond
+      ignore-errors (assoc init resource result)
+      (= 408 status) (assoc init resource result)
+      (false? success) (throw+ {:type :resource-failed :resource resource :response result})
+      :else (assoc init resource result))))
+
+(defn- check-all-status [result]
+    (reduce-kv check-status {} result))
+
 (defn- extract-result [parsed-query timeout-ch exception-ch query-ch]
   (go
     (alt!
@@ -93,7 +108,7 @@
 
 (defn execute-query-channel [& {:keys [mappings encoders query query-opts]}]
   (let [; Before query hook
-        _ (hook/execute-hook query-opts :before-query {:query query
+        _ (hook/execute-hook query-opts :before-query {:query         query
                                                        :query-options query-opts})
         time-before (System/currentTimeMillis)
 
@@ -105,23 +120,26 @@
         result-ch (wait-until-finished output-ch query-opts)
         parsed-ch (extract-result parsed-query (timeout (:global-timeout query-opts)) exception-ch result-ch)
         return-ch (go
-                    (let [[query-result ch] (alts! [parsed-ch exception-ch])
-
-                          ; After query hook
-                          _ (hook/execute-hook query-opts :after-query {:query-options query-opts
-                                                                        :query query
-                                                                        :result query-result
-                                                                        :response-time (- (System/currentTimeMillis) time-before)})]
-                      query-result))]
+                    (try+
+                      (let [query-result (check-all-status (<! parsed-ch))
+                            ; After query hook
+                            _ (hook/execute-hook query-opts :after-query {:query-options query-opts
+                                                                          :query         query
+                                                                          :result        query-result
+                                                                          :response-time (- (System/currentTimeMillis) time-before)})]
+                        query-result)
+                      (catch [:type :resource-failed] e
+                        (>! exception-ch e))))]
     [return-ch exception-ch]))
 
 (defn execute-parsed-query [& {:keys [mappings encoders query query-opts]}]
   (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
                                                         :encoders encoders
                                                         :query query
-                                                        :query-opts query-opts)
-        result (<!! result-ch)]
-    result))
+                                                        :query-opts query-opts)]
+    (alt!!
+      exception-ch ([err] (throw+ err))
+      result-ch ([result] result))))
 
 (defn execute-parsed-query-async [& {:keys [mappings encoders query query-opts callback]}]
   (go
