@@ -31,20 +31,20 @@ Add restQL dependency to your project
 <dependency>
 	<groupId>com.b2wdigital</groupId>
         <artifactId>restql-core</artifactId>
-       	<version>2.1.0</version>
+       	<version>2.1.1</version>
 </dependency>
 ```
 
 **Gradle**
 
 ```
-com.b2wdigital:restql-core:2.1.0
+com.b2wdigital:restql-core:2.1.1
 ```
 
 **Lein**
 
 ```
-[com.b2wdigital/restql-core "2.1.0"]
+[com.b2wdigital/restql-core "2.1.1"]
 ```
 
 ### First query
@@ -71,7 +71,7 @@ System.out.println("The response JSON is: " + response.toString());
 In the example above restQL will call user API passing "Duke Nukem" in the name param.
 
 ### Configuration
-restQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface. 
+restQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface.
 
 You can check more about endpoints configuration [here](https://github.com/B2W-BIT/restQL-core/wiki/Endpoint-configuration)
 
