@@ -4,7 +4,7 @@
               [clojure.core.cache :as cache]
               [clojure.core.memoize :as memo]))
 
-(def CACHED_COUNT 10000)
+(def CACHED_COUNT 2000)
 
 (defn cached
     "Verifies if a given function is cached, executing and saving on the cache
