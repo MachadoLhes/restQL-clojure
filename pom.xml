@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>com.b2wdigital</groupId>
     <artifactId>restql-core</artifactId>
-    <version>2.1.0</version>
+    <version>2.1.1</version>
     <name>restQL Core</name>
     <description>Microservice query language for Java</description>
     <url>https://github.com/B2W-Digital/restQL-core</url>

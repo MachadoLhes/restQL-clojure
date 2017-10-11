@@ -1,5 +1,6 @@
 (ns restql.parser.core
   (:require [instaparse.core :as insta]
+            [restql.core.cache :as cache]
             [restql.parser.printer :refer [pretty-print]]
             [restql.parser.producer :refer [produce *restql-variables*]]
             [clojure.java.io :as io])
@@ -33,11 +34,15 @@
   (binding [*restql-variables* (if (nil? context) {} context)]
     (produce tree)))
 
+(def parse-query-text (cache/cached (fn [query-text]
+  (query-parser query-text)
+)))
+
 (defn parse-query
   "Parses the restQL query"
   [query-text & {:keys [pretty context]}]
 
-  (let [result (query-parser query-text)]
+  (let [result (parse-query-text query-text)]
     (if (insta/failure? result)
       (handle-error result)
       (handle-success (handle-produce result context) :pretty pretty))))
