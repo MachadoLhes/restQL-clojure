@@ -150,7 +150,7 @@
         (>! output-ch result)))))
 
 (defn vector-with-nils? [v]
-  (and (vector? v)
+  (and (seq? v)
        (some nil? v)))
 
 (defn failure? [requests]
