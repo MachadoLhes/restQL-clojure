@@ -70,7 +70,6 @@
 
 (defn- parse-query [context string]
   (->> string
-      edn/read-string
       (validator/validate context)
       (partition 2)))
 

@@ -3,7 +3,8 @@
             [restql.core.cache :as cache]
             [restql.parser.printer :refer [pretty-print]]
             [restql.parser.producer :refer [produce *restql-variables*]]
-            [clojure.java.io :as io])
+            [clojure.java.io :as io]
+            [clojure.tools.reader.edn :as edn])
   (:use     [slingshot.slingshot :only [throw+]]))
 
 (def query-parser
@@ -32,7 +33,8 @@
   [tree context]
 
   (binding [*restql-variables* (if (nil? context) {} context)]
-    (produce tree)))
+    (-> (produce tree)
+        (edn/read-string))))
 
 (def parse-query-text (cache/cached (fn [query-text]
   (query-parser query-text)

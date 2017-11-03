@@ -6,143 +6,142 @@
 (deftest testing-edn-string-production
 
   (testing "Testing simple query"
-    (is (= (edn/read-string (parse-query "from heroes as hero"))
+    (is (= (parse-query "from heroes as hero")
            [:hero {:from :heroes}])))
 
   (testing "Testing simple query without alias"
-    (is (= (edn/read-string (parse-query "from heroes"))
+    (is (= (parse-query "from heroes")
            [:heroes {:from :heroes}])))
 
   (testing "Testing simple query with-body json"
-    (is (= (edn/read-string (parse-query "from heroes
+    (is (= (parse-query "from heroes
                                         body
-                                          foo = \"bar\""))
+                                          foo = \"bar\"")
            [:heroes {:from :heroes :with-body {:foo "bar"}}])))
 
   (testing "Testing simple query with-body complex json"
-    (is (= (edn/read-string (parse-query "from heroes
+    (is (= (parse-query "from heroes
                                         body
                                           foo = \"bar\",
                                           bar = {
                                             baz: \"baz\"
-                                          }"))
+                                          }")
            [:heroes {:from :heroes :with-body {:foo "bar" :bar {:baz "baz"}}}])))
 
   (testing "Testing simple query with-body complex json and chaining"
-    (is (= (edn/read-string (parse-query "from heroes
+    (is (= (parse-query "from heroes
                                         body
                                           id = api.id,
                                           bar = {
                                             baz: \"baz\"
-                                          }"))
+                                          }")
            [:heroes {:from :heroes :with-body {:id [:api :id] :bar {:baz "baz"}}}])))
 
   (testing "Testing simple query params a use clause"
     (is (= (parse-query "use cache-control = 900
                                       from heroes as hero")
-           "^{:cache-control 900} [:hero {:from :heroes}]")))
+           ^{:cache-control 900} [:hero {:from :heroes}])))
 
   (testing "Testing simple query params ignore errors"
     (is (= (parse-query "from heroes as hero ignore-errors")
-           "[:hero ^{:ignore-errors \"ignore\"} {:from :heroes}]")))
+           [:hero ^{:ignore-errors "ignore"} {:from :heroes}])))
 
   (testing "Testing multiple query"
-    (is (= (edn/read-string (parse-query "from heroes as hero
-                                      from monsters as monster"))
+    (is (= (parse-query "from heroes as hero
+                                      from monsters as monster")
            [:hero {:from :heroes}
             :monster {:from :monsters}])))
 
   (testing "Testing query params one numeric parameter"
-    (is (= (edn/read-string (parse-query "from heroes as hero params id = 123"))
+    (is (= (parse-query "from heroes as hero params id = 123")
            [:hero {:from :heroes :with {:id 123}}])))
 
   (testing "Testing query params one string parameter"
-    (is (= (edn/read-string (parse-query "from heroes as hero params id = \"123\""))
+    (is (= (parse-query "from heroes as hero params id = \"123\"")
            [:hero {:from :heroes :with {:id "123"}}])))
 
   (testing "Testing query params variable parameter"
-    (is (= (edn/read-string (parse-query "from heroes as hero params id = $id" :context {"id" "123"}))
+    (is (= (parse-query "from heroes as hero params id = $id" :context {"id" "123"})
            [:hero {:from :heroes :with {:id "123"}}])))
 
   (testing "Testing query params one null parameter"
-    (is (= (edn/read-string (parse-query "from heroes as hero params id = 123, spell = null"))
+    (is (= (parse-query "from heroes as hero params id = 123, spell = null")
            [:hero {:from :heroes :with {:id 123 :spell nil}}])))
 
   (testing "Testing query params one boolean parameter"
-    (is (= (edn/read-string (parse-query "from heroes as hero params magician = true"))
+    (is (= (parse-query "from heroes as hero params magician = true")
            [:hero {:from :heroes :with {:magician true}}])))
 
   (testing "Testing query params one array parameter"
-    (is (= (edn/read-string (parse-query "from heroes as hero params class = [\"warrior\", \"magician\"]"))
+    (is (= (parse-query "from heroes as hero params class = [\"warrior\", \"magician\"]")
            [:hero {:from :heroes :with {:class ["warrior" "magician"]}}])))
 
   (testing "Testing query params one complex parameter"
-    (is (= (edn/read-string (parse-query "from heroes as hero params equip = {sword: 1, shield: 2}"))
+    (is (= (parse-query "from heroes as hero params equip = {sword: 1, shield: 2}")
            [:hero {:from :heroes :with {:equip {:sword 1 :shield 2}}}])))
 
   (testing "Testing query params one complex parameter params subitems"
-    (is (= (edn/read-string (parse-query "from heroes as hero params equip = {sword: {foo: \"bar\"}, shield: [1, 2, 3]}"))
+    (is (= (parse-query "from heroes as hero params equip = {sword: {foo: \"bar\"}, shield: [1, 2, 3]}")
            [:hero {:from :heroes :with {:equip {:sword {:foo "bar"} :shield [1 2 3]}}}])))
 
   (testing "Testing query params one chained parameter"
-    (is (= (edn/read-string (parse-query "from heroes as hero params id = player.id"))
+    (is (= (parse-query "from heroes as hero params id = player.id")
            [:hero {:from :heroes :with {:id [:player :id]}}])))
 
-  
   (testing "Testing query params one chained parameter and metadata"
     (is (= (parse-query "from heroes as hero params id = player.id -> json")
-           "[:hero {:from :heroes :with {:id ^{:encoder :json} [:player :id]}}]")))
+           [:hero {:from :heroes :with {:id ^{:encoder :json} [:player :id]}}])))
 
   (testing "Testing query params one chained parameter and metadata"
-    (is (= (pr-str (edn/read-string (parse-query "from heroes as hero params id = player.id -> encoder(\"json\", \"pretty\")")))
-             (pr-str [:hero {:from :heroes :with {:id ^{:encoder :json :args ["pretty"]} [:player :id]}}]))))
+    (is (= (pr-str (parse-query "from heroes as hero params id = player.id -> encoder(\"json\", \"pretty\")"))
+           (pr-str [:hero {:from :heroes :with {:id ^{:encoder :json :args ["pretty"]} [:player :id]}}]))))
 
   (testing "Testing query params headers"
-    (is (= (edn/read-string (parse-query "from heroes as hero headers Content-Type = \"application/json\" params id = 123"))
+    (is (= (parse-query "from heroes as hero headers Content-Type = \"application/json\" params id = 123")
            [:hero {:from :heroes :with-headers {"Content-Type" "application/json"} :with {:id 123}}])))
 
   (testing "Testing query params headers and parameters"
-    (is (= (edn/read-string (parse-query "from heroes as hero headers Authorization = $auth params id = 123" :context {"auth" "abc123"}))
+    (is (= (parse-query "from heroes as hero headers Authorization = $auth params id = 123" :context {"auth" "abc123"})
            [:hero {:from :heroes :with-headers {"Authorization" "abc123"} :with {:id 123}}])))
 
   (testing "Testing query params hidden selection"
-    (is (= (edn/read-string (parse-query "from heroes as hero params id = 1 hidden"))
+    (is (= (parse-query "from heroes as hero params id = 1 hidden")
            [:hero {:from :heroes :with {:id 1} :select :none}])))
 
   (testing "Testing query params only selection"
-    (is (= (edn/read-string (parse-query "from heroes as hero params id = 1 only id, name"))
+    (is (= (parse-query "from heroes as hero params id = 1 only id, name")
            [:hero {:from :heroes :with {:id 1} :select #{:id :name}}])))
 
   (testing "Testing query params only selection of inner elements"
-    (is (= (edn/read-string (parse-query "from heroes as hero params id = 1 only skills.id, skills.name, name"))
+    (is (= (parse-query "from heroes as hero params id = 1 only skills.id, skills.name, name")
            [:hero {:from :heroes :with {:id 1} :select #{:name [:skills #{:id :name}]}}])))
 
   (testing "Testing query params paramater params dot and chaining"
-    (is (= (edn/read-string (parse-query "from heroes as hero params weapon.id = weapon.id"))
+    (is (= (parse-query "from heroes as hero params weapon.id = weapon.id")
            [:hero {:from :heroes :with {:weapon.id [:weapon :id]}}])))
 
   (testing "Testing query params only selection and a filter"
-    (is (= (edn/read-string (parse-query "from heroes as hero params id = 1 only id, name -> matches(\"foo\")"))
+    (is (= (parse-query "from heroes as hero params id = 1 only id, name -> matches(\"foo\")")
            [:hero {:from :heroes :with {:id 1} :select #{:id [:name {:matches "foo"}]}}])))
 
   (testing "Testing query params only selection and a filter params wildcard"
-    (is (= (edn/read-string (parse-query "from heroes as hero params id = 1 only id -> equals(1), *"))
-           [:hero {:from :heroes :with {:id 1} :select #{[:id {:equals 1}] :* }}])))
+    (is (= (parse-query "from heroes as hero params id = 1 only id -> equals(1), *")
+           [:hero {:from :heroes :with {:id 1} :select #{[:id {:equals 1}] :*}}])))
 
   (testing "Testing full featured query"
     (binding [*print-meta* true]
-      (is (= (pr-str (edn/read-string (parse-query  "from product as products
+      (is (= (pr-str (parse-query "from product as products
                                                  headers
                                                      content-type = \"application/json\"
                                                  with
                                                      limit = product.id -> flatten -> json
                                                      fields = [\"rating\", \"tags\", \"images\", \"groups\"]
                                                  only 
-                                                     id, name, cep, phone")))
-             (pr-str [:products {:from :product
+                                                     id, name, cep, phone"))
+             (pr-str [:products {:from         :product
                                  :with-headers {"content-type" "application/json"}
-                                 :with {:limit ^{:expand false :encoder :json}
-                                               [:product :id]
-                                       :fields ["rating" "tags" "images" "groups"]}
-                                 :select #{:id :name :cep :phone}}]))))))
+                                 :with         {:limit  ^{:expand false :encoder :json}
+                                                        [:product :id]
+                                                :fields ["rating" "tags" "images" "groups"]}
+                                 :select       #{:id :name :cep :phone}}]))))))
 
