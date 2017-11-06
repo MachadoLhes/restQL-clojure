@@ -18,5 +18,5 @@
 (defn pretty-print [result]
   (let [writer (new java.io.StringWriter)]
     (binding [*out* writer]
-      (pprint-meta (edn/read-string result)))
+      (pprint-meta result))
     (.toString writer)))
