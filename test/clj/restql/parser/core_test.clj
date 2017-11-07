@@ -143,5 +143,12 @@
                                  :with         {:limit  ^{:expand false :encoder :json}
                                                         [:product :id]
                                                 :fields ["rating" "tags" "images" "groups"]}
-                                 :select       #{:id :name :cep :phone}}]))))))
+                                 :select       #{:id :name :cep :phone}}])))))
 
+  (testing "Testing Header with string variables"
+    (is (= (parse-query "from heroes as hero headers Authorization = \"Basic {{auth}}\" params id = 123" :context {"auth" "abc123"})
+           [:hero {:from :heroes :with-headers {"Authorization" "Basic abc123"} :with {:id 123}}])))
+
+  (testing "Testing params with string variables"
+    (is (= (parse-query "from heroes as hero params q = \"heroId:{{id}},name:{{name}}\"" :context {"id" "123" "name" "Hero"})
+           [:hero {:from :heroes :with {:q "heroId:123,name:Hero"}}]))))

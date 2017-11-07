@@ -1,7 +1,9 @@
 (ns restql.parser.producer
   (:require [clojure.string :refer [join]]
             [restql.parser.only-rule-formatter :as only]
-            [clojure.tools.reader :as edn]))
+            [clojure.tools.reader :as edn]
+            [clojure.walk :refer [keywordize-keys]])
+  (:use [clostache.parser]))
 
 (def ^:dynamic *restql-variables* {})
 
@@ -12,6 +14,10 @@
 
 (defn join-chars [prefix content]
   (str prefix (join "" content)))
+
+(defn produce-string-with-variable [content]
+  (-> (join-chars "" content)
+      (render (keywordize-keys *restql-variables*))))
 
 (defn produce-query [blocks]
   (let [use-block   (->> blocks (find-first :UseBlock) produce)
@@ -109,11 +115,11 @@
 (defn produce-primitive-value [content]
   (let [data (first content)]
     (cond
-      (nil? data)               ""
-      (= :True  (:tag data)) "true"
+      (nil? data) ""
+      (= :True (:tag data)) "true"
       (= :False (:tag data)) "false"
-      (= :Null  (:tag data)) "nil"
-      :else                  (join-chars "" content))))
+      (= :Null (:tag data)) "nil"
+      :else (produce-string-with-variable content))))
 
 (defn produce-list-value [content]
   (let [produced-values (map produce content)]
@@ -195,7 +201,6 @@
 (defn produce-ignore-error-flag []
   ":ignore-errors \"ignore\"")
 
-
 (defn produce
   "Produces a query EDN of a restQL grammar tree"
   [tree]
@@ -220,7 +225,7 @@
       :HeaderRuleItem              (produce-header-rule-item content)
       :HeaderName                  (produce-header-name content)
       :HeaderValue                 (produce-header-value content)
-      :LiteralHeaderValue          (join-chars "" content)
+      :LiteralHeaderValue          (produce-string-with-variable content)
 
       :TimeoutRule                 (produce-timeout-rule content)
       :TimeoutRuleValue            (join-chars "" content)
