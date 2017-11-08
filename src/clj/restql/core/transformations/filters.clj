@@ -13,7 +13,7 @@
       (fun arg data))))
 
 (defn filter-match [arg data]
-  (boolean (re-matches (re-pattern arg) (str data))))
+  (boolean (re-find (re-pattern arg) (str data))))
 
 (defn filter-equals [arg data]
   (= data arg))

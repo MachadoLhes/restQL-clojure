@@ -36,7 +36,15 @@
     (select
       [:data {:select #{[:foo {:matches "^abc.*"}]}}]
       {:data {:details {:status 200 :success true}
-              :result {:foo ["bla" "abcdef" "bar"]}}}))))
+              :result {:foo ["bla" "abcdef" "bar"]}}})))
+  (is (=
+        {:data {:details {:status 200 :success true}
+                :result {:foo ["abcdef"]}}}
+
+        (select
+          [:data {:select #{[:foo {:matches "^abc"}]}}]
+          {:data {:details {:status 200 :success true}
+                  :result {:foo ["bla" "abcdef" "bar"]}}}))))
 
 (deftest testing-nested-filter
   (is (=  
