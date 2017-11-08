@@ -185,6 +185,10 @@
       (first produced-args)
       (str "[" (join " " produced-args) "]"))))
 
+(defn produce-only-rule-with-variable [content]
+  (-> (find-first :Variable content)
+      (produce)))
+
 (defn produce-flags-rule [content]
   (let [flags (map produce content)]
     (str " ^{" (join " " flags) "}")))
@@ -261,6 +265,7 @@
       :OnlyRuleItemModifierName    (join-chars "" content)
       :OnlyRuleItemModifierArgList (produce-only-rule-item-modifier-arg-list content)
       :OnlyRuleItemModifierArg     (join-chars "" content)
+      :OnlyRuleItemModifierArgVar  (produce-only-rule-with-variable content)
 
       :FlagsRule                   (produce-flags-rule content)
       :FlagRule                    (produce-flag-rule content)

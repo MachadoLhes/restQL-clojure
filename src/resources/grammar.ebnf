@@ -144,10 +144,13 @@ OnlyRuleItemModifierName =
   Identifier;
 
 OnlyRuleItemModifierArgList =
-  OnlyRuleItemModifierArg (WS ARGS_SEP WS OnlyRuleItemModifierArg)*;
+  OnlyRuleItemModifierArg (WS ARGS_SEP WS OnlyRuleItemModifierArg)* | OnlyRuleItemModifierArgVar;
 
 OnlyRuleItemModifierArg =
   Primitive;
+
+OnlyRuleItemModifierArgVar =
+  Variable;
 
 HideRule =
   KW_HIDE;

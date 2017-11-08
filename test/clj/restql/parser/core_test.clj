@@ -128,6 +128,10 @@
     (is (= (parse-query "from heroes as hero params id = 1 only id -> equals(1), *")
            [:hero {:from :heroes :with {:id 1} :select #{[:id {:equals 1}] :*}}])))
 
+  (testing "Testing filter with variable"
+    (is (= (parse-query "from heroes as hero params id = 1 only id, name -> matches($name)" :context {"name" "Hero"})
+           [:hero {:from :heroes :with {:id 1} :select #{:id [:name {:matches "Hero"}]}}])))
+
   (testing "Testing full featured query"
     (binding [*print-meta* true]
       (is (= (pr-str (parse-query "from product as products
