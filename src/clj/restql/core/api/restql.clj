@@ -38,15 +38,15 @@
   (if (:debugging query-opts)
     (assoc response :url (mount-url (:url query-response) (merge (:params query-response) (:forward-params query-opts)))
                     :timeout (:timeout query-response)
-                    :response-time (:response-time query-response))
+                    :response-time (:response-time query-response)
+                    :params (merge (:params query-response) (:forward-params query-opts)))
     response))
 
 (defn build-details [query-opts query-response]
   (-> {}
       (assoc :success (is-success query-response)
              :status  (:status query-response)
-             :headers (:headers query-response)
-             :params (:params query-response))
+             :headers (:headers query-response))
       (append-metadata query-response)
       (append-debug-data query-opts query-response)))
 
