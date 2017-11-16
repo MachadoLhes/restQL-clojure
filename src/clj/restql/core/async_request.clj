@@ -10,7 +10,8 @@
             [slingshot.slingshot :refer [try+]]
             [cheshire.core :as json]
             [clojure.walk :refer [stringify-keys keywordize-keys]])
-  (:import [java.net URLDecoder]))
+  (:import [java.net URLDecoder URI]
+           (javax.net.ssl SSLEngine SSLParameters SNIHostName)))
 
 (defn get-service-endpoint [mappings entity]
   ( if ( nil? ( mappings entity ) )
@@ -25,6 +26,14 @@
     (URLDecoder/decode string "utf-8")
     (catch Exception e
       string)))
+
+(defn sni-configure
+  [^SSLEngine ssl-engine ^URI uri]
+  (let [^SSLParameters ssl-params (.getSSLParameters ssl-engine)]
+    (.setServerNames ssl-params [(SNIHostName. (.getHost uri))])
+    (.setSSLParameters ssl-engine ssl-params)))
+
+(def client (http/make-client {:ssl-configurer sni-configure}))
 
 (defn parse-query-params
   "this function takes a request object (with :url and :query-params)
@@ -118,7 +127,8 @@
                      :query-params (into (:query-params request) forward-params)
                      :headers (:headers request)
                      :time time-before
-                     :body (:post-body request)}
+                     :body (:post-body request)
+                     :client client}
         post-body (some-> request :post-body)]
     (debug request-map "Preparing request")
     ; Before Request hook
