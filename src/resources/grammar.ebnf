@@ -29,13 +29,11 @@ FromResource =
 ResultAlias =
   Identifier;
 
-
 TimeoutRule =
   KW_TIMEOUT WS_MAND TimeoutRuleValue;
 
 TimeoutRuleValue =
   Integer;
-
 
 HeaderRule =
   KW_HEADERS WS_MAND HeaderRuleItem (WS LS WS HeaderRuleItem)*;
@@ -185,7 +183,6 @@ IgnoreErrorsFlag =
 <KW_WITH_BODY> =
   <"body">;
 
-
 <KW_ONLY> =
   <"only">;
 
@@ -231,9 +228,8 @@ IgnoreErrorsFlag =
 <ARGS_SEP> =
   <",">;
 
-
 <Identifier> =
-  Letter (Digit | Letter | "-" | "_")*;
+  Letter (Digit | Letter | "-" | "_" | ".")*;
 
 <Primitive> =
   String | Number | Boolean | Null;
