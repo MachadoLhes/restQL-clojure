@@ -19,18 +19,21 @@
     (second)
     (keyword)))
 
-(defn- find-aggregations [query]
+(defn resource-exists? [to result]
+  (contains? result to))
+
+(defn- find-aggregations [query result]
   (let [resource (first query)
         query-obj (second query)
-        from (:from query-obj)]
-    (if (is-aggregation? resource from)
-      {:from resource :to (find-alias resource) :path (find-path resource)})))
+        from (:from query-obj)
+        to (find-alias resource)
+        path (find-path resource)]
+    (if (and (is-aggregation? resource from) (resource-exists? to result))
+      {:from resource :to to :path path})))
 
 (defn- build-aggregation [result-from result-to from to path]
-  (if (seq? result-from)
-    (assoc-in result-to [:result path] (map #(conj (:result %)) result-from))
-    (assoc-in result-to
-              [:result path] (get-in result-from [:result path]))))
+  (assoc-in result-to
+            [:result path] (:result result-from)))
 
 (defn- replace-result [from result]
   (if (seq? (from result))
@@ -68,5 +71,5 @@
 
 (defn aggregate [query result]
   (->>
-    (map #(find-aggregations %) query)
+    (map #(find-aggregations % result) query)
     (replace-aggregations result)))
