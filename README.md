@@ -53,7 +53,7 @@ com.b2wdigital:restql-core:2.1.7
 
 ```java
 ClassConfigRepository config = new ClassConfigRepository();
-config.put("user", "http://your.api.url/users/:id");
+config.put("user", "http://your.api.url/users/:name");
 
 RestQL restQL = new RestQL(config);
 QueryResponse response = restql.executeQuery("from user with name = ?", "Duke Nukem");
@@ -65,7 +65,7 @@ System.out.println("The response JSON is: " + response.toString());
 
 ```clojure
 (require '[restql.core.api.restql :as restql])
-(restql/execute-query :mappings { :user "http://your.api.url/users/:id" } :query "from user with name = $name" :params { :name "Duke Nukem" } )
+(restql/execute-query :mappings { :user "http://your.api.url/users/:name" } :query "from user with name = $name" :params { :name "Duke Nukem" } )
 ```
 
 In the example above restQL will call user API passing "Duke Nukem" in the name param.
