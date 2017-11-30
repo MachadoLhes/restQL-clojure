@@ -12,9 +12,18 @@
             [clojure.walk :refer [stringify-keys keywordize-keys]])
   (:import [java.net URLDecoder]))
 
+(defonce MAX_RETRIES 2)
+
+(defn- retry-on-error [request-func callback retries]
+  (let [response @(request-func)]
+    (if (or (zero? retries) (builder/success? [:_ response]))
+      (-> @(request-func)
+          callback)
+      (retry-on-error request-func callback (dec retries)))))
+
 (defn get-service-endpoint [mappings entity]
-  ( if ( nil? ( mappings entity ) )
-    (throw+ (str "Endpoint do recurso nao encontrado" entity ))
+  (if (nil? (mappings entity))
+    (throw+ (str "Endpoint do recurso nao encontrado" entity))
     (mappings entity)))
 
 (defn fmap [f m]
@@ -30,31 +39,31 @@
   "this function takes a request object (with :url and :query-params)
   and transforms query params that are sets into vectors"
   [request]
-    (update-in request [:query-params]
-      #(fmap (fn [query-param-value]
-        (if (or (sequential? query-param-value) (set? query-param-value))
-          (->> query-param-value (map decode-url) (into []))
-          (decode-url query-param-value))) %)))
+  (update-in request [:query-params]
+             #(fmap (fn [query-param-value]
+                      (if (or (sequential? query-param-value) (set? query-param-value))
+                        (->> query-param-value (map decode-url) (into []))
+                        (decode-url query-param-value))) %)))
 
-(defn convert-response [{:keys [status body headers]} {:keys [debugging metadata time url params timeout resource]} ]
+(defn convert-response [{:keys [status body headers]} {:keys [debugging metadata time url params timeout resource]}]
   (let [parsed (if (string? body) body (slurp body))
-        base {:status status
-              :headers headers
-              :url url
-              :metadata metadata
-              :timeout timeout
-              :params params
-              :resource resource
+        base {:status        status
+              :headers       headers
+              :url           url
+              :metadata      metadata
+              :timeout       timeout
+              :params        params
+              :resource      resource
               :response-time time}]
     (try
       (assoc base
-             :body (json/parse-string parsed true))
+        :body (json/parse-string parsed true))
       (catch Exception e
         (error {:message (.getMessage e)}
                "error parsing request")
         (assoc base
-               :parse-error true
-               :body parsed)))))
+          :parse-error true
+          :body parsed)))))
 
 (defn request-callback [result & {:keys [request
                                          request-timeout
@@ -63,8 +72,8 @@
                                          output-ch
                                          ]}]
   (let [log-data {:resource (:resource request)
-                  :timeout request-timeout
-                  :success true}]
+                  :timeout  request-timeout
+                  :success  true}]
     (if (and
           (not (nil? result))
           (nil? (:error result)))
@@ -74,12 +83,12 @@
                                :time (- (System/currentTimeMillis) time-before))
                "Request successful")
         (let [response (convert-response result {:debugging (:debugging query-opts)
-                                                 :metadata (:metadata request)
-                                                 :resource (:resource request)
-                                                 :url (:url request)
-                                                 :params (:query-params request)
-                                                 :timeout request-timeout
-                                                 :time (- (System/currentTimeMillis) time-before)})]
+                                                 :metadata  (:metadata request)
+                                                 :resource  (:resource request)
+                                                 :url       (:url request)
+                                                 :params    (:query-params request)
+                                                 :timeout   request-timeout
+                                                 :time      (- (System/currentTimeMillis) time-before)})]
           ; After Request hook
           (hook/execute-hook query-opts :after-request (reduce-kv (fn [result k v]
                                                                     (if (= k :body)
@@ -95,9 +104,9 @@
                                        :errordetail (pr-str (some-> result :error)))]
         (error error-data "Request failed")
         (hook/execute-hook query-opts :after-request error-data)
-        (go (>! output-ch {:status 408
+        (go (>! output-ch {:status   408
                            :metadata (:metadata request)
-                           :body {:message "timeout"}}))))))
+                           :body     {:message "timeout"}}))))))
 
 (defn make-request
   ([request query-opts]
@@ -105,39 +114,39 @@
      (make-request request query-opts output-ch)
      output-ch))
   ([request query-opts output-ch]
-  (let [request (parse-query-params request)
-        time-before (System/currentTimeMillis)
-        request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))
-        forward (some-> query-opts :forward-params)
-        forward-params (if (nil? forward) {} forward)
-        request-map {:resource (:resource request)
-                     :timeout request-timeout
-                     :idle-timeout (/ request-timeout 5)
-                     :connect-timeout request-timeout
-                     :url (:url request)
-                     :query-params (into (:query-params request) forward-params)
-                     :headers (:headers request)
-                     :time time-before
-                     :body (:post-body request)}
-        post-body (some-> request :post-body)]
-    (debug request-map "Preparing request")
-    ; Before Request hook
-    (hook/execute-hook query-opts :before-request request-map)
-    (if (nil? (:body request-map))
-      (http/get (:url request) request-map #(request-callback %
-                                                              :request request
-                                                              :request-timeout request-timeout
-                                                              :query-opts query-opts
-                                                              :time-before time-before
-                                                              :output-ch output-ch))
-      (http/post (:url request)
-                 (assoc request-map :content-type "application/json")
-                 #(request-callback %
-                                    :request request
-                                    :request-timeout request-timeout
-                                    :query-opts query-opts
-                                    :time-before time-before
-                                    :output-ch output-ch))))))
+   (let [request (parse-query-params request)
+         time-before (System/currentTimeMillis)
+         request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))
+         forward (some-> query-opts :forward-params)
+         forward-params (if (nil? forward) {} forward)
+         request-map {:resource        (:resource request)
+                      :timeout         request-timeout
+                      :idle-timeout    (/ request-timeout 5)
+                      :connect-timeout request-timeout
+                      :url             (:url request)
+                      :query-params    (into (:query-params request) forward-params)
+                      :headers         (:headers request)
+                      :time            time-before
+                      :body            (:post-body request)}
+         post-body (some-> request :post-body)]
+     (debug request-map "Preparing request")
+     ; Before Request hook
+     (hook/execute-hook query-opts :before-request request-map)
+     (if (nil? (:body request-map))
+       (retry-on-error #(http/get (:url request) request-map) #(request-callback %
+                                                                                 :request request
+                                                                                 :request-timeout request-timeout
+                                                                                 :query-opts query-opts
+                                                                                 :time-before time-before
+                                                                                 :output-ch output-ch) MAX_RETRIES)
+       (retry-on-error #(http/post (:url request)
+                                   (assoc request-map :content-type "application/json"))
+                       #(request-callback %
+                                          :request request
+                                          :request-timeout request-timeout
+                                          :query-opts query-opts
+                                          :time-before time-before
+                                          :output-ch output-ch) MAX_RETRIES)))))
 
 
 
@@ -179,8 +188,8 @@
           from (:from query-item-data)]
       (cond
         (keyword? from) (do-request-url mappings query-item-data state encoders result-ch query-opts)
-        (vector?  from) (do-request-data query-item-data state result-ch)
-        (string?  from) (throw+ {:type :invalid-resource-type}))
+        (vector? from) (do-request-data query-item-data state result-ch)
+        (string? from) (throw+ {:type :invalid-resource-type}))
       result-ch)
     (catch [:type :invalid-resource] e
       (go (>! exception-ch e)))
