@@ -10,7 +10,8 @@
             [slingshot.slingshot :refer [try+]]
             [cheshire.core :as json]
             [clojure.walk :refer [stringify-keys keywordize-keys]])
-  (:import [java.net URLDecoder]))
+    (:import [java.net URLDecoder URI]
+             (javax.net.ssl SSLEngine SSLParameters SNIHostName)))
 
 (defonce MAX_RETRIES 1)
 
@@ -34,6 +35,14 @@
     (URLDecoder/decode string "utf-8")
     (catch Exception e
       string)))
+
+(defn sni-configure
+    [^SSLEngine ssl-engine ^URI uri]
+    (let [^SSLParameters ssl-params (.getSSLParameters ssl-engine)]
+        (.setServerNames ssl-params [(SNIHostName. (.getHost uri))])
+        (.setSSLParameters ssl-engine ssl-params)))
+
+(def client (http/make-client {:ssl-configurer sni-configure}))
 
 (defn parse-query-params
   "this function takes a request object (with :url and :query-params)
@@ -97,9 +106,10 @@
                                                                   {} response))
           (go (>! output-ch response))))
       (let [error-data (assoc log-data :success false
+                                       :status 408
                                        :metadata (some-> request :metadata)
                                        :url (some-> request :url)
-                                       :status 408
+                                       :params    (:query-params request)
                                        :time (- (System/currentTimeMillis) time-before)
                                        :errordetail (pr-str (some-> result :error)))]
         (error error-data "Request failed")
@@ -127,7 +137,8 @@
                       :query-params    (into (:query-params request) forward-params)
                       :headers         (:headers request)
                       :time            time-before
-                      :body            (:post-body request)}
+                      :body            (:post-body request)
+                      :client client}
          post-body (some-> request :post-body)]
      (debug request-map "Preparing request")
      ; Before Request hook

@@ -1,10 +1,10 @@
-(defproject restql-core "2.1.7"
+(defproject b2wdigital/restql-core "2.1.8-SNAPSHOT"
   :description "Microservice query language"
   :url "https://github.com/B2W-Digital/restQL-core"
   :license {:name "MIT"
             :url "http://www.opensource.org/licenses/mit-license.php"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [http-kit "2.2.0"]
+                 [http-kit "2.3.0-alpha4"]
                  [org.clojure/tools.logging "0.3.1"]
                  [ring/ring-codec "1.0.1"]
                  [slingshot "0.12.2"]
