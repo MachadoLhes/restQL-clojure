@@ -12,7 +12,7 @@
             [clojure.walk :refer [stringify-keys keywordize-keys]])
   (:import [java.net URLDecoder]))
 
-(defonce MAX_RETRIES 2)
+(defonce MAX_RETRIES 1)
 
 (defn- retry-on-error [request-func callback retries]
   (let [response @(request-func)]
@@ -23,7 +23,7 @@
 
 (defn get-service-endpoint [mappings entity]
   (if (nil? (mappings entity))
-    (throw+ (str "Endpoint do recurso nao encontrado" entity))
+    (throw+ (str "Resource endpoint not found" entity))
     (mappings entity)))
 
 (defn fmap [f m]
