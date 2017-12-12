@@ -25,22 +25,6 @@ If you're using Java you may want to check [restQL-core-java](https://github.com
 
 Add restQL dependency to your project
 
-**Maven**
-
-```xml
-<dependency>
-	<groupId>com.b2wdigital</groupId>
-        <artifactId>restql-core</artifactId>
-       	<version>2.1.7</version>
-</dependency>
-```
-
-**Gradle**
-
-```
-com.b2wdigital:restql-core:2.1.7
-```
-
 **Lein**
 
 ```
@@ -49,31 +33,12 @@ com.b2wdigital:restql-core:2.1.7
 
 ### First query
 
-**Java**
-
-```java
-ClassConfigRepository config = new ClassConfigRepository();
-config.put("user", "http://your.api.url/users/:name");
-
-RestQL restQL = new RestQL(config);
-QueryResponse response = restql.executeQuery("from user with name = ?", "Duke Nukem");
-
-System.out.println("The response JSON is: " + response.toString());
-```
-
-**Clojure**
-
 ```clojure
 (require '[restql.core.api.restql :as restql])
 (restql/execute-query :mappings { :user "http://your.api.url/users/:name" } :query "from user with name = $name" :params { :name "Duke Nukem" } )
 ```
 
 In the example above restQL will call user API passing "Duke Nukem" in the name param.
-
-### Configuration
-restQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface.
-
-You can check more about endpoints configuration [here](https://github.com/B2W-BIT/restQL-core/wiki/Endpoint-configuration)
 
 ## Examples
 
@@ -126,9 +91,9 @@ List<MTGCard> cards = result.getList("cardWithDetails", MTGCard.class);
 As prerequisites to build restQL from source we have:
 
 + Java 8
-+ Maven 3
++ Leiningen 2.x
 
-Just clone this repo and run "mvn compile".
+Just clone this repo and run "lein jar".
 
 ## License
 
