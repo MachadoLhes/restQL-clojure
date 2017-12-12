@@ -40,8 +40,6 @@ Add restQL dependency to your project
 
 In the example above restQL will call user API passing "Duke Nukem" in the name param.
 
-```
-
 ## Building From Source Code
 
 As prerequisites to build restQL from source we have:
