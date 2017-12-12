@@ -1,13 +1,1 @@
-language: java
-sudo: false
-jdk:
-  - openjdk8
-  - oraclejdk8
-
-install: mvn compile install -B -V -Dgpg.skip=true
-script: mvn test -B
-
-after_success:
-  - bash <(curl -s https://codecov.io/bash) -cF java
-  - CLOVERAGE_VERSION=1.0.7-SNAPSHOT lein cloverage --codecov
-  - bash <(curl -s https://codecov.io/bash) -f target/coverage/codecov.json -cF clojure
+language: clojure
