@@ -1,4 +1,4 @@
-(defproject b2wdigital/restql-core "2.1.8-SNAPSHOT"
+(defproject b2wdigital/restql-core "2.1.9"
   :description "Microservice query language"
   :url "https://github.com/B2W-Digital/restQL-core"
   :license {:name "MIT"
@@ -19,7 +19,7 @@
   :profiles {:test {:dependencies [[se.haleby/stub-http "0.2.3"]]}
              :uberjar { :aot :all }}
   :plugins [[lein-cloverage "1.0.7-SNAPSHOT"]]
-  :source-paths ["src" "src/clj"]
+  :source-paths ["src" "src/main"]
   :resource-paths ["src/resources"]
-  :test-paths ["test" "test/clj"]
+  :test-paths ["test" "test/main"]
 )
