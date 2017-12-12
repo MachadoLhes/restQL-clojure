@@ -40,50 +40,6 @@ Add restQL dependency to your project
 
 In the example above restQL will call user API passing "Duke Nukem" in the name param.
 
-## Examples
-
-### Simple Query
-
-Retrieving all magic cards
-
-```java
-ClassConfigRepository config = new ClassConfigRepository();
-config.put("cards", "http://api.magicthegathering.io/v1/cards");
-
-RestQL restQL = new RestQL(config);
-
-String query = "from cards as cardslist params type = ?";
-
-QueryResponse response = restQL.executeQuery(query, "Artifact");
-
-// The JSON String
-String jsonString = response.toString();
-
-// The mapped object
-List<MTGCard> cards = result.getList("cardslist", MTGCard.class);
-```
-
-### Chained Query
-
-Listing all cards and then fetching its details.
-
-```java
-ClassConfigRepository config = new ClassConfigRepository();
-config.put("cards", "http://api.magicthegathering.io/v1/cards");
-config.put("card", "http://api.magicthegathering.io/v1/cards/:id");
-
-RestQL restQL = new RestQL(config);
-
-String queryCardsAndDetails = "from cards as cardsList params type = ? \n"
-                            + "from card as cardWithDetails params id = cardsList.id";
-
-QueryResponse response = restQL.executeQuery(query, "Artifact");
-
-// The JSON String
-String jsonString = response.toString();
-
-// The mapped object
-List<MTGCard> cards = result.getList("cardWithDetails", MTGCard.class);
 ```
 
 ## Building From Source Code
