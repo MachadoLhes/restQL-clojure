@@ -22,5 +22,5 @@
   :plugins [[lein-cloverage "1.0.7-SNAPSHOT"]]
   :source-paths ["src" "src/main"]
   :resource-paths ["src/resources"]
-  :test-paths ["test" "test/main"]
+  :test-paths ["test" "test/unit" "test/integration"]
 )

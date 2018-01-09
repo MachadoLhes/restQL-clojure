@@ -1,4 +1,4 @@
-(ns restql.core.api.sni-test
+(ns restql.sni-test
   (:require [clojure.test :refer :all]
             [restql.core.api.restql :as restql]))
 

@@ -6,67 +6,18 @@
             [restql.core.async-request :as request]
             [restql.core.hooks.core :as hook]
             [clojure.walk :refer [stringify-keys]]
+            [restql.core.api.response-builder :as response-builder]
             [cheshire.core :as json]
             [restql.core.context :as context]
-            [ring.util.codec :refer [form-encode]]
             [clojure.core.async :refer [go go-loop <!! <! >! alt! alts! timeout]]
             [restql.parser.core :as parser]
             [clojure.tools.reader :as edn]))
 
-(defn- status-code-ok [query-response]
-  (and
-    (not (nil? (:status query-response)))
-    (< (:status query-response) 300)))
-
-(defn- is-success [query-response]
-  (and
-    (status-code-ok query-response)
-    (nil? (:parse-error query-response))))
-
-(defn- mount-url [url params]
-  (str url "?" (if (nil? params) "" (form-encode params))))
-
-(defn stringify-values [a-map]
-  (reduce-kv (fn [m k v] (assoc m k (str v))) {} a-map))
-
-(defn- append-metadata [response query-response]
-  (let [metadata (:metadata query-response)]
-    (if (nil? metadata)
-      (assoc response :metadata {})
-      (assoc response :metadata (stringify-values metadata)))))
-
-(defn append-debug-data [response query-opts query-response]
-  (if (:debugging query-opts)
-    (assoc response :url (mount-url (:url query-response) (merge (:params query-response) (:forward-params query-opts)))
-                    :timeout (:timeout query-response)
-                    :response-time (:response-time query-response)
-                    :params (merge (:params query-response) (:forward-params query-opts)))
-    response))
-
-(defn build-details [query-opts query-response]
-  (-> {}
-      (assoc :success (is-success query-response)
-             :status (:status query-response)
-             :headers (:headers query-response))
-      (append-metadata query-response)
-      (append-debug-data query-opts query-response)))
-
-(defn- prepare-response [query-opts query-response]
-  {:details (build-details query-opts query-response)
-   :result  (:body query-response)})
-
-(defn- make-map [{done :done} query-opts]
-  (let [results (reduce (fn [res [key value]]
-                          (assoc res key value)) {} done)]
-    (reduce-kv (fn [result k v]
-                 (if (sequential? v)
-                   (assoc result k (map (partial prepare-response query-opts) v))
-                   (assoc result k (prepare-response query-opts v)))) {} results)))
-
 (defn- wait-until-finished [output-ch query-opts]
   (go-loop [state (<! output-ch)]
     (if (restql/all-done? state)
-      (make-map state query-opts)
+      (response-builder/build (reduce (fn [res [key value]]
+                                          (assoc res key value)) {} done))
       (recur (<! output-ch)))))
 
 (defn- parse-query [context string]
