@@ -25,8 +25,8 @@
   (with-routes!
     {"/hero" (hero-route)}
     (let [result (execute-query uri "from hero")]
-      (is (= 200 (get-in result [:hero :details :status])))
-      (is (= "I'm hero" (get-in result [:hero :result :hi])))
+      (is (= 200 (get-in result [:details :hero :status])))
+      (is (= "I'm hero" (get-in result [:result :hero :hi])))
     )
   )
 )
@@ -46,7 +46,7 @@
   (with-routes!
     {"/hero" (assoc (hero-route) :status 500)}
     (let [result (execute-query uri "from hero ignore-errors")]
-      (is (= 500 (get-in result [:hero :details :status])))
+      (is (= 500 (get-in result [:details :hero :status])))
     )
   )
 )
@@ -55,7 +55,7 @@
   (with-routes!
     {"/hero" (assoc (hero-route) :delay 200)}
     (let [result (execute-query uri "from hero timeout 100")]
-      (is (= 408 (get-in result [:hero :details :status])))
+      (is (= 408 (get-in result [:details :hero :status])))
     )
   )
 )
@@ -90,8 +90,8 @@
     {"/hero" (hero-route)}
     {"/sideck" (assoc (sidekick-route) :delay 200)}
     (let [result (execute-query uri "from hero\nfrom sidekick timeout 100 with id = hero.sidekickId ignore-errors")]
-      (is (= 200 (get-in result [:hero :details :status])))
-      (is (= 408 (get-in result [:sidekick :details :status])))
+      (is (= 200 (get-in result [:details :hero :status])))
+      (is (= 408 (get-in result [:details :sidekick :status])))
     )
   )
 )

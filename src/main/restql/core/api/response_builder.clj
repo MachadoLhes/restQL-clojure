@@ -57,6 +57,6 @@
 )
 
 (defn build [query-responses query-opts]
-        { :results (get-results query-responses)
+        { :result (get-results query-responses)
           :details (get-details query-responses query-opts) }
 )
