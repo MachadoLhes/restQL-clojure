@@ -17,7 +17,7 @@
   (go-loop [state (<! output-ch)]
     (if (restql/all-done? state)
       (response-builder/build (reduce (fn [res [key value]]
-                                          (assoc res key value)) {} done))
+                                          (assoc res key value)) {} (:done state)) query-opts)
       (recur (<! output-ch)))))
 
 (defn- parse-query [context string]
