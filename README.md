@@ -25,43 +25,13 @@ If you're using Java you may want to check [restQL-core-java](https://github.com
 
 Add restQL dependency to your project
 
-**Maven**
-
-```xml
-<dependency>
-	<groupId>com.b2wdigital</groupId>
-        <artifactId>restql-core</artifactId>
-       	<version>2.1.7</version>
-</dependency>
-```
-
-**Gradle**
-
-```
-com.b2wdigital:restql-core:2.1.7
-```
-
 **Lein**
 
 ```
-[com.b2wdigital/restql-core "2.1.7"]
+[b2wdigital/restql-core "2.2"]
 ```
 
 ### First query
-
-**Java**
-
-```java
-ClassConfigRepository config = new ClassConfigRepository();
-config.put("user", "http://your.api.url/users/:name");
-
-RestQL restQL = new RestQL(config);
-QueryResponse response = restql.executeQuery("from user with name = ?", "Duke Nukem");
-
-System.out.println("The response JSON is: " + response.toString());
-```
-
-**Clojure**
 
 ```clojure
 (require '[restql.core.api.restql :as restql])
@@ -70,65 +40,14 @@ System.out.println("The response JSON is: " + response.toString());
 
 In the example above restQL will call user API passing "Duke Nukem" in the name param.
 
-### Configuration
-restQL receives a configuration class with the API mappings. You can use the available configuration repositories -- `SystemPropertiesConfigRepository`, `PropertiesFileConfigRepository` or `ClassConfigRepository` -- or implement your own, using the `ConfigRepository` interface.
-
-You can check more about endpoints configuration [here](https://github.com/B2W-BIT/restQL-core/wiki/Endpoint-configuration)
-
-## Examples
-
-### Simple Query
-
-Retrieving all magic cards
-
-```java
-ClassConfigRepository config = new ClassConfigRepository();
-config.put("cards", "http://api.magicthegathering.io/v1/cards");
-
-RestQL restQL = new RestQL(config);
-
-String query = "from cards as cardslist params type = ?";
-
-QueryResponse response = restQL.executeQuery(query, "Artifact");
-
-// The JSON String
-String jsonString = response.toString();
-
-// The mapped object
-List<MTGCard> cards = result.getList("cardslist", MTGCard.class);
-```
-
-### Chained Query
-
-Listing all cards and then fetching its details.
-
-```java
-ClassConfigRepository config = new ClassConfigRepository();
-config.put("cards", "http://api.magicthegathering.io/v1/cards");
-config.put("card", "http://api.magicthegathering.io/v1/cards/:id");
-
-RestQL restQL = new RestQL(config);
-
-String queryCardsAndDetails = "from cards as cardsList params type = ? \n"
-                            + "from card as cardWithDetails params id = cardsList.id";
-
-QueryResponse response = restQL.executeQuery(query, "Artifact");
-
-// The JSON String
-String jsonString = response.toString();
-
-// The mapped object
-List<MTGCard> cards = result.getList("cardWithDetails", MTGCard.class);
-```
-
 ## Building From Source Code
 
 As prerequisites to build restQL from source we have:
 
 + Java 8
-+ Maven 3
++ Leiningen 2.x
 
-Just clone this repo and run "mvn compile".
+Just clone this repo and run "lein jar".
 
 ## License
 
