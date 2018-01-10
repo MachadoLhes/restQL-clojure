@@ -17,7 +17,7 @@ You can learn more about restQL query language [here](https://github.com/B2W-BIT
 
 restQL-core is built upon the battle proven [HttpKit](http://www.http-kit.org/600k-concurrent-connection-http-kit.html) and [Clojure core.async](http://clojure.com/blog/2013/06/28/clojure-core-async-channels.html) to maximize performance and throughtput.
 
-If you're using Java you may want to check [restQL-core-java](https://github.com/B2W-BIT/restQL-core-java) or [restQL-Server](https://github.com/B2W-BIT/restQL-server) if you're using another languagem or working in a client application.
+If you're using Java please refer to [restQL-core-java](https://github.com/B2W-BIT/restQL-core-java). If you're using another language or working in a client application you may want to check  [restQL-Server](https://github.com/B2W-BIT/restQL-server).
 
 ## Getting Started
 
