@@ -32,7 +32,7 @@
                         :params (merge (:params query-response) (:forward-params query-opts)))
         response))
 
-(defn get-single-details [query-opts query-response]
+(defn get-details [query-opts query-response]
     (-> {}
         (assoc :success (is-success query-response)
                :status (:status query-response)
@@ -40,23 +40,21 @@
         (append-metadata query-response)
         (append-debug-data query-opts query-response)))
 
-(defn- get-results [query-responses]
-    (reduce-kv (fn [result resource query-response]
-                   (if (sequential? query-response)
-                       (assoc result resource (map :body query-response) )
-                       (assoc result resource (:body query-response) ))) {} query-responses
-    )
-)
-
-(defn- get-details [query-responses query-opts]
-    (reduce-kv (fn [detail resource query-response]
-                   (if (sequential? query-response)
-                       (assoc detail resource (map #(get-details query-opts %) query-response) )
-                       (assoc detail resource (get-single-details query-opts query-response) ))) {} query-responses
-    )
+(defn prepare-response [query-opts query-response]
+    ; Sequential means it's a multiplexed call.
+    {:details (if (sequential? query-response)
+                  (map #(get-details query-opts %) query-response)
+                  (get-details query-opts query-response)
+              )
+     :result  (if (sequential? query-response)
+                  (map :body query-response)
+                  (:body query-response)
+              )
+    }
 )
 
 (defn build [query-responses query-opts]
-        { :result (get-results query-responses)
-          :details (get-details query-responses query-opts) }
+    (reduce-kv (fn [response resource query-response]
+                    (assoc response resource (prepare-response query-opts query-response) )) {} query-responses
+    )
 )

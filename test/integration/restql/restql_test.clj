@@ -13,20 +13,41 @@
   {:status 200 :content-type "application/json" :body (json/generate-string {:hi "I'm sidekick"})})
 
 
-(defn execute-query [baseUrl query]
-  (restql/execute-query :mappings {:hero                (str baseUrl "/hero")
-                                   :sidekick            (str baseUrl "/sidekick")
-                                   :product             (str baseUrl "/product/:id")
-                                   :product-price       (str baseUrl "/price/:productId")
-                                   :product-description (str baseUrl "/description/:productId")}
-                        :query query))
+(defn execute-query ([base-url query params]
+    (restql/execute-query :mappings {:hero                (str base-url "/hero")
+                                     :sidekick            (str base-url "/sidekick")
+                                     :product             (str base-url "/product/:id")
+                                     :product-price       (str base-url "/price/:productId")
+                                     :product-description (str base-url "/description/:productId")}
+                          :query query
+                          :params params)
+
+  )
+  ([base-url query]
+   (execute-query base-url query {})
+  )
+)
 
 (deftest simple-request
   (with-routes!
     {"/hero" (hero-route)}
     (let [result (execute-query uri "from hero")]
-      (is (= 200 (get-in result [:details :hero :status])))
-      (is (= "I'm hero" (get-in result [:result :hero :hi])))
+      (is (= 200 (get-in result [:hero :details :status])))
+      (is (= "I'm hero" (get-in result [:hero :result :hi])))
+    )
+  )
+)
+
+(deftest multiplexed-request
+  (with-routes!
+    {"/hero" (hero-route)}
+    (let [response (execute-query uri "from hero with name = $name" { :name [ "Doom" "Duke Nuken" ] })
+          details (get-in response [:hero :details])
+          result (get-in response [:hero :result])]
+      (is (= 200 (:status (first details))))
+      (is (= 200 (:status (second details))))
+      (is (= "I'm hero" (:hi (first result))))
+      (is (= "I'm hero" (:hi (second result))))
     )
   )
 )
@@ -46,7 +67,7 @@
   (with-routes!
     {"/hero" (assoc (hero-route) :status 500)}
     (let [result (execute-query uri "from hero ignore-errors")]
-      (is (= 500 (get-in result [:details :hero :status])))
+      (is (= 500 (get-in result [:hero :details :status])))
     )
   )
 )
@@ -55,7 +76,7 @@
   (with-routes!
     {"/hero" (assoc (hero-route) :delay 200)}
     (let [result (execute-query uri "from hero timeout 100")]
-      (is (= 408 (get-in result [:details :hero :status])))
+      (is (= 408 (get-in result [:hero :details :status])))
     )
   )
 )
@@ -71,8 +92,8 @@
     {"/hero"     (hero-route)
      "/sidekick" (sidekick-route)}
     (let [result (execute-query uri "from hero\nfrom sidekick")]
-      (is (= 200 (get-in result [:details :hero :status])))
-      (is (= 200 (get-in result [:details :sidekick :status])))
+      (is (= 200 (get-in result [:hero :details :status])))
+      (is (= 200 (get-in result [:sidekick :details :status])))
     )
   )
 )
@@ -90,8 +111,8 @@
     {"/hero" (hero-route)}
     {"/sideck" (assoc (sidekick-route) :delay 200)}
     (let [result (execute-query uri "from hero\nfrom sidekick timeout 100 with id = hero.sidekickId ignore-errors")]
-      (is (= 200 (get-in result [:details :hero :status])))
-      (is (= 408 (get-in result [:details :sidekick :status])))
+      (is (= 200 (get-in result [:hero :details :status])))
+      (is (= 408 (get-in result [:sidekick :details :status])))
     )
   )
 )
