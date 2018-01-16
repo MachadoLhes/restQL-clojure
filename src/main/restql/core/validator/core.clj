@@ -2,7 +2,9 @@
   (:require [restql.core.validator.util :refer [defrules rule]]
             [restql.core.context :as ctx]
             [clojure.set :as s]
-            [restql.core.query :as query]))
+            [restql.core.query :as query])
+  (:use [slingshot.slingshot :only [throw+ try+]])
+)
 
 (defn without-from [[_ data]]
   (not (contains? data :from)))
@@ -47,6 +49,19 @@
   (or
     (= :none value)
     (set? value)))
+
+(defn is-valid-url [url]
+    (try+
+        (clojure.java.io/as-url url)
+        true
+    (catch Object _
+        false
+    ))
+)
+
+(defn get-urls [mappings resources]
+    (map (partial get mappings) resources)
+)
 
 (defrules validate
 
@@ -101,14 +116,14 @@
             true
             {:invalid (-> invalids first pr-str)})))
 
-  (rule ":from key in Query Item Data should be a keyword or a vector. Invalid was |:invalid|"
+  (rule "from key in Query Item Data should be a keyword or a vector. Invalid was |:invalid|"
         [context q]
         (let [invalids (->> q (partition 2) (map second) (map :from) (filter (complement keyword-or-vector?)))]
           (if (= 0 (count invalids))
             true
             {:invalid (-> invalids first pr-str)})))
 
-  (rule ":from as a vector should reference a valid binding. Error was in :invalid"
+  (rule "from as a vector should reference a valid binding. Error was in :invalid"
         [context q]
         (let [invalids (->> q
                             (partition 2)
@@ -121,7 +136,7 @@
             true
             {:invalid (-> invalids first pr-str)})))
 
-  (rule ":from as a keyword should reference a valid mapped resource. Error was in :invalid"
+  (rule "from as a keyword should reference a valid mapped resource. Error was in :invalid"
         [context q]
         (let [invalids (->> q
                             (partition 2)
@@ -133,7 +148,20 @@
             true
             {:invalid (-> invalids first pr-str)})))
 
-  (rule ":with must be a map or not be used. Found a problem in :invalid"
+  (rule "from as a keyword should resolve to a valid URL. Error was in URL :invalid"
+        [context q]
+        (let [invalids (->> q
+                            (partition 2)
+                            (map second)
+                            (map :from)
+                            (filter keyword?)
+                            (get-urls (:mappings context))
+                            (filter (complement is-valid-url)))]
+            (if (= 0 (count invalids))
+                true
+                {:invalid (-> invalids first pr-str)})))
+
+  (rule "with must be a map or not be used. Found a problem in :invalid"
         [context q]
         (let [invalids (->> q
                             (partition 2)
@@ -145,7 +173,7 @@
             true
             {:invalid (-> invalids first pr-str)})))
 
-  (rule ":with must be a map with keywords as keys. Error was in :invalid"
+  (rule "with must be a map with keywords as keys. Error was in :invalid"
         [context q]
         (let [invalids (->> q
                             (partition 2)
@@ -183,7 +211,7 @@
             true
             {:invalid (-> invalids first pr-str)})) )
 
-  (rule "When a query has a :select key, it must be a set or :none. Error found in :invalid"
+  (rule "When a query has a select key, it must be a set or :none. Error found in :invalid"
         [context q]
         (let [invalids (->> q
                             (partition 2)

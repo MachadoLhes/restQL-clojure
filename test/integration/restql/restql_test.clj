@@ -59,10 +59,6 @@
 ;)
 ;)
 
-(deftest unmapped-resource-should-throw-exception
-  (is (thrown? Exception (execute-query "http://any" "from villain")))
-)
-
 (deftest error-request-with-ignore-errors-shouldnt-throw-exception
   (with-routes!
     {"/hero" (assoc (hero-route) :status 500)}
