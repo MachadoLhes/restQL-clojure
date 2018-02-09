@@ -16,3 +16,7 @@
 (deftest mapped-resource-with-invalid-url-should-throw-exception
     (is (thrown+? #(message? % "from as a keyword should resolve to a valid URL. Error was in URL \"invalidurl\"") (restql/execute-query :mappings { :invalid "invalidurl" } :query "from invalid")))
 )
+
+(deftest domains-without-tdl-should-be-allowed
+    (restql/execute-query :mappings { :no-tdl "http://intranet/resource" } :query "from no-tdl")
+)
