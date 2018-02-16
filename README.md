@@ -13,11 +13,21 @@ from hero as heroList
         name = search.results.name
 ```
 
-You can learn more about restQL query language [here](https://github.com/B2W-BIT/restQL-server/wiki/RestQL-Query-Language) and [here](http://restql.b2w.io)
+Links
 
-restQL-core is built upon the battle proven [HttpKit](http://www.http-kit.org/600k-concurrent-connection-http-kit.html) and [Clojure core.async](http://clojure.com/blog/2013/06/28/clojure-core-async-channels.html) to maximize performance and throughtput.
+* [restql.b2w.io](http://restql.b2w.io): Project home page,
+* [game.b2w.io](http://game.b2w.io): A game developed to teach the basics of restQL language,
+* [restQL-server](https://github.com/B2W-BIT/restQL-core): The main restQL repo. It spin up a restQL-server that will listen for queries. Can be used by any language/project.
+* [restQL-core-java](https://github.com/B2W-BIT/restQL-core-java): If you want to embed restQL directly into your Java application,
+* [restQL-manager](https://github.com/B2W-BIT/restQL-manager): To manage saved queries and resources endpoints. restQL-manager requires a MongoDB instance.
+* [Tackling microservice query complexity](https://medium.com/b2w-engineering/restql-tackling-microservice-query-complexity-27def5d09b40): Project motivation and history
+* [Wiki](https://github.com/B2W-BIT/restQL-server/wiki/RestQL-Query-Language): Project documentation.
 
-If you're using Java please refer to [restQL-core-java](https://github.com/B2W-BIT/restQL-core-java). If you're using another language or working in a client application you may want to check  [restQL-Server](https://github.com/B2W-BIT/restQL-server).
+Who're talking about restQL
+
+* [infoQ: restQL, a Microservices Query Language, Released on GitHub](https://www.infoq.com/news/2018/01/restql-released)
+* [infoQ: 微服务查询语言restQL已在GitHub上发布](http://www.infoq.com/cn/news/2018/01/restql-released)
+* [OSDN Mag: マイクロサービスクエリ言語「restQL 2.3」公開](https://mag.osdn.jp/18/01/12/160000)
 
 ## Getting Started
 
