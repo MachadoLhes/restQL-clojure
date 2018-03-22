@@ -18,8 +18,7 @@
 (defn- retry-on-error [request-func callback retries]
   (let [response @(request-func)]
     (if (or (zero? retries) (builder/success? [:_ response]))
-      (-> @(request-func)
-          callback)
+      (callback response)
       (retry-on-error request-func callback (dec retries)))))
 
 (defn get-service-endpoint [mappings entity]
