@@ -35,24 +35,33 @@
           (if (contains-wildcard? select-params) entity-value {})
           select-params))
 
-(defn do-selection [select-params entity-value]
-  (if (sequential? entity-value)
-    (map #(select-single select-params %) entity-value)
-    (select-single select-params entity-value)))
+(defn do-selection [fields-to-select result]
+  (if (sequential? result)
+    (map #(select-single fields-to-select %) result)
+    (select-single fields-to-select result)))
 
-(defn do-selection-with-details [select-params entity-value]
-  (if (sequential? entity-value)
-    (map (partial do-selection-with-details select-params) entity-value)
-    {:details (:details entity-value)
-     :result (do-selection select-params (:result entity-value))}))
+
+(defn is-multiplexed-request? [resource-response]
+  (sequential? (:details resource-response))
+)
+
+
+(defn filter-resource-response [fields-to-select resource-response]
+  (let [filtered-resource-response {:details (:details resource-response)}]
+    (if (is-multiplexed-request? resource-response)
+      (assoc filtered-resource-response :result (map (partial do-selection fields-to-select) (:result resource-response)))
+      (assoc filtered-resource-response :result (do-selection fields-to-select (:result resource-response)))
+    )
+  )
+ )
 
 (defn reduce-with [query]
-  (fn [acc entity value]
-    (let [select-params (:select (entity query))]
+  (fn [acc resource resource-response]
+    (let [select-params (:select (resource query))]
       (cond
-        (set? select-params) (assoc acc entity (do-selection-with-details select-params value))
+        (set? select-params) (assoc acc resource (filter-resource-response select-params resource-response))
         (= :none select-params) acc
-        :else (assoc acc entity value)))))
+        :else (assoc acc resource resource-response)))))
 
 (defn select [query result]
   (let [query-map (apply hash-map query)]

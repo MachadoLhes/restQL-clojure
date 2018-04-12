@@ -58,21 +58,19 @@
 )
 
 (deftest array-multiplex-filter
-  (with-routes! {"/heroes" (heroes-route)}
-      (let [response (execute-query uri "from heroes with id=[1,2] only name")
+    (with-routes! {"/heroes" (heroes-route)}
+       (let [response (execute-query uri "from heroes with id=[1,2] only name")
             first-request (first (get-in response [:heroes :result]))
             first-request-first-hero (first first-request)
 
             second-request (second (get-in response [:heroes :result]))
-            second-request-first-hero (first second-request)]
+            second-request-second-hero (second second-request)]
 
-        (pprint response)
+          (is (= nil (:id first-request-first-hero)))
+          (is (= "Batman" (:name first-request-first-hero)))
 
-        (is (= nil (:id first-request-first-hero)))
-        (is (= "Batman" (:name first-request-first-hero)))
-
-        (is (= nil (:id  second-request-first-hero)))
-        (is (= "Superman" (:name first-request-first-hero)))
-      )
-  )
+          (is (= nil (:id  second-request-second-hero)))
+          (is (= "Superman" (:name second-request-second-hero)))
+       )
+    )
 )
