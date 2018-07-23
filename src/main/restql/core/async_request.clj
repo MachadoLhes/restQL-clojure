@@ -128,6 +128,7 @@
          request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))
          forward (some-> query-opts :forward-params)
          forward-params (if (nil? forward) {} forward)
+         http-method     (:http-method request)
          request-map {:resource        (:resource request)
                       :timeout         request-timeout
                       :idle-timeout    (/ request-timeout 5)
@@ -142,21 +143,40 @@
      (debug request-map "Preparing request")
      ; Before Request hook
      (hook/execute-hook query-opts :before-request request-map)
-     (if (nil? (:body request-map))
-       (retry-on-error #(http/get (:url request) request-map) #(request-callback %
-                                                                                 :request request
-                                                                                 :request-timeout request-timeout
-                                                                                 :query-opts query-opts
-                                                                                 :time-before time-before
-                                                                                 :output-ch output-ch) MAX_RETRIES)
-       (retry-on-error #(http/post (:url request)
-                                   (assoc request-map :content-type "application/json"))
-                       #(request-callback %
-                                          :request request
-                                          :request-timeout request-timeout
-                                          :query-opts query-opts
-                                          :time-before time-before
-                                          :output-ch output-ch) MAX_RETRIES)))))
+     (cond
+       (= :get http-method) (retry-on-error #(http/get (:url request) request-map)
+                                            #(request-callback %
+                                                               :request request
+                                                               :request-timeout request-timeout
+                                                               :query-opts query-opts
+                                                               :time-before time-before
+                                                               :output-ch output-ch) MAX_RETRIES)
+       (= :post http-method) (retry-on-error #(http/post (:url request)
+                                                         (assoc request-map :content-type "application/json"))
+                                             #(request-callback %
+                                                                :request request
+                                                                :request-timeout request-timeout
+                                                                :query-opts query-opts
+                                                                :time-before time-before
+                                                                :output-ch output-ch) MAX_RETRIES)
+
+        (= :put http-method) (retry-on-error #(http/put (:url request)
+                                                        (assoc request-map :content-type "application/json"))
+                                             #(request-callback %
+                                                                :request request
+                                                                :request-timeout request-timeout
+                                                                :query-opts query-opts
+                                                                :time-before time-before
+                                                                :output-ch output-ch) MAX_RETRIES)
+
+        (= :delete http-method) (retry-on-error #(http/delete (:url request) request-map) 
+                                                #(request-callback %
+                                                                   :request request
+                                                                   :request-timeout request-timeout
+                                                                   :query-opts query-opts
+                                                                   :time-before time-before
+                                                                   :output-ch output-ch) MAX_RETRIES)
+        :else nil))))
 
 
 

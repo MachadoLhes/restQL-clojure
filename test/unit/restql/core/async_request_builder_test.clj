@@ -41,6 +41,7 @@
   (is (=
     [{:url "http://example/123"
       :query-params {:sku "111"  :offer "123111"}
+      :http-method :get
       :resource :example
       :metadata nil
       :timeout nil
@@ -50,15 +51,17 @@
       :resource :example
       :metadata nil
       :query-params {:sku "222" :offer "456222"}
+      :http-method :get
       :timeout nil
       :headers nil
-       :post-body nil}]
+      :post-body nil}]
     
     (build-requests "http://example/:id"
                     {:from :example
-                      :with {:id [:cart :lines :productId]
-                             :sku [:cart :lines :sku]
-                             :offer [:cart :offers :id]}}
+                     :with {:id [:cart :lines :productId]
+                            :sku [:cart :lines :sku]
+                            :offer [:cart :offers :id]}
+                     :method :get}
                     {}
                     state))))
 
@@ -66,6 +69,7 @@
   (is (=
         [{:url "http://example/123"
           :query-params {:name "ABC"}
+          :http-method :get
           :resource :example
           :metadata nil
           :timeout nil
@@ -75,6 +79,7 @@
           :resource :example
           :metadata nil
           :query-params {:name "DEF"}
+          :http-method :get
           :timeout nil
           :headers nil
           :post-body nil}]
@@ -82,7 +87,8 @@
         (build-requests "http://example/:id"
                         {:from :example
                          :with {:id ["123" "456"]
-                                :name ["ABC" "DEF"]}}
+                                :name ["ABC" "DEF"]}
+                         :method :get}
                         {}
                         state))))
 
@@ -94,12 +100,14 @@
 
     (get-multiple-entities {:from :blibs
                             :with {:product [:cart :lines :productId]
-                                   :sku     [:cart :lines :sku]}} state))))
+                                   :sku     [:cart :lines :sku]}
+                            :method :get} state))))
 
 (deftest create-request-with-headers-test
   (is (=
     {:url "http://localhost:9999"
      :query-params {:id "123"}
+     :http-method :get
      :resource :cart
      :metadata nil
      :timeout nil
@@ -109,7 +117,8 @@
     (build-request "http://localhost:9999" 
                    {:from :cart 
                     :with {:id "123"} 
-                    :with-headers {"tid" "aaaaaaaaaa"}} 
+                    :with-headers {"tid" "aaaaaaaaaa"}
+                    :method :get} 
                    {}
                    {:done []}))))
 
@@ -117,6 +126,7 @@
   (is (=
     {:url "http://localhost:9999"
      :query-params {:id "123"}
+     :http-method :get
      :metadata nil
      :resource :cart
      :timeout nil
@@ -125,7 +135,8 @@
     
     (build-request "http://localhost:9999" 
                    {:from :cart 
-                    :with {:id "123"}}
+                    :with {:id "123"}
+                    :method :get}
                    {}
                    {:done []}))))
 
@@ -195,6 +206,7 @@
   (is (=
     {:url "http://localhost:9999"
      :query-params {:id "123"}
+     :http-method :get
      :resource :cart
      :metadata nil
      :timeout 2000
@@ -202,7 +214,7 @@
      :post-body nil}
     
     (build-request "http://localhost:9999" 
-                   {:from :cart :timeout 2000 :with {:id "123"}}
+                   {:from :cart :timeout 2000 :with {:id "123"} :method :get}
                    {}
                    {:done []}))))
 
@@ -211,6 +223,7 @@
   (is (=
         {:url "http://localhost:9999"
          :query-params {:id "123"}
+         :http-method :get
          :resource :cart
          :metadata nil
          :timeout nil
@@ -220,7 +233,8 @@
         (build-request "http://localhost:9999"
                        {:from :cart
                         :with {:id "123"}
-                        :with-body {:jedi {:name "Luke Skywalker" :weaponId 1}}}
+                        :with-body {:jedi {:name "Luke Skywalker" :weaponId 1}}
+                        :method :get}
                        {}
                        {:done []}))))
 

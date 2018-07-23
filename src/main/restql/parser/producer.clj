@@ -34,6 +34,7 @@
 
 (defn produce-query-item [query-clauses]
   (let [resource          (->> query-clauses (find-first :FromResource) produce)
+        method            (->> query-clauses (find-first :HttpMethod) produce)
         alias-rule        (->> query-clauses (find-first :ResultAlias))
         alias             (if (nil? alias-rule) resource (produce alias-rule))
         header-rule       (->> query-clauses (find-first :HeaderRule) produce)
@@ -46,7 +47,7 @@
         ]
     (str alias
          flags-rule
-         " {:from " resource header-rule timeout-rule with-rule with-body-rule only-rule hide-rule "}")))
+         " {:from " resource header-rule timeout-rule with-rule with-body-rule only-rule hide-rule " :method " method "}")))
 
 (defn produce-header-rule [content]
   (let [produced-header-items (map produce content)]
@@ -218,6 +219,12 @@
       :QueryItem                   (produce-query-item content)
 
       :FromResource                (join-chars ":" content)
+      
+      ; Keeping from for "get" default for backwards compatibility reasons
+      :HttpMethod                  (if 
+                                      (= "from" (join-chars "" content))
+                                      ":get"
+                                      (join-chars ":" content))
       :ResultAlias                 (join-chars ":" content)
 
       :HeaderRule                  (produce-header-rule content)

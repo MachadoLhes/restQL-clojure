@@ -21,7 +21,7 @@ QueryItem =
 
 
 <FromRule> =
-  KW_FROM WS FromResource (WS_MAND KW_AS WS_MAND ResultAlias)?;
+  HttpMethod WS_MAND FromResource (WS_MAND KW_AS WS_MAND ResultAlias)?;
 
 FromResource =
   Identifier;
@@ -165,8 +165,11 @@ IgnoreErrorsFlag =
 <KW_USE> =
   <"use">;
 
-<KW_FROM> =
-  <"from">;
+<KW_METHOD> =
+  ("from" | "get" | "post" | "put" | "delete");
+
+HttpMethod = 
+  KW_METHOD;
 
 <KW_AS> =
   <"as">;
