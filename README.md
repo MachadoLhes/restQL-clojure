@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/B2W-BIT/restQL-core.svg?branch=master)](https://travis-ci.org/B2W-BIT/restQL-core)
 # restQL-Core
 
-restQL-core allows you to run restQL queries directly from JVM applications, making easy to fetch information from multiple services in the most efficient manner. To query using HTTP calls from any client check [restQL-server](https://github.com/B2W-BIT/restQL-core):
+restQL-core allows you to run restQL queries directly from JVM applications, making easy to fetch information from multiple services in the most efficient manner. To query using HTTP calls from any client check [restQL-server](https://github.com/B2W-BIT/restQL-server):
 
 ```
 from search
@@ -17,7 +17,7 @@ Links
 
 * [restql.b2w.io](http://restql.b2w.io): Project home page,
 * [game.b2w.io](http://game.b2w.io): A game developed to teach the basics of restQL language,
-* [restQL-server](https://github.com/B2W-BIT/restQL-core): The main restQL repo. It spin up a restQL-server that will listen for queries. Can be used by any language/project.
+* [restQL-server](https://github.com/B2W-BIT/restQL-server): The main restQL repo. It spin up a restQL-server that will listen for queries. Can be used by any language/project.
 * [restQL-core-java](https://github.com/B2W-BIT/restQL-core-java): If you want to embed restQL directly into your Java application,
 * [restQL-manager](https://github.com/B2W-BIT/restQL-manager): To manage saved queries and resources endpoints. restQL-manager requires a MongoDB instance.
 * [Tackling microservice query complexity](https://medium.com/b2w-engineering/restql-tackling-microservice-query-complexity-27def5d09b40): Project motivation and history
