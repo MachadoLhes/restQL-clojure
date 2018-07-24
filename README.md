@@ -1,7 +1,7 @@
 [![Build Status](https://travis-ci.org/B2W-BIT/restQL-core.svg?branch=master)](https://travis-ci.org/B2W-BIT/restQL-core)
 # restQL-Core
 
-restQL-core allows you to run restQL queries directly from JVM applications, making easy to fetch information from multiple services in the most efficient manner. To query doing HTTP calls from any client check [restQL-server](https://github.com/B2W-BIT/restQL-core):
+restQL-core allows you to run restQL queries directly from JVM applications, making easy to fetch information from multiple services in the most efficient manner. To query using HTTP calls from any client check [restQL-server](https://github.com/B2W-BIT/restQL-core):
 
 ```
 from search
