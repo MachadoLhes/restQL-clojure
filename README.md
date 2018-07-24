@@ -59,6 +59,12 @@ As prerequisites to build restQL from source we have:
 
 Just clone this repo and run "lein jar".
 
+## Help and community
+
+If you need help you can reach the community on Telegram
+- https://t.me/restQL (English)
+- https://t.me/restQLBR (Portuguese)
+
 ## License
 
 Copyright © 2016 B2W Digital
