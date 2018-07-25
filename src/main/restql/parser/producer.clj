@@ -201,12 +201,13 @@
   ":ignore-errors \"ignore\"")
 
 (defn produce-http-method [content]
-  (cond
-    (= "from" content) ":get"
-    (= "to" content) ":post"
-    (= "into" content) ":put"
-    (= "delete") ":delete"
-    :else ":get"))
+  (let [content-str (join-chars "" content)]
+    (cond
+      (= "from" content-str) ":get"
+      (= "to" content-str) ":post"
+      (= "into" content-str) ":put"
+      (= "delete" content-str) ":delete"
+      :else ":get")))
 
 (defn produce
   "Produces a query EDN of a restQL grammar tree"
@@ -226,7 +227,7 @@
       :QueryItem                   (produce-query-item content)
 
       :FromResource                (join-chars ":" content)
-      
+
       ; Keeping from for "get" default for backwards compatibility reasons
       :HttpMethod                  (produce-http-method content)
       :ResultAlias                 (join-chars ":" content)
