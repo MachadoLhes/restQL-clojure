@@ -13,17 +13,17 @@
     (is (= (parse-query "from heroes")
            [:heroes {:from :heroes :method :get}])))
 
-  (testing "Testing get method"
-    (is (= (parse-query "get heroes")
-            [:heroes {:from :heroes :method :get}])))
-
   (testing "Testing post method"
-    (is (= (parse-query "post heroes")
+    (is (= (parse-query "to heroes")
             [:heroes {:from :heroes :method :post}])))
 
   (testing "Testing put method"
-    (is (= (parse-query "put heroes")
+    (is (= (parse-query "into heroes")
             [:heroes {:from :heroes :method :put}])))
+
+  (testing "Testing delete method"
+           (is (= (parse-query "delete heroes")
+                  [:heroes {:from :heroes :method :delete}])))
 
   (testing "Testing simple query with-body json"
     (is (= (parse-query "from heroes
