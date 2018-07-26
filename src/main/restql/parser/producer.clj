@@ -34,6 +34,7 @@
 
 (defn produce-query-item [query-clauses]
   (let [resource          (->> query-clauses (find-first :FromResource) produce)
+        method            (->> query-clauses (find-first :HttpMethod) produce)
         alias-rule        (->> query-clauses (find-first :ResultAlias))
         alias             (if (nil? alias-rule) resource (produce alias-rule))
         header-rule       (->> query-clauses (find-first :HeaderRule) produce)
@@ -46,7 +47,7 @@
         ]
     (str alias
          flags-rule
-         " {:from " resource header-rule timeout-rule with-rule with-body-rule only-rule hide-rule "}")))
+         " {:from " resource header-rule timeout-rule with-rule with-body-rule only-rule hide-rule " :method " method "}")))
 
 (defn produce-header-rule [content]
   (let [produced-header-items (map produce content)]
@@ -199,6 +200,14 @@
 (defn produce-ignore-error-flag []
   ":ignore-errors \"ignore\"")
 
+(defn produce-http-method [content]
+  (let [content-str (join-chars "" content)]
+    (cond
+      (= "from" content-str) ":get"
+      (= "to" content-str) ":post"
+      (= "into" content-str) ":put"
+      (= "delete" content-str) ":delete"
+      :else ":get")))
 
 (defn produce
   "Produces a query EDN of a restQL grammar tree"
@@ -218,6 +227,9 @@
       :QueryItem                   (produce-query-item content)
 
       :FromResource                (join-chars ":" content)
+
+      ; Keeping from for "get" default for backwards compatibility reasons
+      :HttpMethod                  (produce-http-method content)
       :ResultAlias                 (join-chars ":" content)
 
       :HeaderRule                  (produce-header-rule content)

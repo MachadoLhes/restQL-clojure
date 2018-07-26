@@ -206,6 +206,7 @@
        :metadata     (meta query-item-data)
        :resource     (:from query-item-data)
        :query-params (build-query-params query-item-data url resolved-query-item)
+       :http-method  (:method query-item-data)
        :timeout      timeout
        :headers      (:with-headers query-item-data)
        :post-body    (some-> query-item-data
