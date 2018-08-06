@@ -14,7 +14,8 @@ from hero as heroList
 ```
 
 Links
-
+* [@restQL](https://t.me/restQL): restQL Telegram Group
+* [@restQLBR](https://t.me/restQLBR): Brazilian restQL Telegram Group
 * [restql.b2w.io](http://restql.b2w.io): Project home page,
 * [game.b2w.io](http://game.b2w.io): A game developed to teach the basics of restQL language,
 * [restQL-server](https://github.com/B2W-BIT/restQL-server): The main restQL repo. It spin up a restQL-server that will listen for queries. Can be used by any language/project.
