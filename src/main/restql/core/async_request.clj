@@ -85,11 +85,15 @@
                                                    :timeout   request-timeout
                                                    :time      (- (System/currentTimeMillis) time-before)})]
             ; After Request hook
-            (hook/execute-hook query-opts :after-request (reduce-kv (fn [result k v]
+            (try
+              (hook/execute-hook query-opts :after-request (reduce-kv (fn [result k v]
                                                                       (if (= k :body)
                                                                         (assoc result k (json/generate-string v))
                                                                         (assoc result k v)))
                                                                     {} response))
+            (catch Exception e
+               (debug {:message "failure executing hook :after-request"
+                       :exception e })))
             ; Send response to channel
             (go (>! output-ch response)))))
 
