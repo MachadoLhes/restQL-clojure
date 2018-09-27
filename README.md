@@ -38,7 +38,7 @@ Add restQL dependency to your project
 **Lein**
 
 ```
-[b2wdigital/restql-core "2.3"]
+[b2wdigital/restql-core "2.4.0"]
 ```
 
 ### First query
