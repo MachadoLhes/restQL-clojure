@@ -4,7 +4,7 @@
   :license {:name "MIT"
             :url "http://www.opensource.org/licenses/mit-license.php"}
   :dependencies [[org.clojure/clojure "1.8.0"]
-                 [http-kit "2.3.0-alpha4"]
+                 [clj-http "3.9.1"]
                  [org.clojure/tools.logging "0.3.1"]
                  [ring/ring-codec "1.0.1"]
                  [slingshot "0.12.2"]
