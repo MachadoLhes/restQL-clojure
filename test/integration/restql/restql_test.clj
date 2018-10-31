@@ -70,7 +70,7 @@
 
 (deftest timeout-request-shoudl-return-408
   (with-routes!
-    {"/hero" (assoc (hero-route) :delay 200)}
+    {"/hero" (assoc (hero-route) :delay 1000)}
     (let [result (execute-query uri "from hero timeout 100")]
       (is (= 408 (get-in result [:hero :details :status])))
     )
@@ -103,7 +103,7 @@
 (deftest shouldnt-throw-exeption-if-chainned-resource-timeout-and-ignore-error
   (with-routes!
     {"/hero" (hero-route)}
-    {"/sideck" (assoc (sidekick-route) :delay 200)}
+    {"/sideck" (assoc (sidekick-route) :delay 1000)}
     (let [result (execute-query uri "from hero\nfrom sidekick timeout 100 with id = hero.sidekickId ignore-errors")]
       (is (= 200 (get-in result [:hero :details :status])))
       (is (= 408 (get-in result [:sidekick :details :status])))
