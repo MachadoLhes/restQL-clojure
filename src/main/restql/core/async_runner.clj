@@ -65,7 +65,7 @@
 (defn make-requests
   "goroutine that keeps listening from request-ch and performs http requests
    sending their result to result-ch"
-  [do-request encoders {:keys [request-ch result-ch exception-ch]} {:keys [debugging] :as query-opts} http-client]
+  [do-request encoders {:keys [request-ch result-ch exception-ch]} {:keys [debugging] :as query-opts} http-client http-conn-manager]
   (go-loop [next-req (<! request-ch)
             timeout-ch (timeout (:global-timeout query-opts))
             uid  (generate-uuid!) ]
@@ -79,7 +79,7 @@
                     "Request timed out")
               (>! result-ch [(first (second (first next-req))) {:status 408 :body {:message "timeout"}}]))
 
-          (do-request next-req encoders exception-ch query-opts http-client)
+          (do-request next-req encoders exception-ch query-opts http-client http-conn-manager)
             ([result]
               (log-status uid from result)
               (>! result-ch result)))))
@@ -99,12 +99,12 @@
       (go (>! output-ch new-state))
       (recur new-state))))
 
-(defn run [do-request query encoders {:keys [debugging] :as query-opts} http-client]
+(defn run [do-request query encoders {:keys [debugging] :as query-opts} http-client http-conn-manager]
   (let [chans {:output-ch    (chan)
                :request-ch   (chan)
                :result-ch    (chan)
                :exception-ch (chan)}]
-    (make-requests do-request encoders chans query-opts http-client)
+    (make-requests do-request encoders chans query-opts http-client http-conn-manager)
     (do-run query chans)
     [(:output-ch chans)
      (:exception-ch chans)]))
