@@ -121,29 +121,30 @@
                                :body     {:message (get-error-message exception)}}))))))
 
 (defn make-request
-  ([request query-opts]
+  ([request query-opts http-client]
    (let [output-ch (chan)]
-     (make-request request query-opts output-ch)
+     (make-request request query-opts http-client output-ch)
      output-ch))
-  ([request query-opts output-ch]
+  ([request query-opts http-client output-ch]
    (let [request (parse-query-params request)
          time-before (System/currentTimeMillis)
          request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))
          forward (some-> query-opts :forward-params)
          forward-params (if (nil? forward) {} forward)
          http-method     (:http-method request)
-         request-map {:url             (:url request)
-                      :method          (:http-method request)
-                      :content-type    "application/json"
-                      :resource        (:resource request)
-                      :socket-timeout  request-timeout
-                      :conn-timeout    request-timeout
-                      :query-params    (into (:query-params request) forward-params)
-                      :headers         (:headers request)
-                      :time            time-before
-                      :body            (:post-body request)
-                      :async?          true
-                      :throw-exceptions false}
+         request-map {:url              (:url request)
+                      :method           (:http-method request)
+                      :content-type     "application/json"
+                      :resource         (:resource request)
+                      :socket-timeout   request-timeout
+                      :conn-timeout     request-timeout
+                      :query-params     (into (:query-params request) forward-params)
+                      :headers          (:headers request)
+                      :time             time-before
+                      :body             (:post-body request)
+                      :async?           true
+                      :throw-exceptions false
+                      :htt-client http-client}
          post-body (some-> request :post-body)]
      (debug request-map "Preparing request")
      ; Before Request hook
@@ -162,8 +163,8 @@
                                               :time-before time-before
                                               :output-ch output-ch)))))
 
-(defn query-and-join [requests output-ch query-opts]
-  (go-loop [[ch & others] (map #(make-request % query-opts) requests)
+(defn query-and-join [requests output-ch query-opts http-client]
+  (go-loop [[ch & others] (map #(make-request % query-opts http-client) requests)
             result []]
     (if ch
       (recur others (conj result (<! ch)))
@@ -177,29 +178,29 @@
 (defn failure? [requests]
   (or (nil? requests) (vector-with-nils? requests)))
 
-(defn perform-request [url query-item-data state encoders result-ch query-opts]
+(defn perform-request [url query-item-data state encoders result-ch query-opts http-client]
   (let [requests (builder/build-requests url query-item-data encoders state)]
     (cond
       (failure? requests) (go (>! result-ch {:status nil :body nil}))
-      (sequential? requests) (query-and-join requests result-ch query-opts)
-      :else (make-request requests query-opts result-ch))))
+      (sequential? requests) (query-and-join requests result-ch query-opts http-client)
+      :else (make-request requests query-opts http-client result-ch))))
 
-(defn do-request-url [mappings query-item-data state encoders result-ch query-opts]
+(defn do-request-url [mappings query-item-data state encoders result-ch query-opts http-client]
   (let [url (get-service-endpoint mappings (:from query-item-data))]
-    (perform-request url query-item-data state encoders result-ch query-opts)))
+    (perform-request url query-item-data state encoders result-ch query-opts http-client)))
 
 (defn do-request-data [{[entity & path] :from} state result-ch]
   (go (>! result-ch (-> (query/find-query-item entity (:done state))
                         second
                         (update-in [:body] #(traverse % path))))))
 
-(defn do-request [mappings {:keys [to-do state]} encoders exception-ch {:keys [debugging] :as query-opts}]
+(defn do-request [mappings {:keys [to-do state]} encoders exception-ch {:keys [debugging] :as query-opts} http-client]
   (try+
     (let [[query-item-name query-item-data] to-do
           result-ch (chan 1 (map #(vector query-item-name %)))
           from (:from query-item-data)]
       (cond
-        (keyword? from) (do-request-url mappings query-item-data state encoders result-ch query-opts)
+        (keyword? from) (do-request-url mappings query-item-data state encoders result-ch query-opts http-client)
         (vector? from) (do-request-data query-item-data state result-ch)
         (string? from) (throw+ {:type :invalid-resource-type}))
       result-ch)

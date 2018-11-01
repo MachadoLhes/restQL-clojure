@@ -5,12 +5,14 @@
             [restql.core.transformations.aggregation :as aggregation]
             [restql.core.async-request :as request]
             [restql.core.hooks.core :as hook]
-            [clojure.walk :refer [stringify-keys]]
             [restql.core.api.response-builder :as response-builder]
-            [cheshire.core :as json]
             [restql.core.context :as context]
-            [clojure.core.async :refer [go go-loop <!! <! >! alt! alts! timeout]]
             [restql.parser.core :as parser]
+            [clojure.walk :refer [stringify-keys]]
+            [cheshire.core :as json]
+            [clj-http.conn-mgr :as http-conn]
+            [clj-http.core :as http-core]
+            [clojure.core.async :refer [go go-loop <!! <! >! alt! alts! timeout]]
             [clojure.tools.reader :as edn]))
 
 (defn- wait-until-finished [output-ch query-opts]
@@ -43,7 +45,13 @@
   (into {:timeout        5000
          :global-timeout 30000} query-options))
 
-(defn execute-query-channel [& {:keys [mappings encoders query query-opts]}]
+(defn create-http-client [opts]
+  (http-core/build-async-http-client {}
+    (http-conn/make-reuseable-async-conn-manager {:connect-timeout 5000
+                                                  :so-timeout 5000
+                                                  :default-per-route 100})))
+
+(defn execute-query-channel [& {:keys [mappings encoders query query-opts http-client]}]
   (let [; Before query hook
         _ (hook/execute-hook query-opts :before-query {:query         query
                                                        :query-options query-opts})
@@ -51,9 +59,10 @@
 
         ; Executing query
         do-request (partial request/do-request mappings)
+        hc (if (nil? http-client) (create-http-client {}) http-client)
         query-opts (set-default-query-options query-opts)
         parsed-query (parse-query {:mappings mappings :encoders encoders} query)
-        [output-ch exception-ch] (restql/run do-request parsed-query encoders query-opts)
+        [output-ch exception-ch] (restql/run do-request parsed-query encoders query-opts hc)
         result-ch (wait-until-finished output-ch query-opts)
         parsed-ch (extract-result parsed-query (timeout (:global-timeout query-opts)) exception-ch result-ch)
         return-ch (go
@@ -67,20 +76,24 @@
                       query-result))]
     [return-ch exception-ch]))
 
-(defn execute-parsed-query [& {:keys [mappings encoders query query-opts]}]
-  (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
+(defn execute-parsed-query [& {:keys [mappings encoders query query-opts http-client]}]
+  (let [hc (if (nil? http-client) (create-http-client {}) http-client)
+        [result-ch exception-ch] (execute-query-channel :mappings mappings
                                                         :encoders encoders
                                                         :query query
-                                                        :query-opts query-opts)
+                                                        :query-opts query-opts
+                                                        :http-client hc)
         result (<!! result-ch)]
     result))
 
-(defn execute-parsed-query-async [& {:keys [mappings encoders query query-opts callback]}]
+(defn execute-parsed-query-async [& {:keys [mappings encoders query query-opts http-client callback]}]
   (go
-    (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
+    (let [hc (if (nil? http-client) (create-http-client {}) http-client)
+          [result-ch exception-ch] (execute-query-channel :mappings mappings
                                                           :encoders encoders
                                                           :query query
-                                                          :query-opts query-opts)
+                                                          :query-opts query-opts
+                                                          :http-client hc)
           result (<! result-ch)]
       (callback result))))
 
