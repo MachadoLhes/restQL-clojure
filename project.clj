@@ -16,6 +16,7 @@
                  [cheshire "5.5.0"]
                  [se.haleby/stub-http "0.2.3"]
                  [adzerk/bootlaces "0.1.13"]
+                 [org.apache.httpcomponents/httpasyncclient "4.1.4"]
                  [org.clojure/tools.reader "1.0.5"]]
   :aot [restql.core.api.RestQLJavaApi]
   :profiles {:test {:dependencies [[se.haleby/stub-http "0.2.3"]]}
@@ -24,5 +25,4 @@
   :source-paths ["src/main"]
   :resource-paths ["src/resources"]
   :test-paths ["test/integration" "test/unit"]
-  :main ^:skip-aot restql.main
 )
