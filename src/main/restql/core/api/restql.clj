@@ -43,7 +43,7 @@
   (into {:timeout        5000
          :global-timeout 30000} query-options))
 
-(defn execute-query-channel [& {:keys [mappings encoders query query-opts http-client http-conn-manager]}]
+(defn execute-query-channel [& {:keys [mappings encoders query query-opts]}]
   (let [; Before query hook
         _ (hook/execute-hook query-opts :before-query {:query         query
                                                        :query-options query-opts})
@@ -53,7 +53,7 @@
         do-request (partial request/do-request mappings)
         query-opts (set-default-query-options query-opts)
         parsed-query (parse-query {:mappings mappings :encoders encoders} query)
-        [output-ch exception-ch] (restql/run do-request parsed-query encoders query-opts http-client http-conn-manager)
+        [output-ch exception-ch] (restql/run do-request parsed-query encoders query-opts)
         result-ch (wait-until-finished output-ch query-opts)
         parsed-ch (extract-result parsed-query (timeout (:global-timeout query-opts)) exception-ch result-ch)
         return-ch (go
@@ -67,42 +67,34 @@
                       query-result))]
     [return-ch exception-ch]))
 
-(defn execute-parsed-query [& {:keys [mappings encoders query query-opts http-client http-conn-manager]}]
+(defn execute-parsed-query [& {:keys [mappings encoders query query-opts]}]
   (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
                                                         :encoders encoders
                                                         :query query
-                                                        :query-opts query-opts
-                                                        :http-client http-client
-                                                        :http-conn-manager http-conn-manager)
+                                                        :query-opts query-opts)
         result (<!! result-ch)]
     result))
 
-(defn execute-parsed-query-async [& {:keys [mappings encoders query query-opts http-client http-conn-manager callback]}]
+(defn execute-parsed-query-async [& {:keys [mappings encoders query query-opts callback]}]
   (go
     (let [[result-ch exception-ch] (execute-query-channel :mappings mappings
                                                           :encoders encoders
                                                           :query query
-                                                          :query-opts query-opts
-                                                          :http-client http-client
-                                                          :http-conn-manager http-conn-manager)
+                                                          :query-opts query-opts)
           result (<! result-ch)]
       (callback result))))
 
-(defn execute-query [& {:keys [mappings encoders query params options http-client http-conn-manager]}]
+(defn execute-query [& {:keys [mappings encoders query params options]}]
   (let [parsed-query (parser/parse-query query :context (stringify-keys params))]
     (execute-parsed-query :mappings mappings
                           :encoders encoders
                           :query parsed-query
-                          :query-opts options
-                          :http-client http-client
-                          :http-conn-manager http-conn-manager)))
+                          :query-opts options)))
 
-(defn execute-query-async [& {:keys [mappings encoders query params options http-client http-conn-manager callback]}]
+(defn execute-query-async [& {:keys [mappings encoders query params options callback]}]
   (let [parsed-query (parser/parse-query query :context (stringify-keys params))]
     (execute-parsed-query-async :mappings mappings
                                 :encoders encoders
                                 :query parsed-query
                                 :query-opts options
-                                :http-client http-client
-                                :http-conn-manager http-conn-manager
                                 :callback callback)))
