@@ -11,7 +11,7 @@
                                            java.util.Map
                                            java.util.function.Consumer] Void]])
   (:require [clojure.walk :refer [keywordize-keys stringify-keys]]
-            [restql.core.log :refer [warn]]
+            [clojure.tools.logging :as log]
             [restql.core.api.restql :as restql]
             [cheshire.core :as json]))
 
@@ -25,7 +25,7 @@
         (.setData encoder-obj (java.util.HashMap. (stringify-keys data)))
         (.encode encoder-obj))
       (catch Exception e
-        (warn "Error in encoding class " (.getName java-encoder) ": " (.getMessage e))
+        (log/warn "Error in encoding class " (.getName java-encoder) ": " (.getMessage e))
         ""))))
 
 

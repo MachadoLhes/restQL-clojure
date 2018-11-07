@@ -6,7 +6,7 @@
             [restql.core.async-request-builder :as builder]
             [restql.core.query :as query]
             [restql.core.hooks.core :as hook]
-            [restql.core.log :refer [debug error]]
+            [clojure.tools.logging :as log]
             [restql.core.extractor :refer [traverse]]
             [slingshot.slingshot :refer [try+]]
             [cheshire.core :as json]
@@ -56,7 +56,7 @@
       (assoc base
         :body (json/parse-string parsed true))
       (catch Exception e
-        (error {:message (.getMessage e)}
+        (log/error {:message (.getMessage e)}
                "error parsing request")
         (assoc base
           :parse-error true
@@ -79,7 +79,7 @@
         (let [log-data {:resource (:resource request)
                         :timeout  request-timeout
                         :success  true}]
-          (debug (assoc log-data :success true
+          (log/debug (assoc log-data :success true
                                  :status (:status result)
                                  :time (- (System/currentTimeMillis) time-before))
                                  "Request successful")
@@ -98,7 +98,7 @@
                                                                         (assoc result k v)))
                                                                     {} response))
             (catch Exception e
-               (debug {:message "failure executing hook :after-request"
+               (log/debug {:message "failure executing hook :after-request"
                        :exception e })))
             ; Send response to channel
             (go (>! output-ch response)))))
@@ -112,7 +112,7 @@
               log-data {:resource (:resource request)
                         :timeout  request-timeout
                         :success  false}]
-          (debug (assoc log-data :success false
+          (log/debug (assoc log-data :success false
                                  :status error-status
                                  :time (- (System/currentTimeMillis) time-before))
           (let [error-data (assoc log-data :success false
@@ -122,7 +122,7 @@
                                            :params    (:query-params request)
                                            :time (- (System/currentTimeMillis) time-before)
                                            :errordetail (pr-str (some-> exception :error)))]
-            (error error-data "Request failed")
+            (log/error error-data "Request failed")
             ; After Request hook
             (hook/execute-hook query-opts :after-request error-data)
             ; Send error response to channel
@@ -153,7 +153,7 @@
                           :headers            (:headers request)
                           :time               time-before
                           :body               (:post-body request)}]
-     (debug request-map "Preparing request")
+     (log/debug request-map "Preparing request")
      ; Before Request hook
      (hook/execute-hook query-opts :before-request request-map)
      (d/on-realized (http/request request-map)

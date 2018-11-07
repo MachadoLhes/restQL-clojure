@@ -1,6 +1,5 @@
 (ns restql.core.hooks.core
-  (:require [restql.core.log :as log]
-            [restql.core.log :refer [warn]]
+  (:require [clojure.tools.logging :as log]
             [clojure.walk :refer [stringify-keys keywordize-keys]]))
 
 (defn wrap-java-hook [java-hook]
@@ -10,7 +9,7 @@
         (.setData hook-obj (java.util.HashMap. (stringify-keys data)))
         (.execute hook-obj))
       (catch Exception e
-        (warn "Error running hook class " (pr-str java-hook) ": " (.getMessage e))
+        (log/warn "Error running hook class " (pr-str java-hook) ": " (.getMessage e))
         ""))))
 
 (defn wrap-java-hooks [query-options]

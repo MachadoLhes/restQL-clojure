@@ -1,7 +1,7 @@
 (ns restql.core.async-runner
   (:require [clojure.core.async :as a :refer [go-loop go <! >! chan alt! timeout]]
             [restql.core.query :as query]
-            [restql.core.log :refer [debug info warn error]]
+            [clojure.tools.logging :as log]
             [clojure.set :as s]))
 
 (defn generate-uuid! []
@@ -58,8 +58,8 @@
 (defn log-status [uid resource result]
   (let [status (-> result second :status)]
     (cond
-      (= status 408) (warn {:session uid :resource resource} "Request timed out")
-      (nil? status)  (warn {:session uid :resource resource} "Request aborted")
+      (= status 408) (log/warn {:session uid :resource resource} "Request timed out")
+      (nil? status)  (log/warn {:session uid :resource resource} "Request aborted")
       :else          :no-action)))
 
 (defn make-requests
@@ -74,7 +74,7 @@
         (alt!
           timeout-ch
             ([]
-              (warn {:session uid
+              (log/warn {:session uid
                      :resource from}
                     "Request timed out")
               (>! result-ch [(first (second (first next-req))) {:status 408 :body {:message "timeout"}}]))

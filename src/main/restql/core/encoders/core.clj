@@ -1,6 +1,6 @@
 (ns restql.core.encoders.core
   (:require [restql.core.encoders.json-encoder :as json]
-            [restql.core.log :refer [warn]]
+            [clojure.tools.logging :as log]
             [slingshot.slingshot :refer [throw+ try+]]))
 
 (defn default-encoder [data]
@@ -8,7 +8,7 @@
   (str data)))
 
 (defn set-encoder [data]
-  (warn "use of deprecated encoder :set on" data)
+  (log/warn "use of deprecated encoder :set on" data)
   (->> data
        (map str)
        (into [])
