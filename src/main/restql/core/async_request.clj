@@ -14,9 +14,8 @@
     (:import [java.net URLDecoder URI]))
 
 (defonce client-connection-pool
-  (http/connection-pool
-   {:connections-per-host 100
-    :total-connections 10000}))
+  (http/connection-pool {:connections-per-host 100
+                         :total-connections 10000}))
 
 (defn get-service-endpoint [mappings entity]
   (if (nil? (mappings entity))
@@ -63,13 +62,24 @@
           :body parsed)))))
 
 (defn get-error-status [exception]
-  (cond 
-    (instance? org.apache.http.ConnectionClosedException exception) 408
-    (instance? java.net.SocketTimeoutException exception) 408
+  (cond
+    (instance? clojure.lang.ExceptionInfo exception) 408
+    (instance? aleph.utils.RequestTimeoutException exception) 408
+    (instance? aleph.utils.ConnectionTimeoutException exception) 408
+    (instance? aleph.utils.PoolTimeoutException exception) 408
+    (instance? aleph.utils.ReadTimeoutException exception) 408
+    (instance? aleph.utils.ProxyConnectionTimeoutException exception) 408
     :else 0))
 
 (defn get-error-message [exception]
-  (.getMessage exception))
+  (cond
+    (instance? clojure.lang.ExceptionInfo exception) (.getMessage exception)
+    (instance? aleph.utils.RequestTimeoutException exception) "RequestTimeoutException"
+    (instance? aleph.utils.ConnectionTimeoutException exception) "ConnectionTimeoutException"
+    (instance? aleph.utils.PoolTimeoutException exception) "PoolTimeoutException"
+    (instance? aleph.utils.ReadTimeoutException exception) "ReadTimeoutException"
+    (instance? aleph.utils.ProxyConnectionTimeoutException exception) "ProxyConnectionTimeoutException"
+    :else "Internal error"))
 
 (defn request-respond-callback [result & {:keys [request
                                                  request-timeout
@@ -108,27 +118,34 @@
                                                   time-before
                                                   query-opts
                                                   output-ch]}]
-        (let [error-status (get-error-status exception)
-              log-data {:resource (:resource request)
-                        :timeout  request-timeout
-                        :success  false}]
-          (log/debug (assoc log-data :success false
-                                 :status error-status
-                                 :time (- (System/currentTimeMillis) time-before))
-          (let [error-data (assoc log-data :success false
-                                           :status error-status
-                                           :metadata (some-> request :metadata)
-                                           :url (some-> request :url)
-                                           :params    (:query-params request)
-                                           :time (- (System/currentTimeMillis) time-before)
-                                           :errordetail (pr-str (some-> exception :error)))]
-            (log/error error-data "Request failed")
-            ; After Request hook
-            (hook/execute-hook query-opts :after-request error-data)
-            ; Send error response to channel
-            (go (>! output-ch {:status   error-status
-                               :metadata (:metadata request)
-                               :body     {:message (get-error-message exception)}}))))))
+        (if (and (instance? clojure.lang.ExceptionInfo exception) (:body (.getData exception)))
+          (request-respond-callback (.getData exception)
+                                    :request request
+                                    :request-timeout request-timeout
+                                    :query-opts query-opts
+                                    :time-before time-before
+                                    :output-ch output-ch)
+          (let [error-status (get-error-status exception)
+                log-data {:resource (:resource request)
+                          :timeout  request-timeout
+                          :success  false}]
+            (log/debug (assoc log-data :success false
+                                  :status error-status
+                                  :time (- (System/currentTimeMillis) time-before)))
+            (let [error-data (assoc log-data :success false
+                                            :status error-status
+                                            :metadata (some-> request :metadata)
+                                            :url (some-> request :url)
+                                            :params    (:query-params request)
+                                            :time (- (System/currentTimeMillis) time-before)
+                                            :errordetail (pr-str (some-> exception :error)))]
+              (log/error error-data "Request failed")
+              ; After Request hook
+              (hook/execute-hook query-opts :after-request error-data)
+              ; Send error response to channel
+              (go (>! output-ch {:status   error-status
+                                :metadata (:metadata request)
+                                :body     {:message (get-error-message exception)}}))))))
 
 (defn make-request
   ([request query-opts]
@@ -141,18 +158,19 @@
          request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))
          forward         (some-> query-opts :forward-params)
          forward-params  (if (nil? forward) {} forward)
-         http-method     (:http-method request)
-         post-body       (some-> request :post-body)
          request-map     {:url                (:url request)
                           :request-method     (:http-method request)
                           :content-type       "application/json"
                           :resource           (:resource request)
-                          :request-timeout    request-timeout
                           :connection-timeout request-timeout
+                          :request-timeout    request-timeout
+                          :read-timeout       request-timeout
                           :query-params       (into (:query-params request) forward-params)
                           :headers            (:headers request)
                           :time               time-before
-                          :body               (:post-body request)}]
+                          :body               (some-> request :post-body)
+                          :pool               client-connection-pool
+                          :pool-timeout       request-timeout}]
      (log/debug request-map "Preparing request")
      ; Before Request hook
      (hook/execute-hook query-opts :before-request request-map)
