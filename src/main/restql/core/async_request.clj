@@ -1,7 +1,8 @@
 (ns restql.core.async-request
   (:use [slingshot.slingshot :only [throw+]])
   (:require [clojure.core.async :as a :refer [chan go go-loop >! <!]]
-            [restql.http.apache-client :as http]
+            [aleph.http :as http]
+            [manifold.deferred :as d]
             [restql.core.async-request-builder :as builder]
             [restql.core.query :as query]
             [restql.core.hooks.core :as hook]
@@ -11,6 +12,11 @@
             [cheshire.core :as json]
             [clojure.walk :refer [stringify-keys keywordize-keys]])
     (:import [java.net URLDecoder URI]))
+
+(defonce client-connection-pool
+  (http/connection-pool
+   {:connections-per-host 100
+    :total-connections 10000}))
 
 (defn get-service-endpoint [mappings entity]
   (if (nil? (mappings entity))
@@ -130,40 +136,39 @@
      (make-request request query-opts output-ch)
      output-ch))
   ([request query-opts output-ch]
-   (let [request (parse-query-params request)
-         time-before (System/currentTimeMillis)
+   (let [request         (parse-query-params request)
+         time-before     (System/currentTimeMillis)
          request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))
-         forward (some-> query-opts :forward-params)
-         forward-params (if (nil? forward) {} forward)
+         forward         (some-> query-opts :forward-params)
+         forward-params  (if (nil? forward) {} forward)
          http-method     (:http-method request)
-         request-map {:url                (:url request)
-                      :method             (:http-method request)
-                      :content-type       "application/json"
-                      :resource           (:resource request)
-                      :socket-timeout     request-timeout
-                      :conn-timeout       request-timeout
-                      :query-params       (into (:query-params request) forward-params)
-                      :headers            (:headers request)
-                      :time               time-before
-                      :body               (:post-body request)}
-         post-body (some-> request :post-body)]
+         post-body       (some-> request :post-body)
+         request-map     {:url                (:url request)
+                          :request-method     (:http-method request)
+                          :content-type       "application/json"
+                          :resource           (:resource request)
+                          :request-timeout    request-timeout
+                          :connection-timeout request-timeout
+                          :query-params       (into (:query-params request) forward-params)
+                          :headers            (:headers request)
+                          :time               time-before
+                          :body               (:post-body request)}]
      (debug request-map "Preparing request")
      ; Before Request hook
      (hook/execute-hook query-opts :before-request request-map)
-     (http/request request-map
+     (d/on-realized (http/request request-map)
                     #(request-respond-callback %
-                                                :request request
-                                                :request-timeout request-timeout
-                                                :query-opts query-opts
-                                                :time-before time-before
-                                                :output-ch output-ch)
-                    #(request-error-callback %
                                               :request request
                                               :request-timeout request-timeout
                                               :query-opts query-opts
                                               :time-before time-before
                                               :output-ch output-ch)
-                    nil))))
+                    #(request-error-callback %
+                                              :request request
+                                              :request-timeout request-timeout
+                                              :query-opts query-opts
+                                              :time-before time-before
+                                              :output-ch output-ch)))))
 
 (defn query-and-join [requests output-ch query-opts]
   (go-loop [[ch & others] (map #(make-request % query-opts) requests)
