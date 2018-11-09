@@ -10,12 +10,26 @@
             [restql.core.extractor :refer [traverse]]
             [slingshot.slingshot :refer [try+]]
             [cheshire.core :as json]
+            [environ.core :refer [env]]
             [clojure.walk :refer [stringify-keys keywordize-keys]])
     (:import [java.net URLDecoder URI]))
 
+(defn get-pool-connections-per-host
+  [default]
+  (if (contains? env :pool-connections-per-host) (read-string (env :pool-connections-per-host)) default))
+
+(defn get-pool-total-connections
+  [default]
+  (if (contains? env :pool-total-connections) (read-string (env :pool-total-connections)) default))
+
+(defn get-pool-max-queue-size
+  [default]
+  (if (contains? env :pool-max-queue-size) (read-string (env :pool-max-queue-size)) default))
+
 (defonce client-connection-pool
-  (http/connection-pool {:connections-per-host 100
-                         :total-connections 10000}))
+  (http/connection-pool {:connections-per-host (get-pool-connections-per-host 100)
+                         :total-connections (get-pool-total-connections 10000)
+                         :max-queue-size (get-pool-max-queue-size 65536)}))
 
 (defn get-service-endpoint [mappings entity]
   (if (nil? (mappings entity))

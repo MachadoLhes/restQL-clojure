@@ -6,6 +6,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.4.1"]
                  [aleph "0.4.6"]
+                 [environ "1.0.0"]
                  [ring/ring-codec "1.0.1"]
                  [slingshot "0.12.2"]
                  [instaparse "1.4.8"]
