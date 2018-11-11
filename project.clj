@@ -6,7 +6,7 @@
   :dependencies [[org.clojure/clojure "1.8.0"]
                  [org.clojure/tools.logging "0.4.1"]
                  [aleph "0.4.6"]
-                 [ring/ring-codec "1.0.1"]
+                 [ring/ring-codec "1.1.0"]
                  [slingshot "0.12.2"]
                  [instaparse "1.4.8"]
                  [prismatic/schema "1.1.7"]
