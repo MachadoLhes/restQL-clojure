@@ -7,7 +7,7 @@
                  [org.clojure/tools.logging "0.4.1"]
                  [aleph "0.4.6"]
                  [environ "1.0.0"]
-                 [ring/ring-codec "1.1.0"]
+                 [ring/ring-codec "1.1.0"] 
                  [slingshot "0.12.2"]
                  [instaparse "1.4.8"]
                  [prismatic/schema "1.1.7"]
