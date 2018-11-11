@@ -7,7 +7,7 @@
                  [org.clojure/tools.logging "0.4.1"]
                  [aleph "0.4.6"]
                  [environ "1.0.0"]
-                 [ring/ring-codec "1.1.0"] 
+                 [ring/ring-codec "1.1.0"]
                  [slingshot "0.12.2"]
                  [instaparse "1.4.8"]
                  [prismatic/schema "1.1.7"]
@@ -16,7 +16,6 @@
                  [cheshire "5.5.0"]
                  [se.haleby/stub-http "0.2.3"]
                  [adzerk/bootlaces "0.1.13"]
-                 [org.apache.httpcomponents/httpasyncclient "4.1.4"]
                  [org.clojure/tools.reader "1.0.5"]]
   :aot [restql.core.api.RestQLJavaApi]
   :profiles {:test {:dependencies [[se.haleby/stub-http "0.2.3"]]}
