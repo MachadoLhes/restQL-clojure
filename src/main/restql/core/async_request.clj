@@ -10,12 +10,26 @@
             [restql.core.extractor :refer [traverse]]
             [slingshot.slingshot :refer [try+]]
             [cheshire.core :as json]
+            [environ.core :refer [env]]
             [clojure.walk :refer [stringify-keys keywordize-keys]])
     (:import [java.net URLDecoder URI]))
 
+(defn get-pool-connections-per-host
+  [default]
+  (if (contains? env :pool-connections-per-host) (read-string (env :pool-connections-per-host)) default))
+
+(defn get-pool-total-connections
+  [default]
+  (if (contains? env :pool-total-connections) (read-string (env :pool-total-connections)) default))
+
+(defn get-pool-max-queue-size
+  [default]
+  (if (contains? env :pool-max-queue-size) (read-string (env :pool-max-queue-size)) default))
+
 (defonce client-connection-pool
-  (http/connection-pool {:connections-per-host 100
-                         :total-connections 10000}))
+  (http/connection-pool {:connections-per-host (get-pool-connections-per-host 100)
+                         :total-connections (get-pool-total-connections 10000)
+                         :max-queue-size (get-pool-max-queue-size 65536)}))
 
 (defn get-service-endpoint [mappings entity]
   (if (nil? (mappings entity))
@@ -63,7 +77,8 @@
 
 (defn get-error-status [exception]
   (cond
-    (instance? clojure.lang.ExceptionInfo exception) 408
+    (instance? clojure.lang.ExceptionInfo exception) 400
+    (instance? java.lang.IllegalArgumentException exception) 400
     (instance? aleph.utils.RequestTimeoutException exception) 408
     (instance? aleph.utils.ConnectionTimeoutException exception) 408
     (instance? aleph.utils.PoolTimeoutException exception) 408
@@ -73,7 +88,8 @@
 
 (defn get-error-message [exception]
   (cond
-    (instance? clojure.lang.ExceptionInfo exception) (.getMessage exception)
+    (instance? clojure.lang.ExceptionInfo exception) (str "Error: " (.getMessage exception))
+    (instance? java.lang.IllegalArgumentException exception) (str "Error: "(.getMessage exception))
     (instance? aleph.utils.RequestTimeoutException exception) "RequestTimeoutException"
     (instance? aleph.utils.ConnectionTimeoutException exception) "ConnectionTimeoutException"
     (instance? aleph.utils.PoolTimeoutException exception) "PoolTimeoutException"
@@ -171,22 +187,24 @@
                           :body               (some-> request :post-body)
                           :pool               client-connection-pool
                           :pool-timeout       request-timeout}]
+     (println (str "request" request))
      (log/debug request-map "Preparing request")
      ; Before Request hook
      (hook/execute-hook query-opts :before-request request-map)
-     (d/on-realized (http/request request-map)
-                    #(request-respond-callback %
-                                              :request request
-                                              :request-timeout request-timeout
-                                              :query-opts query-opts
-                                              :time-before time-before
-                                              :output-ch output-ch)
-                    #(request-error-callback %
-                                              :request request
-                                              :request-timeout request-timeout
-                                              :query-opts query-opts
-                                              :time-before time-before
-                                              :output-ch output-ch)))))
+     (-> (http/request request-map)
+         (d/chain #(request-respond-callback %
+                                             :request request
+                                             :request-timeout request-timeout
+                                             :query-opts query-opts
+                                             :time-before time-before
+                                             :output-ch output-ch))
+         (d/catch Exception #(request-error-callback %
+                                                     :request request
+                                                     :request-timeout request-timeout
+                                                     :query-opts query-opts
+                                                     :time-before time-before
+                                                     :output-ch output-ch))
+         (d/success! 1)))))
 
 (defn query-and-join [requests output-ch query-opts]
   (go-loop [[ch & others] (map #(make-request % query-opts) requests)
