@@ -77,8 +77,8 @@
 
 (defn get-error-status [exception]
   (cond
-    (instance? clojure.lang.ExceptionInfo exception) 400
     (instance? java.lang.IllegalArgumentException exception) 400
+    (instance? clojure.lang.ExceptionInfo exception) 408
     (instance? aleph.utils.RequestTimeoutException exception) 408
     (instance? aleph.utils.ConnectionTimeoutException exception) 408
     (instance? aleph.utils.PoolTimeoutException exception) 408
