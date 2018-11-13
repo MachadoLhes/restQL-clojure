@@ -97,11 +97,19 @@
     (instance? aleph.utils.ProxyConnectionTimeoutException exception) "ProxyConnectionTimeoutException"
     :else "Internal error"))
 
+(defn response-to-params [response]
+  (reduce-kv (fn [result k v]
+                (if (= k :body)
+                  (assoc result k (json/generate-string v))
+                  (assoc result k v)))
+              {} response))
+
 (defn request-respond-callback [result & {:keys [request
                                                  request-timeout
                                                  time-before
                                                  query-opts
-                                                 output-ch]}]
+                                                 output-ch
+                                                 before-hook-ctx]}]
         (let [log-data {:resource (:resource request)
                         :timeout  request-timeout
                         :success  true}]
@@ -115,17 +123,9 @@
                                                    :url       (:url request)
                                                    :params    (:query-params request)
                                                    :timeout   request-timeout
-                                                   :time      (- (System/currentTimeMillis) time-before)})]
-            ; After Request hook
-            (try
-              (hook/execute-hook query-opts :after-request (reduce-kv (fn [result k v]
-                                                                      (if (= k :body)
-                                                                        (assoc result k (json/generate-string v))
-                                                                        (assoc result k v)))
-                                                                    {} response))
-            (catch Exception e
-               (log/debug {:message "failure executing hook :after-request"
-                       :exception e })))
+                                                   :time      (- (System/currentTimeMillis) time-before)})
+                ; After Request hook
+                _ (hook/execute-hook query-opts :after-request (conj before-hook-ctx (response-to-params response)))]
             ; Send response to channel
             (go (>! output-ch response)))))
 
@@ -133,14 +133,16 @@
                                                   request-timeout
                                                   time-before
                                                   query-opts
-                                                  output-ch]}]
+                                                  output-ch
+                                                  before-hook-ctx]}]
         (if (and (instance? clojure.lang.ExceptionInfo exception) (:body (.getData exception)))
           (request-respond-callback (.getData exception)
                                     :request request
                                     :request-timeout request-timeout
                                     :query-opts query-opts
                                     :time-before time-before
-                                    :output-ch output-ch)
+                                    :output-ch output-ch
+                                    :before-hook-ctx before-hook-ctx)
           (let [error-status (get-error-status exception)
                 log-data {:resource (:resource request)
                           :timeout  request-timeout
@@ -154,10 +156,10 @@
                                             :url (some-> request :url)
                                             :params    (:query-params request)
                                             :time (- (System/currentTimeMillis) time-before)
-                                            :errordetail (pr-str (some-> exception :error)))]
+                                            :errordetail (pr-str (some-> exception :error)))
+                  ; After Request hook
+                  _ (hook/execute-hook query-opts :after-request (conj error-data before-hook-ctx))]
               (log/error error-data "Request failed")
-              ; After Request hook
-              (hook/execute-hook query-opts :after-request error-data)
               ; Send error response to channel
               (go (>! output-ch {:status   error-status
                                 :metadata (:metadata request)
@@ -186,24 +188,26 @@
                           :time               time-before
                           :body               (some-> request :post-body)
                           :pool               client-connection-pool
-                          :pool-timeout       request-timeout}]
+                          :pool-timeout       request-timeout}
+         ; Before Request hook
+         before-hook-ctx (hook/execute-hook query-opts :before-request request-map)]
      (println (str "request" request))
      (log/debug request-map "Preparing request")
-     ; Before Request hook
-     (hook/execute-hook query-opts :before-request request-map)
      (-> (http/request request-map)
          (d/chain #(request-respond-callback %
                                              :request request
                                              :request-timeout request-timeout
                                              :query-opts query-opts
                                              :time-before time-before
-                                             :output-ch output-ch))
+                                             :output-ch output-ch
+                                             :before-hoot-ctx before-hook-ctx))
          (d/catch Exception #(request-error-callback %
                                                      :request request
                                                      :request-timeout request-timeout
                                                      :query-opts query-opts
                                                      :time-before time-before
-                                                     :output-ch output-ch))
+                                                     :output-ch output-ch
+                                                     :before-hook-ctx before-hook-ctx))
          (d/success! 1)))))
 
 (defn query-and-join [requests output-ch query-opts]

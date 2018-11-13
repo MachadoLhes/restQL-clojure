@@ -28,13 +28,29 @@
   (into (wrap-clojure-hooks query-options)
         (wrap-java-hooks query-options)))
 
+(defn execute-hook-fn [hook-function query-options param-map]
+  (try
+    (hook-function (assoc param-map :query-options query-options))
+     (catch Exception e {}))
+)
+
+(defn conj-context [context1 context2]
+  (if (map? context2)
+    (conj context1 context2)
+    context1
+  )
+)
 
 (defn execute-hook [query-options hook-name param-map]
   (let [hooks (concat-hooks query-options)]
     (if (contains? hooks hook-name)
-      (let [hook-fns (hooks hook-name)]
-        (doseq [hook-fn hook-fns]
-          (hook-fn (assoc param-map :query-options query-options)))))))
+        (->> (map #(execute-hook-fn % query-options param-map) (hooks hook-name))
+             (reduce conj-context {})
+             (doall)
+        )
+    )
+  )
+)
 
 (comment
   "
