@@ -5,7 +5,7 @@
             [manifold.deferred :as d]
             [restql.core.async-request-builder :as builder]
             [restql.core.query :as query]
-            [restql.core.hooks.core :as hook]
+            [restql.hooks.core :as hook]
             [clojure.tools.logging :as log]
             [restql.core.extractor :refer [traverse]]
             [slingshot.slingshot :refer [try+]]
@@ -29,7 +29,8 @@
 (defonce client-connection-pool
   (http/connection-pool {:connections-per-host (get-pool-connections-per-host 100)
                          :total-connections (get-pool-total-connections 10000)
-                         :max-queue-size (get-pool-max-queue-size 65536)}))
+                         :max-queue-size (get-pool-max-queue-size 65536)
+                         :stats-callback #(hook/execute-hook :stats-conn-pool (assoc {} :stats %))}))
 
 (defn get-service-endpoint [mappings entity]
   (if (nil? (mappings entity))
@@ -125,7 +126,7 @@
                                                    :timeout   request-timeout
                                                    :time      (- (System/currentTimeMillis) time-before)})
                 ; After Request hook
-                _ (hook/execute-hook query-opts :after-request (conj before-hook-ctx (response-to-params response)))]
+                _ (hook/execute-hook :after-request (conj before-hook-ctx (response-to-params response)))]
             ; Send response to channel
             (go (>! output-ch response)))))
 
@@ -158,7 +159,7 @@
                                             :time (- (System/currentTimeMillis) time-before)
                                             :errordetail (pr-str (some-> exception :error)))
                   ; After Request hook
-                  _ (hook/execute-hook query-opts :after-request (conj error-data before-hook-ctx))]
+                  _ (hook/execute-hook :after-request (conj error-data before-hook-ctx))]
               (log/error error-data "Request failed")
               ; Send error response to channel
               (go (>! output-ch {:status   error-status
@@ -190,7 +191,7 @@
                           :pool               client-connection-pool
                           :pool-timeout       request-timeout}
          ; Before Request hook
-         before-hook-ctx (hook/execute-hook query-opts :before-request request-map)]
+         before-hook-ctx (hook/execute-hook :before-request request-map)]
      (log/debug request-map "Preparing request")
      (-> (http/request request-map)
          (d/chain #(request-respond-callback %

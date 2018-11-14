@@ -4,7 +4,7 @@
             [restql.core.transformations.select :refer [select]]
             [restql.core.transformations.aggregation :as aggregation]
             [restql.core.async-request :as request]
-            [restql.core.hooks.core :as hook]
+            [restql.hooks.core :as hook]
             [restql.core.api.response-builder :as response-builder]
             [restql.core.context :as context]
             [restql.parser.core :as parser]
@@ -45,8 +45,8 @@
 
 (defn execute-query-channel [& {:keys [mappings encoders query query-opts]}]
   (let [; Before query hook
-        _ (hook/execute-hook query-opts :before-query {:query         query
-                                                       :query-options query-opts})
+        _ (hook/execute-hook :before-query {:query query
+                                            :query-options query-opts})
         time-before (System/currentTimeMillis)
 
         ; Executing query
@@ -60,10 +60,10 @@
                     (let [[query-result ch] (alts! [parsed-ch exception-ch])
 
                           ; After query hook
-                          _ (hook/execute-hook query-opts :after-query {:query-options query-opts
-                                                                        :query         query
-                                                                        :result        query-result
-                                                                        :response-time (- (System/currentTimeMillis) time-before)})]
+                          _ (hook/execute-hook :after-query {:query-options query-opts
+                                                             :query         query
+                                                             :result        query-result
+                                                             :response-time (- (System/currentTimeMillis) time-before)})]
                       query-result))]
     [return-ch exception-ch]))
 
