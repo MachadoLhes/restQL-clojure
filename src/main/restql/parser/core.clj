@@ -56,7 +56,7 @@
   ":select #{:id [:lines #{:id :sku}]}"
 
   (try
-    (parse-query "from cart only lines.id -> match(\"abc\"), lines.sku" :context {})
+    (parse-query "from cart only lines.id |> match(\"abc\"), lines.sku" :context {})
     (catch Exception e
       e))
 

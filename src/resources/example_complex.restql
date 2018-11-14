@@ -2,7 +2,7 @@ from product as product
     with
         product.id = "555321"
     only
-        name -> matches("prefix")
+        name |> matches("prefix")
         *
 
 from productdescription as description
@@ -12,7 +12,7 @@ from productdescription as description
 from installment as installment
     with
         item.id = product.id
-        tag = product.tag -> flatten
+        tag = product.tag |> flatten
         payment.method = "CREDIT_CARD"
         limit = 1
-        total = description.prices -> flatten
+        total = description.prices |> flatten

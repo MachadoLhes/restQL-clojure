@@ -101,11 +101,11 @@
            [:hero {:from :heroes :with {:id [:player :id]} :method :get}])))
 
   (testing "Testing query params one chained parameter and metadata"
-    (is (= (parse-query "from heroes as hero params id = player.id -> json")
+    (is (= (parse-query "from heroes as hero params id = player.id |> json")
            [:hero {:from :heroes :with {:id ^{:encoder :json} [:player :id]} :method :get}])))
 
   (testing "Testing query params one chained parameter and metadata"
-    (is (= (pr-str (parse-query "from heroes as hero params id = player.id -> encoder(\"json\", \"pretty\")"))
+    (is (= (pr-str (parse-query "from heroes as hero params id = player.id |> encoder(\"json\", \"pretty\")"))
            (pr-str [:hero {:from :heroes :with {:id ^{:encoder :json :args ["pretty"]} [:player :id]} :method :get}]))))
 
   (testing "Testing query params headers"
@@ -133,15 +133,15 @@
            [:hero {:from :heroes :with {:weapon.id [:weapon :id]} :method :get}])))
 
   (testing "Testing query params only selection and a filter"
-    (is (= (parse-query "from heroes as hero params id = 1 only id, name -> matches(\"foo\")")
+    (is (= (parse-query "from heroes as hero params id = 1 only id, name |> matches(\"foo\")")
            [:hero {:from :heroes :with {:id 1} :select #{:id [:name {:matches "foo"}]} :method :get}])))
 
   (testing "Testing query params only selection and a filter params wildcard"
-    (is (= (parse-query "from heroes as hero params id = 1 only id -> equals(1), *")
+    (is (= (parse-query "from heroes as hero params id = 1 only id |> equals(1), *")
            [:hero {:from :heroes :with {:id 1} :select #{[:id {:equals 1}] :*} :method :get}])))
 
   (testing "Testing filter with variable"
-    (is (= (parse-query "from heroes as hero params id = 1 only id, name -> matches($name)" :context {"name" "Hero"})
+    (is (= (parse-query "from heroes as hero params id = 1 only id, name |> matches($name)" :context {"name" "Hero"})
            [:hero {:from :heroes :with {:id 1} :select #{:id [:name {:matches "Hero"}]} :method :get}])))
 
   (testing "Testing full featured query"
@@ -150,7 +150,7 @@
                                                  headers
                                                      content-type = \"application/json\"
                                                  with
-                                                     limit = product.id -> flatten -> json
+                                                     limit = product.id |> flatten |> json
                                                      fields = [\"rating\", \"tags\", \"images\", \"groups\"]
                                                  only 
                                                      id, name, cep, phone"))
