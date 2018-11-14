@@ -105,7 +105,6 @@
     {"/hero" (hero-route)}
     {"/sideck" (assoc (sidekick-route) :delay 200)}
     (let [result (execute-query uri "from hero\nfrom sidekick timeout 100 with id = hero.sidekickId ignore-errors")]
-      (println (str "test result >>> " result))
       (is (= 200 (get-in result [:hero :details :status])))
       (is (= 408 (get-in result [:sidekick :details :status])))
     )

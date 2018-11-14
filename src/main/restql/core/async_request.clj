@@ -191,7 +191,6 @@
                           :pool-timeout       request-timeout}
          ; Before Request hook
          before-hook-ctx (hook/execute-hook query-opts :before-request request-map)]
-     (println (str "request" request))
      (log/debug request-map "Preparing request")
      (-> (http/request request-map)
          (d/chain #(request-respond-callback %

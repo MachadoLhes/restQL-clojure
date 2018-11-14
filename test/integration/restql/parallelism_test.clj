@@ -23,7 +23,6 @@
         {"/hero"     (hero-route)
          "/sidekick" (sidekick-route)}
         (let [result (execute-query uri "from hero\nfrom sidekick with id = hero.sidekickId")]
-            (println result)
             (is (= 200 (get-in result [:hero :details :status])))
             ;(is (= 200 (get-in result [:sidekick :details :status])))
         )
