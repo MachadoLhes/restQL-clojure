@@ -40,8 +40,8 @@
   (context/get-encoders))
 
 (defn- set-default-query-options [query-options]
-  (into {:timeout        5000
-         :global-timeout 30000} query-options))
+  (into {:timeout        1000
+         :global-timeout 5000} query-options))
 
 (defn execute-query-channel [& {:keys [mappings encoders query query-opts]}]
   (let [; Before query hook
