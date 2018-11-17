@@ -120,6 +120,7 @@
                                  "Request successful")
           (let [response (convert-response result {:debugging (:debugging query-opts)
                                                    :metadata  (:metadata request)
+                                                   :method    (:http-method request)
                                                    :resource  (:resource request)
                                                    :url       (:url request)
                                                    :params    (:query-params request)
@@ -138,33 +139,34 @@
                                                   before-hook-ctx]}]
         (if (and (instance? clojure.lang.ExceptionInfo exception) (:body (.getData exception)))
           (request-respond-callback (.getData exception)
-                                    :request request
+                                    :request         request
                                     :request-timeout request-timeout
-                                    :query-opts query-opts
-                                    :time-before time-before
-                                    :output-ch output-ch
+                                    :query-opts      query-opts
+                                    :time-before     time-before
+                                    :output-ch       output-ch
                                     :before-hook-ctx before-hook-ctx)
           (let [error-status (get-error-status exception)
                 log-data {:resource (:resource request)
                           :timeout  request-timeout
                           :success  false}]
             (log/debug (assoc log-data :success false
-                                  :status error-status
-                                  :time (- (System/currentTimeMillis) time-before)))
+                                       :status error-status
+                                       :time (- (System/currentTimeMillis) time-before)))
             (let [error-data (assoc log-data :success false
-                                            :status error-status
-                                            :metadata (some-> request :metadata)
-                                            :url (some-> request :url)
-                                            :params    (:query-params request)
-                                            :time (- (System/currentTimeMillis) time-before)
-                                            :errordetail (pr-str (some-> exception :error)))
+                                             :status error-status
+                                             :metadata (some-> request :metadata)
+                                             :method (:http-method request)
+                                             :url (some-> request :url)
+                                             :params    (:query-params request)
+                                             :response-time (- (System/currentTimeMillis) time-before)
+                                             :errordetail (pr-str (some-> exception :error)))
                   ; After Request hook
                   _ (hook/execute-hook :after-request (conj error-data before-hook-ctx))]
               (log/error error-data "Request failed")
               ; Send error response to channel
               (go (>! output-ch {:status   error-status
-                                :metadata (:metadata request)
-                                :body     {:message (get-error-message exception)}}))))))
+                                 :metadata (:metadata request)
+                                 :body     {:message (get-error-message exception)}}))))))
 
 (defn make-request
   ([request query-opts]
