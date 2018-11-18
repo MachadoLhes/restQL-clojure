@@ -11,7 +11,14 @@
             [clojure.walk :refer [stringify-keys]]
             [cheshire.core :as json]
             [clojure.core.async :refer [go go-loop <!! <! >! alt! alts! timeout]]
-            [clojure.tools.reader :as edn]))
+            [clojure.tools.reader :as edn]
+            [environ.core :refer [env]]))
+
+(def default-values {:query-resource-timeout 5000
+                     :query-global-timeout 30000})
+
+(defn get-default [key]
+  (if (contains? env key) (read-string (env key)) (default-values key)))
 
 (defn- wait-until-finished [output-ch query-opts]
   (go-loop [state (<! output-ch)]
@@ -40,8 +47,8 @@
   (context/get-encoders))
 
 (defn- set-default-query-options [query-options]
-  (into {:timeout        1000
-         :global-timeout 5000} query-options))
+  (into {:timeout        (get-default :query-resource-timeout)
+         :global-timeout (get-default :query-global-timeout)} query-options))
 
 (defn execute-query-channel [& {:keys [mappings encoders query query-opts]}]
   (let [; Before query hook

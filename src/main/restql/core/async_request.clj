@@ -14,23 +14,18 @@
             [clojure.walk :refer [stringify-keys keywordize-keys]])
     (:import [java.net URLDecoder URI]))
 
-(defn get-pool-connections-per-host
-  [default]
-  (if (contains? env :pool-connections-per-host) (read-string (env :pool-connections-per-host)) default))
+(def default-values {:pool-connections-per-host 100
+                     :pool-total-connections 10000
+                     :pool-max-queue-size 65536})
 
-(defn get-pool-total-connections
-  [default]
-  (if (contains? env :pool-total-connections) (read-string (env :pool-total-connections)) default))
-
-(defn get-pool-max-queue-size
-  [default]
-  (if (contains? env :pool-max-queue-size) (read-string (env :pool-max-queue-size)) default))
+(defn get-default [key]
+  (if (contains? env key) (read-string (env key)) (default-values key)))
 
 (defonce client-connection-pool
-  (http/connection-pool {:connections-per-host (get-pool-connections-per-host 100)
-                         :total-connections (get-pool-total-connections 10000)
-                         :max-queue-size (get-pool-max-queue-size 65536)
-                         :stats-callback #(hook/execute-hook :stats-conn-pool (assoc {} :stats %))}))
+  (http/connection-pool {:connections-per-host (get-default :pool-connections-per-host)
+                         :total-connections    (get-default :pool-total-connections)
+                         :max-queue-size       (get-default :pool-max-queue-size)
+                         :stats-callback       #(hook/execute-hook :stats-conn-pool (assoc {} :stats %))}))
 
 (defn get-service-endpoint [mappings entity]
   (if (nil? (mappings entity))
@@ -120,14 +115,13 @@
                                  "Request successful")
           (let [response (convert-response result {:debugging (:debugging query-opts)
                                                    :metadata  (:metadata request)
-                                                   :method    (:http-method request)
                                                    :resource  (:resource request)
                                                    :url       (:url request)
                                                    :params    (:query-params request)
                                                    :timeout   request-timeout
                                                    :time      (- (System/currentTimeMillis) time-before)})
                 ; After Request hook
-                _ (hook/execute-hook :after-request (conj before-hook-ctx (response-to-params response)))]
+                _ (hook/execute-hook :after-request (conj before-hook-ctx request (response-to-params response)))]
             ; Send response to channel
             (go (>! output-ch response)))))
 
@@ -161,7 +155,7 @@
                                              :response-time (- (System/currentTimeMillis) time-before)
                                              :errordetail (pr-str (some-> exception :error)))
                   ; After Request hook
-                  _ (hook/execute-hook :after-request (conj error-data before-hook-ctx))]
+                  _ (hook/execute-hook :after-request (conj before-hook-ctx request error-data))]
               (log/error error-data "Request failed")
               ; Send error response to channel
               (go (>! output-ch {:status   error-status
