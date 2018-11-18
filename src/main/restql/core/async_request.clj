@@ -93,6 +93,11 @@
     (instance? aleph.utils.ProxyConnectionTimeoutException exception) "ProxyConnectionTimeoutException"
     :else "Internal error"))
 
+(defn get-after-ctx [{:keys [ctx status response-time request result]}]
+  (merge {} ctx request result {:status status
+                                :response-time response-time})
+)
+
 (defn response-to-params [response]
   (reduce-kv (fn [result k v]
                 (if (= k :body)
@@ -121,7 +126,11 @@
                                                    :timeout   request-timeout
                                                    :time      (- (System/currentTimeMillis) time-before)})
                 ; After Request hook
-                _ (hook/execute-hook :after-request (conj before-hook-ctx request (response-to-params response)))]
+                _ (hook/execute-hook :after-request (get-after-ctx {:ctx before-hook-ctx
+                                                                    :status (:status result)
+                                                                    :response-time (- (System/currentTimeMillis) time-before)
+                                                                    :request request
+                                                                    :result result}))]
             ; Send response to channel
             (go (>! output-ch response)))))
 
@@ -155,7 +164,11 @@
                                              :response-time (- (System/currentTimeMillis) time-before)
                                              :errordetail (pr-str (some-> exception :error)))
                   ; After Request hook
-                  _ (hook/execute-hook :after-request (conj before-hook-ctx request error-data))]
+                  _ (hook/execute-hook :after-request (get-after-ctx {:ctx before-hook-ctx
+                                                                      :status error-status
+                                                                      :response-time (- (System/currentTimeMillis) time-before)
+                                                                      :request request
+                                                                      :result error-data}))]
               (log/error error-data "Request failed")
               ; Send error response to channel
               (go (>! output-ch {:status   error-status
