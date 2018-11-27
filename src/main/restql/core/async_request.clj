@@ -209,7 +209,7 @@
                                              :query-opts query-opts
                                              :time-before time-before
                                              :output-ch output-ch
-                                             :before-hoot-ctx before-hook-ctx))
+                                             :before-hook-ctx before-hook-ctx))
          (d/catch Exception #(request-error-callback %
                                                      :request request
                                                      :request-timeout request-timeout
