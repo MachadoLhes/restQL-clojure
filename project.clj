@@ -19,7 +19,8 @@
   :aot [restql.core.api.RestQLJavaApi]
   :profiles {:test {:dependencies [[se.haleby/stub-http "0.2.3"]]}
              :uberjar { :aot :all }}
-  :plugins [[lein-cloverage "1.0.7-SNAPSHOT"]]
+  :plugins [[lein-cloverage "1.0.7-SNAPSHOT"]
+            [lein-ancient "0.6.15"]]
   :source-paths ["src/main"]
   :resource-paths ["src/resources"]
   :test-paths ["test/integration" "test/unit"]
