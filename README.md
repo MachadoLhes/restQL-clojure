@@ -1,10 +1,10 @@
-[![Build Status](https://travis-ci.org/B2W-BIT/restQL-core.svg?branch=master)](https://travis-ci.org/B2W-BIT/restQL-core)
-[![codecov.io](https://codecov.io/github/B2W-BIT/restQL-core/coverage.svg?branch=master)](https://codecov.io/github/B2W-BIT/restQL-core?branch=master)
-[![Dependencies Status](https://jarkeeper.com/B2W-BIT/restQL-core/status.svg)](https://jarkeeper.com/B2W-BIT/restQL-core)
+[![Build Status](https://travis-ci.org/B2W-BIT/restQL-clojure.svg?branch=master)](https://travis-ci.org/B2W-BIT/restQL-clojure)
+[![codecov.io](https://codecov.io/github/B2W-BIT/restQL-clojure/coverage.svg?branch=master)](https://codecov.io/github/B2W-BIT/restQL-clojure?branch=master)
+[![Dependencies Status](https://jarkeeper.com/B2W-BIT/restQL-clojure/status.svg)](https://jarkeeper.com/B2W-BIT/restQL-clojure)
 
-# restQL-Core
+# restQL-clojure
 
-restQL-core allows you to run restQL queries directly from JVM applications, making easy to fetch information from multiple services in the most efficient manner. To query using HTTP calls from any client check [restQL-server](https://github.com/B2W-BIT/restQL-server):
+restQL-clojure allows you to run restQL queries directly from JVM applications, making easy to fetch information from multiple services in the most efficient manner. To query using HTTP calls from any client check [restQL-http](https://github.com/B2W-BIT/restQL-http):
 
 ```
 from search
@@ -21,11 +21,11 @@ Links
 * [@restQLBR](https://t.me/restQLBR): Brazilian restQL Telegram Group
 * [restql.b2w.io](http://restql.b2w.io): Project home page,
 * [game.b2w.io](http://game.b2w.io): A game developed to teach the basics of restQL language,
-* [restQL-server](https://github.com/B2W-BIT/restQL-server): The main restQL repo. It spin up a restQL-server that will listen for queries. Can be used by any language/project.
-* [restQL-core-java](https://github.com/B2W-BIT/restQL-core-java): If you want to embed restQL directly into your Java application,
+* [restQL-http](https://github.com/B2W-BIT/restQL-http): The main restQL repo. It spin up a restQL-http that will listen for queries. Can be used by any language/project.
+* [restQL-java](https://github.com/B2W-BIT/restQL-java): If you want to embed restQL directly into your Java application,
 * [restQL-manager](https://github.com/B2W-BIT/restQL-manager): To manage saved queries and resources endpoints. restQL-manager requires a MongoDB instance.
 * [Tackling microservice query complexity](https://medium.com/b2w-engineering/restql-tackling-microservice-query-complexity-27def5d09b40): Project motivation and history
-* [Wiki](https://github.com/B2W-BIT/restQL-server/wiki/RestQL-Query-Language): Project documentation.
+* [Wiki](https://github.com/B2W-BIT/restQL-http/wiki/RestQL-Query-Language): Project documentation.
 
 Who're talking about restQL
 
