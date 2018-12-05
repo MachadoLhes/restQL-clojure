@@ -10,8 +10,17 @@
                     :name "Luke Skywalker"
                     :weaponId 2}}})
 
+(defn get-sample-minimal-result []
+  {:jedis {:details {}}
+           :result {:id 1
+                    :name "Luke Skywalker"
+                    :weaponId 2}})
+
 (defn get-sample-query []
   ^{:cache-control 900} [:from "jedis"])
+
+(defn get-sample-minimal-query []
+  [:from "jedis"])
 
   (defn get-max-age-meta-query []
     ^{:cache-control 900, :max-age 400, :s-maxage 1800} [:from "jedis"])
@@ -92,6 +101,10 @@
   (is (= {:max-age 900}
     (get-query-cache-control (get-sample-query)))))
 
+(deftest has-key-in-list-of-maps-test
+  (is (= true
+    (has-key-in-list-of-maps :max-age [{:max-age "900", :s-maxage "1200"} {:max-age "400"}]))))
+
 (deftest get-minimal-response-cache-control-values-test
   (is (= {:max-age "400", :s-maxage "1200"}
     (get-minimal-response-cache-control-values [{:max-age "900", :s-maxage "1200"} {:max-age "400"}]))))
@@ -121,4 +134,6 @@
 
 (deftest get-response-headers-test
   (is (= {:x-type-jedis "Jedi" :x-weapon-jedis "Light Saber" :cache-control "max-age=900"}
-         (get-response-headers (get-sample-query) (get-sample-result)))))
+         (get-response-headers (get-sample-query) (get-sample-result))))
+  (is (= {}
+          (get-response-headers (get-sample-minimal-query) (get-sample-minimal-result)))))
