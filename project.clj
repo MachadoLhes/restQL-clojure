@@ -1,6 +1,6 @@
 (defproject b2wdigital/restql-core "2.6.1-SNAPSHOT"
   :description "Microservice query language"
-  :url "https://github.com/B2W-Digital/restQL-core"
+  :url "https://github.com/B2W-Digital/restQL-clojure"
   :license {:name "MIT"
             :url "http://www.opensource.org/licenses/mit-license.php"}
   :dependencies [[org.clojure/clojure "1.8.0"]
@@ -18,9 +18,14 @@
                  [org.clojure/tools.reader "1.0.5"]]
   :aot [restql.core.api.RestQLJavaApi]
   :profiles {:test {:dependencies [[se.haleby/stub-http "0.2.3"]]}
-             :uberjar { :aot :all }}
+             :uberjar { :aot :all }
+             :auth {#"clojars" {:username :env :password :env}}}
   :plugins [[lein-cloverage "1.0.7-SNAPSHOT"]
             [lein-ancient "0.6.15"]]
+  :deploy-repositories [["clojars"  {:url "https://repo.clojars.org"
+                                     :username :env/clojars_username
+                                     :password :env/clojars_password
+                                     :sign-releases false}]]
   :source-paths ["src/main"]
   :resource-paths ["src/resources"]
   :test-paths ["test/integration" "test/unit"]
