@@ -119,9 +119,15 @@
   )
 )
 
+(defn has-key-in-list-of-maps [key cache-control-headers]
+  "Verify if a given key exists in a list of maps"
+  (some true? (map #(contains? % key) cache-control-headers)))
+
 (defn get-minimal-response-cache-control-values [cache-control-headers]
   "Returns a map with minimal 'max-age' and 's-maxage' values"
-  (merge (get-minimal-cache-type-value cache-control-headers :max-age) (get-minimal-cache-type-value cache-control-headers :s-maxage)))
+  (merge {}
+         (if (has-key-in-list-of-maps :max-age cache-control-headers) (get-minimal-cache-type-value cache-control-headers :max-age) {})
+         (if (has-key-in-list-of-maps :s-maxage cache-control-headers) (get-minimal-cache-type-value cache-control-headers :s-maxage) {})))
 
 (defn check-query-for-cache-control [query]
   "Returns true if headers have 'no-cache' or false if it doesn't"
@@ -143,15 +149,22 @@
     (map (fn [[a b]] (str (name a) "=" b)))
     (string/join ", ")))
 
+(defn get-cache-control-string [query cache-control-headers]
+  "Returns the string to be associated with ':cache-contral'"
+  (cond 
+    (check-query-for-cache-control query) (generate-cache-string (get-query-cache-control query))
+    (check-headers-for-no-cache cache-control-headers) "no-cache"
+    :else (generate-cache-string (get-minimal-response-cache-control-values cache-control-headers))
+))
+
 (defn get-cache-header [query headers-by-aliases]
   "Adds cache control header to header list"
   (let [cache-control-headers (get-cache-control-headers headers-by-aliases)]
-  (assoc {} :cache-control 
-    (cond 
-      (check-query-for-cache-control query) (generate-cache-string (get-query-cache-control query))
-      (check-headers-for-no-cache cache-control-headers) "no-cache"
-      :else (generate-cache-string (get-minimal-response-cache-control-values cache-control-headers))
-  )))
+  (if
+      (not-empty (get-cache-control-string query cache-control-headers))
+      (assoc {} :cache-control 
+                (get-cache-control-string query cache-control-headers))
+      {}))
 )
 
 (defn get-response-headers [query result]
