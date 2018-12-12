@@ -8,8 +8,8 @@
 )
 
 
-(deftest simple-request
-    (let [result (query "from sni")]
-            (is (= 200 (get-in result [:sni :details :status])))
-    )
-)
+; (deftest simple-request
+;     (let [result (query "from sni")]
+;             (is (= 200 (get-in result [:sni :details :status])))
+;     )
+; )
