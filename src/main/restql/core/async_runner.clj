@@ -55,12 +55,19 @@
                    (into (:requested state) (all-that-can-request state)))
    :to-do (filter #(not (can-request? % state)) (:to-do state))})
 
-(defn log-status [uid resource result]
+(defn get-status-log [uid resource result]
+  "get log message depending on the status code of result"
   (let [status (-> result second :status)]
     (cond
       (= status 408) (log/warn {:session uid :resource resource} "Request timed out")
       (nil? status)  (log/warn {:session uid :resource resource} "Request aborted")
       :else          :no-action)))
+
+(defn log-status [uid resource result]
+  "in case of result being a list, for multiplexed calls"
+  (if (sequential? result) 
+    (map #(get-status-log uid resource %) result)
+    (get-status-log uid resource result)))
 
 (defn make-requests
   "goroutine that keeps listening from request-ch and performs http requests
