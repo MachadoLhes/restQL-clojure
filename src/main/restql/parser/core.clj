@@ -28,13 +28,26 @@
              :line (:line error)
              :column (:column error)})))
 
+(defn- escape-double-quotes
+  "Escape double quotes in params to prevent parsing errors"
+  [param]
+  (if (string? param)
+    (clojure.string/escape param {\" "\\\""})
+    param))
+
+(defn escape-context-values
+  "Returns context with escaped values"
+  [context]
+    (reduce (fn [map [key value]] (assoc map key (escape-double-quotes value))) {} context))
+
 (defn handle-produce
   "Produces the EDN query of a given restQL query"
   [tree context]
 
-  (binding [*restql-variables* (if (nil? context) {} context)]
-    (-> (produce tree)
-        (edn/read-string))))
+  (let [escaped-ctx (escape-context-values context)]
+    (binding [*restql-variables* (if (nil? escaped-ctx) {} escaped-ctx)]
+      (-> (produce tree)
+          (edn/read-string)))))
 
 (def parse-query-text (cache/cached (fn [query-text]
                                       (query-parser query-text))))
