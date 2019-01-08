@@ -1,9 +1,10 @@
 (ns restql.restql-test
   (:require [clojure.test :refer [deftest is]]
+            [restql.parser.core :as parser]
             [restql.core.api.restql :as restql]
             [cheshire.core :as json]
             [stub-http.core :refer :all]
-  )
+            )
 )
 
 (defn hero-route []
@@ -127,6 +128,18 @@
     )
   )
 )
+
+(deftest request-with-quoted-param
+  (with-routes!
+    {"/hero" (hero-route)}
+    (let [result (execute-query uri "from hero with name = $name" {:name "Dwayne \"The Rock\" Johnson"})]
+      (is (= 200 (get-in result [:hero :details :status]))))))
+
+(deftest request-with-param-map
+  (with-routes!
+    {{:path "/hero" :method :post :body "{\"hero\": {\"age\": 45, \"name\": \"Jiraiya\"}}"} (hero-route)}
+    (let [result (execute-query uri "to hero with hero = $hero, active=true" {:params {:hero {:name "Jiraiya" :age 45}}})]
+      (is (= 200 (get-in result [:hero :details :status]))))))
 
 (deftest timeout-request-should-return-408
   (with-routes!
