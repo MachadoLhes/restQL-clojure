@@ -188,7 +188,7 @@
                           :request-timeout    request-timeout
                           :read-timeout       request-timeout
                           :query-params       (into (:query-params request) forward-params)
-                          :headers            (:headers request)
+                          :headers            (:with-headers request)
                           :time               time-before
                           :body               (some-> request :post-body)
                           :pool               client-connection-pool
