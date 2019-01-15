@@ -77,6 +77,17 @@
         item-value (->> with-rule-item (find-first :WithParamValue) produce)]
     (str item-key " " item-value)))
 
+(defn produce-with-rule-item-variable [with-rule-item]
+  (let [item (get *restql-variables* (join "" (:content (find-first :Variable with-rule-item))))]
+    (join " " (map (fn [[key val]] (str ":"key " " val)) item))
+  ))
+
+(defn produce-with-rule-item-conditional [with-rule-item]
+  (if (find-first :Variable with-rule-item) 
+    (produce-with-rule-item-variable with-rule-item)
+    (produce-with-rule-item with-rule-item)
+  ))
+
 (defn produce-with-param-value [with-param-value]
   (let [value     (->> with-param-value (find-first :WithParamValueData) produce)
         modifiers (->> with-param-value (find-first :WithParamValueModifierList) produce)]
@@ -242,7 +253,7 @@
       :TimeoutRuleValue            (join-chars "" content)
 
       :WithRule                    (produce-with-rule content)
-      :WithRuleItem                (produce-with-rule-item content)
+      :WithRuleItem                (produce-with-rule-item-conditional content)
       :WithParamName               (join-chars ":" content)
       :WithParamValue              (produce-with-param-value content)
       :WithParamValueData          (produce-with-param-value-data content)
