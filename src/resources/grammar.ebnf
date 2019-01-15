@@ -54,7 +54,7 @@ WithRule =
   KW_WITH WS_MAND WithRuleItem (WS LS WS WithRuleItem)*;
 
 WithRuleItem =
-  WithParamName WS EQUALS_SIGN WS WithParamValue;
+  (WithParamName WS EQUALS_SIGN WS WithParamValue | Variable);
 
 WithParamName =
   QueryParameterName;
