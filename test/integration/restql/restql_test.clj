@@ -218,6 +218,18 @@
     (let [result (execute-query uri "from hero with $hero" {:hero {:name "Jiraiya" :age 45}})]
       (is (= 200 (get-in result [:hero :details :status]))))))
 
+(deftest request-with-multiplexed-param-map
+  (with-routes!
+    {{:path "/hero" :query-params {:name "Jiraiya"}} (hero-route)
+     {:path "/hero" :query-params {:name "Jaspion"}} (hero-route)}
+    (let [response (execute-query uri "from hero with $hero" {:hero {:name ["Jiraiya" "Jaspion"]}})
+          details (get-in response [:hero :details])
+          result (get-in response [:hero :result])]
+      (is (= 200 (:status (first details))))
+      (is (= 200 (:status (second details))))
+      (is (= [{:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]}
+        {:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]}] result)))))
+
 (deftest timeout-request-should-return-408
   (with-routes!
     {"/hero" (assoc (hero-route) :delay 500)}
