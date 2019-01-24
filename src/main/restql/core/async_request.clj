@@ -163,7 +163,7 @@
                                                                       :response-time (- (System/currentTimeMillis) time-before)
                                                                       :request request
                                                                       :result error-data}))]
-              (log/error error-data "Request failed")
+              (log/warn error-data "Request failed")
               ; Send error response to channel
               (go (>! output-ch {:status   error-status
                                  :metadata (:metadata request)
