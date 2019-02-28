@@ -1,4 +1,4 @@
-(defproject b2wdigital/restql-core "2.8.11"
+(defproject b2wdigital/restql-core "2.8.12"
   :description "Microservice query language"
   :url "https://github.com/B2W-Digital/restQL-clojure"
   :license {:name "MIT"
