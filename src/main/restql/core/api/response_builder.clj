@@ -25,12 +25,12 @@
             (assoc response :metadata (stringify-values metadata)))))
 
 (defn append-debug-data [response query-opts query-response]
-  (if (:debugging query-opts)
-    (assoc response :url (mount-url (:url query-response) (merge (:params query-response) (:forward-params query-opts)))
-           :timeout (:timeout query-response)
-           :response-time (:response-time query-response)
-           :params (merge (:params query-response) (:forward-params query-opts)))
-    response))
+    (if (:debugging query-opts)
+      (assoc response :url (mount-url (:url query-response) (merge (:params query-response) (:forward-params query-opts)))
+             :timeout (:timeout query-response)
+             :response-time (:response-time query-response)
+             :params (merge (:params query-response) (:forward-params query-opts)))
+      response))
 
 (defn get-details [query-opts query-response]
   (if (sequential? query-response)
