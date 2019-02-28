@@ -174,7 +174,18 @@
         (go (>! output-ch (merge (select-keys error-data [:success :status :metadata :url :params :timeout :response-time])
                                  {:body {:message (get-error-message exception)}})))))))
 
-(defn- build-request-map [request request-timeout valid-query-params time body-encoded poll-timeout]
+(defn- lower-case-keys [kv]
+  (into {} (map (fn [[k v]]
+                  {(clojure.string/lower-case k) v}) kv)))
+
+(defn- append-request-headers-to-query-opts [request query-opts]
+  (let [forward-headers (lower-case-keys (:forward-headers query-opts))
+        with-headers   (lower-case-keys (:with-headers request))]
+
+    (merge forward-headers with-headers)))
+
+(defn- build-request-map [request request-timeout valid-query-params headers time body-encoded poll-timeout]
+
   {:url                (:url request)
    :request-method     (:method request)
    :content-type       "application/json"
@@ -183,7 +194,7 @@
    :request-timeout    request-timeout
    :read-timeout       request-timeout
    :query-params       valid-query-params
-   :headers            (:with-headers request)
+   :headers            headers
    :time               time
    :body               body-encoded
    :pool               client-connection-pool
@@ -195,8 +206,10 @@
          time-before     (System/currentTimeMillis)
          request-timeout (if (nil? (:timeout request)) (:timeout query-opts) (:timeout request))
          request-map (build-request-map
-                      request request-timeout
+                      request
+                      request-timeout
                       (valid-query-params request query-opts)
+                      (append-request-headers-to-query-opts request query-opts)
                       time-before
                       (some-> request :body json/encode)
                       (get-default :pool-timeout request-timeout))

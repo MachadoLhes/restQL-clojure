@@ -38,7 +38,7 @@
   ([base-url query params options]
    (restql/execute-query :mappings {:hero                (str base-url "/hero")
                                     :heroes              (str base-url "/heroes")
-                                    :weapons              (str base-url "/weapons")
+                                    :weapons             (str base-url "/weapons")
                                     :sidekick            (str base-url "/sidekick")
                                     :villain             (str base-url "/villain/:id")
                                     :weapon              (str base-url "/weapon/:id")
@@ -322,6 +322,17 @@
       (is (= {:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]} (get-in result [:hero :result])))
       (is (= 408 (get-in result [:sidekick :details :status])))
       (is (not (nil? (get-in result [:sidekick :result :message])))))))
+
+(deftest request-with-overlapping-headers
+
+  (testing "Should replace request header with query header"
+    (with-routes!
+      {(fn [request]
+         (and (= (get-in request [:path]) "/hero")
+              (= (get-in request [:headers :teste]) "DIFERENTE")))
+      (hero-route)}
+      (let [result (execute-query uri "from hero \nheaders Teste = \"DIFERENTE\"") {} {:forward-headers {"restql-query-control" "ad-hoc", "teste" "teste", "accept" "*/*"}}]
+        (is (= 200 (get-in result [:hero :details :status])))))))
 
 (deftest request-with-flatten
 
