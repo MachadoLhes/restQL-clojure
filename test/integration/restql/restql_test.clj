@@ -5,6 +5,7 @@
             [byte-streams :as bs]
             [cheshire.core :as json]
             [stub-http.core :refer :all]
+            [clojure.core.async :refer :all]
             [restql.test-util :refer [route-response route-request]]))
 
 (defn get-stub-body [request]
@@ -325,13 +326,34 @@
 
 (deftest request-with-overlapping-headers
 
-  (testing "Should replace request header with query header"
+  (testing "Query without query headers"
+    (with-routes!
+      {(fn [request]
+         (and (= (get-in request [:path]) "/hero")
+              (= (get-in request [:headers :teste]) "teste")))
+       (hero-route)}
+      (let [result (execute-query uri "from hero" {} {:forward-headers {"restql-query-control" "ad-hoc", "teste" "teste", "accept" "*/*"}})]
+        (is (= 200 (get-in result [:hero :details :status]))))))
+  
+  (testing "Replacing request headers with query headers"
     (with-routes!
       {(fn [request]
          (and (= (get-in request [:path]) "/hero")
               (= (get-in request [:headers :teste]) "DIFERENTE")))
-      (hero-route)}
-      (let [result (execute-query uri "from hero \nheaders Teste = \"DIFERENTE\"") {} {:forward-headers {"restql-query-control" "ad-hoc", "teste" "teste", "accept" "*/*"}}]
+       (hero-route)}
+      (let [result (execute-query uri "from hero \nheaders Teste = \"DIFERENTE\"" {} {:forward-headers {"restql-query-control" "ad-hoc", "teste" "teste", "accept" "*/*"}})]
+        (is (= 200 (get-in result [:hero :details :status]))))))
+  
+  (testing "Should replace request header with query header"
+    (with-routes!
+      {(fn [request]
+         (and (= (get-in request [:path]) "/hero")
+              (= (get-in request [:headers :teste]) "teste")))
+       (hero-route)
+       (fn [request]
+         (and (= (get-in request [:path]) "/sidekick")
+              (= (get-in request [:headers :teste]) "DIFERENTE"))) (sidekick-route)}
+      (let [result (execute-query uri "from hero \nfrom sidekick\nheaders Teste = \"DIFERENTE\"" {} {:forward-headers {"restql-query-control" "ad-hoc", "teste" "teste", "accept" "*/*"}})]
         (is (= 200 (get-in result [:hero :details :status])))))))
 
 (deftest request-with-flatten
