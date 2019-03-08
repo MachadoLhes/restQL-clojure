@@ -28,8 +28,7 @@
       timeout-ch ([] {:error :timeout})
       exception-ch ([err] err)
       query-ch ([result]
-                (->> query-opts
-                     (response-builder/build (reduce (fn [res [key value]] (assoc res key value))
+                (->> (response-builder/build (reduce (fn [res [key value]] (assoc res key value))
                                                      {}
                                                      result))
                      (select (flatten parsed-query))

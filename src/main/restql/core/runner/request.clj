@@ -117,6 +117,9 @@
            :response-haders (:headers response)
            :params (merge (:query-params request-map) (:forward-params query-opts))}})
 
+(defn- response-with-debug [response request-map query-opts]
+  (into response (build-debug-map response request-map query-opts)))
+
 (defn- request-respond-callback [result & {:keys [request
                                                   request-timeout
                                                   time-before
@@ -145,9 +148,14 @@
                                                               :request request
                                                               :result result}))]
       ; Send response to channel
-      (if (:debugging query-opts)
-        (go (>! output-ch (into response (build-debug-map response request-map query-opts))))
-        (go (>! output-ch response))))))      
+        (go (->> (if (:debugging query-opts)
+                  (response-with-debug response request-map query-opts)
+                  response)
+                (>! output-ch))))))            
+
+(defn- build-error-response [error-data exception]
+  (merge (select-keys error-data [:success :status :metadata :url :params :timeout :response-time])
+         {:body {:message (get-error-message exception)}}))
 
 (defn- request-error-callback [exception & {:keys [request
                                                    request-timeout
@@ -185,15 +193,14 @@
                                                                 :status error-status
                                                                 :response-time (- (System/currentTimeMillis) time-before)
                                                                 :request request
-                                                                :result error-data}))]
+                                                                :result error-data}))
+            error-response (build-error-response error-data exception)]
         (log/warn error-data "Request failed")
         ; Send error response to channel
-      (if (:debugging query-opts)
-        (go (>! output-ch (into (merge (select-keys error-data [:success :status :metadata :url :params :timeout :response-time])
-                                       {:body {:message (get-error-message exception)}})
-                                (build-debug-map error-data request-map query-opts))))
-        (go (>! output-ch (merge (select-keys error-data [:success :status :metadata :url :params :timeout :response-time])
-                                 {:body {:message (get-error-message exception)}}))))))))
+        (go (->> (if (:debugging query-opts)
+                  (response-with-debug error-response request-map query-opts)
+                  error-response)
+                (>! output-ch)))))))
 
 (defn- lower-case-keys [kv]
   (into {} (map (fn [[k v]]
