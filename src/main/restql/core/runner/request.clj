@@ -4,6 +4,7 @@
             [manifold.deferred :as d]
             [clojure.tools.logging :as log]
             [cheshire.core :as json]
+            [ring.util.codec :refer [form-encode]]
             [environ.core :refer [env]]
             [restql.hooks.core :as hook])
   (:import [java.net URLDecoder]))
@@ -59,7 +60,7 @@
        (filter (fn [[_ v]] (some? v)))
        (into {})))
 
-(defn- convert-response [{:keys [status body headers]} {:keys [_debugging metadata time url params timeout resource]}]
+(defn- convert-response [{:keys [status body headers]} {:keys [_debugging metadata response-time url params timeout resource]}]
   (let [parsed (if (string? body) body (slurp body))
         base {:status        status
               :headers       headers
@@ -68,16 +69,16 @@
               :timeout       timeout
               :params        params
               :resource      resource
-              :response-time time}]
+              :response-time response-time}]
     (try
       (assoc base
-        :body (json/parse-string parsed true))
+             :body (json/parse-string parsed true))
       (catch Exception e
         (log/error {:message (.getMessage e)}
                    "error parsing request")
         (assoc base
-          :parse-error true
-          :body parsed)))))
+               :parse-error true
+               :body parsed)))))
 
 (defn- get-error-status [exception]
   (cond
@@ -105,18 +106,30 @@
   (merge {} ctx request result {:status status
                                 :response-time response-time}))
 
+(defn- mount-url [url params]
+  (str url (if (empty? params) "" (str "?" (form-encode params)))))
+
+(defn- build-debug-map [response request-map query-opts]
+  {:debug {:url (mount-url (:url request-map) (merge (:query-params request-map) (:forward-params query-opts)))
+           :timeout (:request-timeout request-map)
+           :response-time (:response-time response)
+           :request-headers (:headers request-map)
+           :response-haders (:headers response)
+           :params (merge (:query-params request-map) (:forward-params query-opts))}})
+
 (defn- request-respond-callback [result & {:keys [request
                                                   request-timeout
                                                   time-before
                                                   query-opts
                                                   output-ch
+                                                  request-map
                                                   before-hook-ctx]}]
   (let [log-data {:resource (:from request)
                   :timeout  request-timeout
                   :success  true}]
     (log/debug (assoc log-data :success true
-                               :status (:status result)
-                               :time (- (System/currentTimeMillis) time-before))
+                      :status (:status result)
+                      :time (- (System/currentTimeMillis) time-before))
                "Request successful")
     (let [response (convert-response result {:debugging (:debugging query-opts)
                                              :metadata  (:metadata request)
@@ -124,7 +137,7 @@
                                              :url       (:url request)
                                              :params    (:query-params request)
                                              :timeout   request-timeout
-                                             :time      (- (System/currentTimeMillis) time-before)})
+                                             :response-time      (- (System/currentTimeMillis) time-before)})
           ; After Request hook
           _ (hook/execute-hook :after-request (get-after-ctx {:ctx before-hook-ctx
                                                               :status (:status result)
@@ -132,13 +145,16 @@
                                                               :request request
                                                               :result result}))]
       ; Send response to channel
-      (go (>! output-ch response)))))
+      (if (:debugging query-opts)
+        (go (>! output-ch (into response (build-debug-map response request-map query-opts))))
+        (go (>! output-ch response))))))      
 
 (defn- request-error-callback [exception & {:keys [request
                                                    request-timeout
                                                    time-before
                                                    query-opts
                                                    output-ch
+                                                   request-map
                                                    before-hook-ctx]}]
   (if (and (instance? clojure.lang.ExceptionInfo exception) (:body (.getData exception)))
     (request-respond-callback (.getData exception)
@@ -146,6 +162,7 @@
                               :request-timeout request-timeout
                               :query-opts      query-opts
                               :time-before     time-before
+                              :request-map     request-map
                               :output-ch       output-ch
                               :before-hook-ctx before-hook-ctx)
     (let [error-status (get-error-status exception)
@@ -154,15 +171,15 @@
                     :success  false}]
       (log/debug (assoc log-data :success false
                                  :status error-status
-                                 :time (- (System/currentTimeMillis) time-before)))
+                                 :response-time (- (System/currentTimeMillis) time-before)))
       (let [error-data (assoc log-data :success false
-                                       :status error-status
-                                       :metadata (some-> request :metadata)
-                                       :method (:method request)
-                                       :url (some-> request :url)
-                                       :params    (:query-params request)
-                                       :response-time (- (System/currentTimeMillis) time-before)
-                                       :errordetail (pr-str (some-> exception :error)))
+                              :status error-status
+                              :metadata (some-> request :metadata)
+                              :method (:method request)
+                              :url (some-> request :url)
+                              :params    (:query-params request)
+                              :response-time (- (System/currentTimeMillis) time-before)
+                              :errordetail (pr-str (some-> exception :error)))
             ; After Request hook
             _ (hook/execute-hook :after-request (get-after-ctx {:ctx before-hook-ctx
                                                                 :status error-status
@@ -171,8 +188,12 @@
                                                                 :result error-data}))]
         (log/warn error-data "Request failed")
         ; Send error response to channel
+      (if (:debugging query-opts)
+        (go (>! output-ch (into (merge (select-keys error-data [:success :status :metadata :url :params :timeout :response-time])
+                                       {:body {:message (get-error-message exception)}})
+                                (build-debug-map error-data request-map query-opts))))
         (go (>! output-ch (merge (select-keys error-data [:success :status :metadata :url :params :timeout :response-time])
-                                 {:body {:message (get-error-message exception)}})))))))
+                                 {:body {:message (get-error-message exception)}}))))))))
 
 (defn- lower-case-keys [kv]
   (into {} (map (fn [[k v]]
@@ -223,6 +244,7 @@
                                              :query-opts query-opts
                                              :time-before time-before
                                              :output-ch output-ch
+                                             :request-map request-map
                                              :before-hook-ctx before-hook-ctx))
          (d/catch Exception #(request-error-callback %
                                                      :request request
@@ -230,6 +252,7 @@
                                                      :query-opts query-opts
                                                      :time-before time-before
                                                      :output-ch output-ch
+                                                     :request-map request-map
                                                      :before-hook-ctx before-hook-ctx))
          (d/success! 1))
      output-ch))

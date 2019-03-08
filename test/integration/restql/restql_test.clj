@@ -249,6 +249,13 @@
     (let [result (execute-query uri "from hero with name = $name" {:name "Dwayne \"The Rock\" Johnson"})]
       (is (= 200 (get-in result [:hero :details :status]))))))
 
+(deftest request-with-debug
+  (with-routes!
+    {(route-request "/hero" {:name "Bioman"}) (hero-route)}
+    (let [result (execute-query uri "from hero with name = $name" {:name "Bioman"} {:debugging true})]
+      (is (= 200 (get-in result [:hero :details :status]))
+          (contains? (get-in result [:hero :details]) :debug)))))
+
 (deftest execute-query-post
   (testing "Execute post with simple body"
     (with-routes!
@@ -311,8 +318,8 @@
   (let [uri "http://not.a.working.endpoint"
         result (execute-query uri "from fail" {} {:debugging true})]
     (is (= 0 (get-in result [:fail :details :status])))
-    (is (= "http://not.a.working.endpoint" (get-in result [:fail :details :url])))
-    (is (= 5000 (get-in result [:fail :details :timeout])))))
+    (is (= "http://not.a.working.endpoint" (get-in result [:fail :details :debug :url])))
+    (is (= 5000 (get-in result [:fail :details :debug :timeout])))))
 
 (deftest shouldnt-throw-exeption-if-chainned-resource-timeout-and-ignore-error
   (with-routes!
