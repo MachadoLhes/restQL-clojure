@@ -6,7 +6,7 @@
             [cheshire.core :as json]
             [stub-http.core :refer :all]
             [clojure.core.async :refer :all]
-            [restql.test-util :refer [route-response route-request]]))
+            [restql.test-util :refer [route-response route-request route-header]]))
 
 (defn get-stub-body [request]
   (val (first (:body request))))
@@ -328,33 +328,27 @@
 
   (testing "Query without query headers"
     (with-routes!
-      {(fn [request]
-         (and (= (get-in request [:path]) "/hero")
-              (= (get-in request [:headers :teste]) "teste")))
+      {(route-header "/hero" {"test" "test"})
        (hero-route)}
-      (let [result (execute-query uri "from hero" {} {:forward-headers {"restql-query-control" "ad-hoc", "teste" "teste", "accept" "*/*"}})]
+      (let [result (execute-query uri "from hero" {} {:forward-headers {"restql-query-control" "ad-hoc", "test" "test", "accept" "*/*"}})]
         (is (= 200 (get-in result [:hero :details :status]))))))
   
   (testing "Replacing request headers with query headers"
     (with-routes!
-      {(fn [request]
-         (and (= (get-in request [:path]) "/hero")
-              (= (get-in request [:headers :teste]) "DIFERENTE")))
+      {(route-header "/hero" {"test" "diff"})
        (hero-route)}
-      (let [result (execute-query uri "from hero \nheaders Teste = \"DIFERENTE\"" {} {:forward-headers {"restql-query-control" "ad-hoc", "teste" "teste", "accept" "*/*"}})]
+      (let [result (execute-query uri "from hero \nheaders Test = \"diff\"" {} {:forward-headers {"restql-query-control" "ad-hoc", "test" "test", "accept" "*/*"}})]
         (is (= 200 (get-in result [:hero :details :status]))))))
   
-  (testing "Should replace request header with query header"
+  (testing "One request with fowarded-headers, one request with query headers"
     (with-routes!
-      {(fn [request]
-         (and (= (get-in request [:path]) "/hero")
-              (= (get-in request [:headers :teste]) "teste")))
+      {(route-header "/hero" {"test" "test"})
        (hero-route)
-       (fn [request]
-         (and (= (get-in request [:path]) "/sidekick")
-              (= (get-in request [:headers :teste]) "DIFERENTE"))) (sidekick-route)}
-      (let [result (execute-query uri "from hero \nfrom sidekick\nheaders Teste = \"DIFERENTE\"" {} {:forward-headers {"restql-query-control" "ad-hoc", "teste" "teste", "accept" "*/*"}})]
-        (is (= 200 (get-in result [:hero :details :status])))))))
+       (route-header "/sidekick" {"test" "diff"})
+       (sidekick-route)}
+      (let [result (execute-query uri "from hero \nfrom sidekick\nheaders Test = \"diff\"" {} {:forward-headers {"restql-query-control" "ad-hoc", "test" "test", "accept" "*/*"}})]
+        (is (= 200 (get-in result [:hero :details :status]))))))
+  )
 
 (deftest request-with-flatten
 

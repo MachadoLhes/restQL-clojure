@@ -23,6 +23,15 @@
   ([status body]
    {:status status :content-type "application/json" :body (json/generate-string body)}))
 
+(defn- verify-header [request [k v]]
+ (= (get-in request [:headers (keyword k)]) v))
+
+(defn route-header
+  [path headers]
+  (fn [request]
+    (and (= (get-in request [:path]) path)
+         (every? true? (map (partial verify-header request) headers)))))
+
 (defn- encode [value]
   (->
    value
