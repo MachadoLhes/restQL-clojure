@@ -5,7 +5,8 @@
             [byte-streams :as bs]
             [cheshire.core :as json]
             [stub-http.core :refer :all]
-            [restql.test-util :refer [route-response route-request]]))
+            [clojure.core.async :refer :all]
+            [restql.test-util :refer [route-response route-request route-header]]))
 
 (defn get-stub-body [request]
   (val (first (:body request))))
@@ -38,7 +39,7 @@
   ([base-url query params options]
    (restql/execute-query :mappings {:hero                (str base-url "/hero")
                                     :heroes              (str base-url "/heroes")
-                                    :weapons              (str base-url "/weapons")
+                                    :weapons             (str base-url "/weapons")
                                     :sidekick            (str base-url "/sidekick")
                                     :villain             (str base-url "/villain/:id")
                                     :weapon              (str base-url "/weapon/:id")
@@ -248,6 +249,13 @@
     (let [result (execute-query uri "from hero with name = $name" {:name "Dwayne \"The Rock\" Johnson"})]
       (is (= 200 (get-in result [:hero :details :status]))))))
 
+(deftest request-with-debug
+  (with-routes!
+    {(route-request "/hero" {:name "Bioman"}) (hero-route)}
+    (let [result (execute-query uri "from hero with name = $name" {:name "Bioman"} {:debugging true})]
+      (is (= 200 (get-in result [:hero :details :status]))
+          (contains? (get-in result [:hero :details]) :debug)))))
+
 (deftest execute-query-post
   (testing "Execute post with simple body"
     (with-routes!
@@ -310,8 +318,8 @@
   (let [uri "http://not.a.working.endpoint"
         result (execute-query uri "from fail" {} {:debugging true})]
     (is (= 0 (get-in result [:fail :details :status])))
-    (is (= "http://not.a.working.endpoint" (get-in result [:fail :details :url])))
-    (is (= 5000 (get-in result [:fail :details :timeout])))))
+    (is (= "http://not.a.working.endpoint" (get-in result [:fail :details :debug :url])))
+    (is (= 5000 (get-in result [:fail :details :debug :timeout])))))
 
 (deftest shouldnt-throw-exeption-if-chainned-resource-timeout-and-ignore-error
   (with-routes!
@@ -322,6 +330,32 @@
       (is (= {:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]} (get-in result [:hero :result])))
       (is (= 408 (get-in result [:sidekick :details :status])))
       (is (not (nil? (get-in result [:sidekick :result :message])))))))
+
+(deftest request-with-overlapping-headers
+
+  (testing "Query without query headers"
+    (with-routes!
+      {(route-header "/hero" {"test" "test"})
+       (hero-route)}
+      (let [result (execute-query uri "from hero" {} {:forward-headers {"restql-query-control" "ad-hoc", "test" "test", "accept" "*/*"}})]
+        (is (= 200 (get-in result [:hero :details :status]))))))
+  
+  (testing "Replacing request headers with query headers"
+    (with-routes!
+      {(route-header "/hero" {"test" "diff"})
+       (hero-route)}
+      (let [result (execute-query uri "from hero \nheaders Test = \"diff\"" {} {:forward-headers {"restql-query-control" "ad-hoc", "test" "test", "accept" "*/*"}})]
+        (is (= 200 (get-in result [:hero :details :status]))))))
+  
+  (testing "One request with fowarded-headers, one request with query headers"
+    (with-routes!
+      {(route-header "/hero" {"test" "test"})
+       (hero-route)
+       (route-header "/sidekick" {"test" "diff"})
+       (sidekick-route)}
+      (let [result (execute-query uri "from hero \nfrom sidekick\nheaders Test = \"diff\"" {} {:forward-headers {"restql-query-control" "ad-hoc", "test" "test", "accept" "*/*"}})]
+        (is (= 200 (get-in result [:hero :details :status]))))))
+  )
 
 (deftest request-with-flatten
 
