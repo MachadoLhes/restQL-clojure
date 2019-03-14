@@ -88,7 +88,7 @@
   
   (with-routes!
     {"/hero" (hero-route)}
-    (let [response (execute-query uri "from hero with name = $name" {:name ["Doom" "Duke Nuken"]} {:debugging true})
+    (let [response (execute-query uri "from hero with name = $name" {:name ["Doom" "Duke Nuken"]})
           details (get-in response [:hero :details])
           result (get-in response [:hero :result])]
       (is (= 200 (:status (first details))))
@@ -98,7 +98,7 @@
   
   (with-routes!
     {"/hero" (hero-route)}
-    (let [response (execute-query uri "from hero with name = $name" {:name ["Doom" "Duke \"The Guy\" Nuken"]} {:debugging true})
+    (let [response (execute-query uri "from hero with name = $name" {:name ["Doom" "Duke \"The Guy\" Nuken"]})
           details (get-in response [:hero :details])
           result (get-in response [:hero :result])]
       (is (= 200 (:status (first details))))
@@ -106,7 +106,7 @@
       (is (= [{:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]}
               {:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]}] result))))
   
-  ; Test simple case with list: single, list with one, list with two
+  ;; Test simple case with list: single, list with one, list with two
   (with-routes!
     {"/hero"      (route-response {:villains ["1" "2"]})
      "/villain/1" (villain-route "1")
