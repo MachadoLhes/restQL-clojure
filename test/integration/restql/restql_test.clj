@@ -68,7 +68,7 @@
     (let [result (execute-query uri "from hero\n from villain with id = hero.villains")]
       (is (= {:villains ["1" "2"]} (get-in result [:hero :result])))
       (is (= [{:hi "I'm villain", :id "1"} {:hi "I'm villain", :id "2"}] (get-in result [:villain :result])))))
-
+  
   ; Test simple case with: single, list with one, list with two
   (with-routes!
     {"/hero" (hero-route)}
@@ -77,7 +77,7 @@
           result (get-in response [:hero :result])]
       (is (= 200 (:status details)))
       (is (= {:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]} result))))
-
+  
   (with-routes!
     {"/hero" (hero-route)}
     (let [response (execute-query uri "from hero with name = $name" {:name ["Doom"]})
@@ -85,18 +85,28 @@
           result (get-in response [:hero :result])]
       (is (= 200 (:status (first details))))
       (is (= [{:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]}] result))))
-
+  
   (with-routes!
     {"/hero" (hero-route)}
-    (let [response (execute-query uri "from hero with name = $name" {:name ["Doom" "Duke Nuken"]})
+    (let [response (execute-query uri "from hero with name = $name" {:name ["Doom" "Duke Nuken"]} {:debugging true})
           details (get-in response [:hero :details])
           result (get-in response [:hero :result])]
       (is (= 200 (:status (first details))))
       (is (= 200 (:status (second details))))
       (is (= [{:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]}
               {:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]}] result))))
-
-  ;; Test simple case with list: single, list with one, list with two
+  
+  (with-routes!
+    {"/hero" (hero-route)}
+    (let [response (execute-query uri "from hero with name = $name" {:name ["Doom" "Duke \"The Guy\" Nuken"]} {:debugging true})
+          details (get-in response [:hero :details])
+          result (get-in response [:hero :result])]
+      (is (= 200 (:status (first details))))
+      (is (= 200 (:status (second details))))
+      (is (= [{:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]}
+              {:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]}] result))))
+  
+  ; Test simple case with list: single, list with one, list with two
   (with-routes!
     {"/hero"      (route-response {:villains ["1" "2"]})
      "/villain/1" (villain-route "1")
@@ -280,6 +290,30 @@
     {(route-request "/hero" {:name "Jiraiya" :age "45"}) (hero-route)}
     (let [result (execute-query uri "from hero with $hero" {:hero {:name "Jiraiya" :age 45}})]
       (is (= 200 (get-in result [:hero :details :status]))))))
+
+(deftest request-with-direct-param-map
+  (with-routes!
+    {(route-request "/hero" {:hero {:name "Jiraiya" :age "45"}}) (hero-route)}
+    (let [result (execute-query uri "from hero with hero = {name: \"Jiraiya\", age: \"45\"}")]
+      (is (= 200 (get-in result [:hero :details :status]))))))
+
+(deftest request-with-list-in-map
+  (with-routes!
+    {(route-request "/hero" {:hero {:name ["Jiraiya", "Jaspion"]}}) (hero-route)}
+    (let [response (execute-query uri "from hero with hero = {\"name\" : [\"Jiraiya\", \"Jaspion\"]}")
+          details (get-in response [:hero :details])
+          result (get-in response [:hero :result])]
+      (is (= 200 (:status details)))
+      (is (= {:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]} result)))))
+
+(deftest request-with-param-map-with-list
+  (with-routes!
+    {(route-request "/hero" {:hero {:name ["Jiraiya", "Jaspion"]}}) (hero-route)}
+    (let [response (execute-query uri "from hero with hero = $hero" {:hero {:name ["Jiraiya" "Jaspion"]}})
+          details (get-in response [:hero :details])
+          result (get-in response [:hero :result])]
+      (is (= 200 (:status details)))
+      (is (= {:hi "I'm hero", :sidekickId "A20" :villains ["1" "2"] :weapons ["pen" "papel clip"]} result)))))
 
 (deftest request-with-multiplexed-param-map
   (with-routes!

@@ -134,6 +134,14 @@
   (let [values (map produce content)]
     (str "{" (join " " values) "}")))
 
+(defn produce-complex-param-key [content]
+  (->> (if (= (first content) "\"")
+        (-> content
+            (rest)
+            (drop-last))
+        content)
+       (join-chars ":")))
+
 (defn produce-complex-param-item [content]
   (let [the-key   (->> content (find-first :ComplexParamKey) produce)
         the-value (->> content (find-first :WithParamValue) produce)]
@@ -148,6 +156,7 @@
   (cond
     (nil? value) "nil"
     (sequential? value) (str "[" (->> value (map format-variable) (join " ") ) "]")
+    (map? value) value
     (= "true" value) "true"
     (= "false" value) "false"
     :else (str "\"" value "\"")))
@@ -271,7 +280,7 @@
       :WithModifierFunctionArg     (edn/read-string (join-chars "" content))
 
       :ComplexParamItem            (produce-complex-param-item content)
-      :ComplexParamKey             (join-chars ":" content)
+      :ComplexParamKey             (produce-complex-param-key content)
 
       :HideRule                    (produce-hide-rule)
 

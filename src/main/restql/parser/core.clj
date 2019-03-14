@@ -31,14 +31,15 @@
 (defn- escape-double-quotes
   "Escape double quotes in params to prevent parsing errors"
   [param]
-  (if (string? param)
-    (clojure.string/escape param {\" "\\\""})
-    param))
+  (cond
+    (sequential? param) (map escape-double-quotes param)
+    (string? param) (clojure.string/escape param {\" "\\\""})
+    :else param))
 
 (defn escape-context-values
   "Returns context with escaped values"
   [context]
-    (reduce (fn [map [key value]] (assoc map key (escape-double-quotes value))) {} context))
+  (reduce (fn [map [key value]] (assoc map key (escape-double-quotes value))) {} context))
 
 (defn handle-produce
   "Produces the EDN query of a given restQL query"
