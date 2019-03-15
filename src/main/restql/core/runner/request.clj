@@ -212,6 +212,10 @@
 
     (merge forward-headers with-headers)))
 
+(defn- nil-header-to-empty-string [headers]
+  (into {} (map (fn [[k v]]
+                  [k (if (nil? v) "" v)]) headers)))
+
 (defn- build-request-map [request request-timeout valid-query-params headers time body-encoded poll-timeout]
 
   {:url                (:url request)
@@ -222,7 +226,7 @@
    :request-timeout    request-timeout
    :read-timeout       request-timeout
    :query-params       valid-query-params
-   :headers            headers
+   :headers            (nil-header-to-empty-string headers)
    :time               time
    :body               body-encoded
    :pool               client-connection-pool
