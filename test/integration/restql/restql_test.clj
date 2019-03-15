@@ -357,6 +357,13 @@
         (is (= 200 (get-in result [:hero :details :status]))))))
   )
 
+(deftest request-with-null-header-value
+  (with-routes!
+    {(route-header "/hero" {"test" ""})
+     (hero-route)}
+    (let [result (execute-query uri "from hero headers test = $test" {} {:forward-headers {"restql-query-control" "ad-hoc", "accept" "*/*"}})]
+      (is (= 200 (get-in result [:hero :details :status]))))))
+
 (deftest request-with-flatten
 
   (testing "Flatten single value"
