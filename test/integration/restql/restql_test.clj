@@ -357,6 +357,27 @@
         (is (= 200 (get-in result [:hero :details :status]))))))
   )
 
+; (deftest request-with-missing-param
+;   (testing "Request with missing param"
+;     (with-routes!
+;       {{:path "/hero" :query-params {:name "Dwayne+%22The+Rock%22+Johnson"}} (hero-route)}
+;       (let [result_without_param (execute-query uri "from hero with name = $name, id = $id" {:name "Dwayne \"The Rock\" Johnson"})]
+;         (is (= 400 (get-in result_without_param [:hero :details :status])))
+;         (is (= "The request was skipped due to missing {:id} param value" (get-in result_without_param [:hero :result]))))))
+
+;   (testing "Request with param set to nil"
+;     (with-routes!
+;       {{:path "/hero" :query-params {:name "Dwayne+%22The+Rock%22+Johnson"}} (hero-route)}
+;       (let [result_with_param (execute-query uri "from hero with name = $name, id = $id" {:name "Dwayne \"The Rock\" Johnson" :id nil})]
+;         (is (= 200 (get-in result_with_param [:hero :details :status]))))))
+
+;   (testing "Request with nil param and missing param"
+;     (with-routes!
+;       {{:path "/hero" :query-params {:name "Dwayne+%22The+Rock%22+Johnson"}} (hero-route)}
+;       (let [result (execute-query uri "from hero with name = $name, id = $id, weapon = $weapon" {:name "Dwayne \"The Rock\" Johnson" :id nil})]
+;         (is (= 400 (get-in result [:hero :details :status])))
+;         (is (= "The request was skipped due to missing {:weapon} param value" (get-in result [:hero :result])))))))
+
 (deftest request-with-null-header-value
   (with-routes!
     {(route-header "/hero" {"test" ""})
