@@ -266,6 +266,15 @@
       (let [result (execute-query uri "to hero with id = 1")]
         (is (= 200 (get-in result [:hero :details :status]))))))
 
+  (testing "Execute post with float number"
+    (with-routes!
+      {(fn [request]
+         (and (= (:path request) "/hero")
+              (= (:method request) "POST")
+              (= (get-stub-body request) (json/generate-string {:version 1.5})))) (hero-route)}
+      (let [result (execute-query uri "to hero with version = 1.5")]
+        (is (= 200 (get-in result [:hero :details :status]))))))
+
   (testing "Execute post with simple body and path var"
     (with-routes!
       {(fn [request]
