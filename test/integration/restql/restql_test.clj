@@ -275,6 +275,17 @@
       (let [result (execute-query uri "to villain with id = 1, name = \"Jocker\"")]
         (is (= 200 (get-in result [:villain :details :status])))))))
 
+(deftest request-with-float-param
+  (testing "In-query float param should not be considered a chained call"
+    (with-routes!
+      {(fn [request]
+         (and (= (:path request) "/hero")
+              (= (:method request) "POST")
+              (= (get-stub-body request) (json/generate-string {:version 1.5})))) (hero-route)}
+      (let [result (execute-query uri "to hero with version = 1.5")]
+        (is (= 200 (get-in result [:hero :details :status]))))))
+)
+
 (deftest request-with-param-map
   (with-routes!
     {(route-request "/hero" {:name "Jiraiya" :age "45"}) (hero-route)}
