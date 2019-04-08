@@ -1,13 +1,13 @@
 (ns restql.core.cache
-    (:require [slingshot.slingshot :refer [throw+]]
-              [clojure.core.memoize :as memo]))
+  (:require [environ.core :refer [env]]
+            [clojure.core.memoize :as memo]))
 
-(def CACHED_COUNT 2000)
+(def DEFAULT_CACHED_COUNT (if (contains? env :cache-count) (read-string (env :cache-count)) 2000))
 
 (defn cached
-    "Verifies if a given function is cached, executing and saving on the cache
+  "Verifies if a given function is cached, executing and saving on the cache
      if not cached or returning the cached value"
-    [function]
+  [function]
 
-    (memo/fifo function {} :fifo/threshold CACHED_COUNT))
+  (memo/fifo function {} :fifo/threshold DEFAULT_CACHED_COUNT))
 
