@@ -14,13 +14,13 @@
       (as-> url (assoc {} :url url))
       (conj request)))
 
-(defn- is-post-or-put? [statement]
-  (or (= :post (:method statement)) (= :put (:method statement))))
+(defn- is-post-or-put-or-patch? [statement]
+  (or (= :post (:method statement)) (= :put (:method statement)) (= :patch (:method statement))))
 
 (defn- add-query-params [mappings statement request]
   (-> statement
       (get :with)
-      (as-> params (if (is-post-or-put? statement)
+      (as-> params (if (is-post-or-put-or-patch? statement)
                      (url-utils/filter-explicit-query-params (url-utils/from-mappings mappings statement) params)
                      (url-utils/dissoc-path-params (url-utils/from-mappings mappings statement) params)))
       (as-> params (if-not (empty? params) (assoc? {} :query-params params) {}))
@@ -29,7 +29,7 @@
 (defn- add-body-params [mappings statement request]
   (-> statement
       (get :with)
-      (as-> params (if (is-post-or-put? statement)
+      (as-> params (if (is-post-or-put-or-patch? statement)
                      (url-utils/dissoc-params (url-utils/from-mappings mappings statement) params)
                      (identity {})))
       (as-> params (if-not (empty? params) (assoc? {} :body params) {}))
