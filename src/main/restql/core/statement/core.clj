@@ -17,13 +17,13 @@
 (defn- is-post-or-put-or-patch? [statement]
   (or (= :post (:method statement)) (= :put (:method statement)) (= :patch (:method statement))))
 
-(defn- params-with-body [mappings statement params]
+(defn- default-modifier-params [mappings statement params]
   (let [query-params (url-utils/filter-explicit-query-params (url-utils/from-mappings mappings statement) params)
         body  (url-utils/dissoc-params (url-utils/from-mappings mappings statement) params)]
     (into (if-not (empty? query-params) (assoc? {} :query-params query-params) {})
           (if-not (empty? body) (assoc? {} :body body) {}))))
 
-(defn- default-params [mappings statement params]
+(defn- default-fetch-params [mappings statement params]
   (let [query-params (url-utils/dissoc-path-params (url-utils/from-mappings mappings statement) params)]
     (if-not (empty? query-params) (assoc? {} :query-params query-params) {})))
 
@@ -32,8 +32,8 @@
        (get :with)
        (as-> params 
              (if (is-post-or-put-or-patch? statement)
-               (params-with-body mappings statement params)
-               (default-params mappings statement params)))
+               (default-modifier-params mappings statement params)
+               (default-fetch-params mappings statement params)))
        (conj request)))
 
 (defn- add-metadata-from-statement-meta [statement]
